@@ -1,0 +1,37 @@
+# Source: anchore-engine/templates/engine_upgrade_job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "anchore-engine-engine-upgrade"
+  labels:
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/instance: "anchore-engine"
+    app.kubernetes.io/version: 0.7.3
+    helm.sh/chart: "anchore-engine-1.7.0"
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-weight": "-5"
+spec:
+  template:
+    metadata:
+      name: "anchore-engine-engine-upgrade"
+      labels:
+        app.kubernetes.io/managed-by: "Helm"
+        app.kubernetes.io/instance: "anchore-engine"
+        helm.sh/chart: "anchore-engine-1.7.0"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      restartPolicy: Never
+      containers:
+      - name: "anchore-engine-enterprise-upgrade"
+        image: docker.io/anchore/anchore-engine:v0.7.3
+        imagePullPolicy: IfNotPresent
+        args: ["/bin/bash", "-c", "anchore-manager db --db-connect postgresql://${ANCHORE_DB_USER}:${ANCHORE_DB_PASSWORD}@${ANCHORE_DB_HOST}/${ANCHORE_DB_NAME} upgrade --dontask"]
+        envFrom:
+        - secretRef:
+            name: anchore-engine-anchore-engine
+        - configMapRef:
+            name: anchore-engine-anchore-engine-env
+        env:

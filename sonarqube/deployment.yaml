@@ -1,0 +1,137 @@
+# Source: sonarqube/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarqube-sonarqube
+  labels:
+    app: sonarqube
+    chart: sonarqube-4.0.1
+    release: sonarqube
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarqube
+      release: sonarqube
+  template:
+    metadata:
+      labels:
+        app: sonarqube
+        release: sonarqube
+
+    spec:
+      securityContext:
+        fsGroup: 999
+      initContainers:
+        - name: chmod-volume-mounts
+          image: busybox:1.31
+          command:
+            - "sh"
+            - "-c"
+            - 'mkdir -p $(printf "/opt/sonarqube/${1-%s\n}" temp logs data extensions/downloads extensions/plugins/tmp extensions/plugins certs) &&
+               chown 999:999 -R $(printf "/opt/sonarqube/${1-%s\n}" temp logs data extensions/downloads extensions/plugins/tmp extensions/plugins certs)'
+          volumeMounts:
+          - mountPath: /opt/sonarqube/temp
+            name: sonarqube
+            subPath: temp
+          - mountPath: /opt/sonarqube/logs
+            name: sonarqube
+            subPath: logs
+          - mountPath: /opt/sonarqube/data
+            name: sonarqube
+            subPath: data
+          - mountPath: /opt/sonarqube/extensions/plugins/tmp
+            name: sonarqube
+            subPath: tmp
+          - mountPath: /opt/sonarqube/extensions/downloads
+            name: sonarqube
+            subPath: downloads
+          - mountPath: /opt/sonarqube/extensions/plugins
+            name: sonarqube
+            subPath: plugins
+        - name: init-sysctl
+          image: busybox:1.31
+          securityContext:
+            privileged: true
+          command:
+          - sysctl
+          - -w
+          - vm.max_map_count=262144
+      containers:
+        - name: sonarqube
+          image: "sonarqube:7.9.2-community"
+          imagePullPolicy: 
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+          env:
+            - name: SONARQUBE_WEB_JVM_OPTS
+              value: ""
+            - name: SONARQUBE_JDBC_USERNAME
+              value: "sonarUser"
+            - name: SONARQUBE_JDBC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sonarqube-postgresql
+                  key: postgresql-password
+            - name: SONARQUBE_JDBC_URL
+              value: "jdbc:postgresql://sonarqube-postgresql:5432/sonarDB"
+          livenessProbe:
+            httpGet:
+              path: /sessions/new
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /sessions/new
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 6
+          volumeMounts:
+            - mountPath: /opt/sonarqube/data
+              name: sonarqube
+              subPath: data
+            - mountPath: /opt/sonarqube/extensions/plugins/tmp
+              name: sonarqube
+              subPath: tmp
+            - mountPath: /opt/sonarqube/extensions/downloads
+              name: sonarqube
+              subPath: downloads
+            - mountPath: /opt/sonarqube/extensions/plugins
+              name: sonarqube
+              subPath: plugins
+            - mountPath: /opt/sonarqube/temp
+              name: sonarqube
+              subPath: temp
+            - mountPath: /opt/sonarqube/logs
+              name: sonarqube
+              subPath: logs
+            - mountPath: /tmp
+              name: tmp-dir
+            - name: copy-plugins
+              mountPath: /tmp/scripts
+          resources:
+            {}
+      volumes:
+      - name: install-plugins
+        configMap:
+          name: sonarqube-sonarqube-install-plugins
+          items:
+            - key: install_plugins.sh
+              path: install_plugins.sh
+      - name: copy-plugins
+        configMap:
+          name: sonarqube-sonarqube-copy-plugins
+          defaultMode: 0755
+          items:
+            - key: copy_plugins.sh
+              path: copy_plugins.sh
+      - name: sonarqube
+        emptyDir: {}
+      - name : tmp-dir
+        emptyDir: {}
+---

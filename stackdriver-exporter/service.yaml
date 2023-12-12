@@ -1,0 +1,20 @@
+# Source: stackdriver-exporter/templates/service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: stackdriver-exporter
+  labels:
+    chart: stackdriver-exporter-1.3.2
+    app: stackdriver-exporter
+    release: "stackdriver-exporter"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9255
+      protocol: TCP
+  selector:
+    app: stackdriver-exporter
+    release: "stackdriver-exporter"
+---

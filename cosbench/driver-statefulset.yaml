@@ -1,0 +1,57 @@
+# Source: cosbench/templates/driver-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cosbench-cosbench-driver
+  labels:
+    app: cosbench
+    chart: cosbench-1.0.3
+    component: driver
+    heritage: Helm
+    release: cosbench
+spec:
+  serviceName: cosbench-cosbench-driver
+  replicas: 1
+  selector:
+    matchLabels:
+        app: cosbench
+        component: driver
+        release: "cosbench"
+  template:
+    metadata:
+      labels:
+        app: cosbench
+        component: driver
+        release: "cosbench"
+    spec:
+      serviceAccountName: cosbench-cosbench-driver
+      containers:
+        - name: cosbench-cosbench-driver
+          image: "zenko/zenko-cosbench:0.0.6"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: driver
+              containerPort: 18088
+              protocol: TCP
+          env:
+            - name: LOG_LEVEL
+              value: "DEBUG"
+          args: ['java','-Dcosbench.tomcat.config=conf/driver-tomcat-server.xml','-server','-cp','main/*','org.eclipse.equinox.launcher.Main','-configuration','conf/.driver','-console','18089']
+          resources:
+            limits:
+              cpu: 1
+              memory: 4Gi
+            requests:
+              cpu: 500m
+              memory: 2Gi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 5
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app:  cosbench
+                  component: driver
+                  release: "cosbench"

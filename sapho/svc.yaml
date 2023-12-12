@@ -1,0 +1,21 @@
+# Source: sapho/charts/mysql/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sapho-mysql
+  namespace: default
+  labels:
+    app: sapho-mysql
+    chart: "mysql-1.6.7"
+    release: "sapho"
+    heritage: "Helm"
+  annotations:
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: sapho-mysql
+---

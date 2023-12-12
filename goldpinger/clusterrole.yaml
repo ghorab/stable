@@ -1,0 +1,15 @@
+# Source: goldpinger/templates/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: goldpinger-clusterrole
+  labels:
+    app.kubernetes.io/name: goldpinger
+    helm.sh/chart: goldpinger-2.0.4
+    app.kubernetes.io/instance: goldpinger
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list"]
+---

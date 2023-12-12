@@ -1,0 +1,30 @@
+# Source: couchbase-operator/templates/admission-cluster-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: couchbase-operator-couchbase-admission-controller
+  labels:
+    app.kubernetes.io/name: couchbase-admission-controller
+    app.kubernetes.io/instance: couchbase-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: couchbase-operator-1.0.4
+rules:
+- apiGroups:
+  - couchbase.com
+  resources:
+  - couchbaseclusters
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - get
+---

@@ -1,0 +1,70 @@
+# Source: openldap/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  openldap
+  labels:
+    app: openldap
+    chart: openldap-1.2.7
+    release: openldap
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openldap
+      release: openldap
+  template:
+    metadata:
+      annotations:
+        checksum/configmap-env: ea63749267d8d0fd296192d3060ccede89e2217577be89bdcbc6f41741c34d0e
+      labels:
+        app: openldap
+        release: openldap
+    spec:
+      containers:
+        - name: openldap
+          image: "osixia/openldap:1.2.4"
+          imagePullPolicy: IfNotPresent
+          args:
+            - -l
+            - info
+          ports:
+            - name: ldap-port
+              containerPort: 389
+            - name: ssl-ldap-port
+              containerPort: 636
+          envFrom:
+            - configMapRef:
+                name: openldap-env
+            - secretRef:
+                name: openldap
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/ldap
+              subPath: data
+            - name: data
+              mountPath: /etc/ldap/slapd.d
+              subPath: config-data
+          env:
+          livenessProbe:
+            tcpSocket:
+              port: ldap-port
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 10
+          readinessProbe:
+            tcpSocket:
+              port: ldap-port
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 10
+          resources:
+            {}
+      volumes:
+        - name: certs
+          emptyDir:
+            medium: Memory
+        - name: data
+          emptyDir: {}
+---

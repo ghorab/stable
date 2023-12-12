@@ -1,0 +1,17 @@
+# Source: artifactory/templates/artifactory-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: artifactory-artifactory
+  labels:
+    app: artifactory
+    chart: artifactory-7.3.2
+    release: artifactory
+    heritage: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "20Gi"
+---

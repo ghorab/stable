@@ -1,0 +1,17 @@
+# Source: magento/templates/magento-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: magento-magento-magento
+  labels:
+    app: magento-magento
+    chart: "magento-6.0.0"
+    release: "magento"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

@@ -1,0 +1,15 @@
+# Source: rabbitmq/templates/role.yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rabbitmq-endpoint-reader
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.18.2
+    release: "rabbitmq"
+    heritage: "Helm"
+rules:
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get"]
+---

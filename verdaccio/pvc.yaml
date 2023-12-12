@@ -1,0 +1,17 @@
+# Source: verdaccio/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  labels:
+    app: verdaccio-verdaccio
+    chart: "verdaccio-0.7.8"
+    release: "verdaccio"
+    heritage: "Helm"
+  name: verdaccio-verdaccio
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

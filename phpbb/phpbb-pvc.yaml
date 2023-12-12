@@ -1,0 +1,17 @@
+# Source: phpbb/templates/phpbb-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: "phpbb-phpbb"
+  labels:
+    app: "phpbb"
+    chart: "phpbb-7.0.10"
+    release: "phpbb"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

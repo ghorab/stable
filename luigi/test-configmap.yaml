@@ -1,0 +1,14 @@
+# Source: luigi/charts/mysql/templates/tests/test-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: luigi-mysql-test
+  namespace: default
+  labels:
+    app: luigi-mysql
+    chart: "mysql-1.6.7"
+    heritage: "Helm"
+    release: "luigi"
+data:
+  run.sh: |-
+---

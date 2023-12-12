@@ -1,0 +1,15 @@
+# Source: xray/charts/rabbitmq-ha/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  labels:
+    app: rabbitmq-ha
+    chart: "rabbitmq-ha-1.5.2"
+    release: "xray"
+    heritage: "Helm"
+  name: xray-rabbitmq-ha
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get"]
+---

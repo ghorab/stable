@@ -1,0 +1,23 @@
+# Source: metrics-server/templates/cluster-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:metrics-server
+  labels:
+    app: metrics-server
+    chart: metrics-server-2.11.4
+    release: metrics-server
+    heritage: Helm
+rules:
+  - apiGroups:
+    - ""
+    resources:
+      - pods
+      - nodes
+      - nodes/stats
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+---

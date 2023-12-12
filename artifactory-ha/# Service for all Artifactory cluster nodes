@@ -1,0 +1,24 @@
+# Service for all Artifactory cluster nodes.
+apiVersion: v1
+kind: Service
+metadata:
+  name: artifactory-ha
+  labels:
+    app: artifactory-ha
+    chart: artifactory-ha-0.4.2
+    component: artifactory-ha
+    heritage: Helm
+    release: artifactory-ha
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: http
+  selector:
+    role: artifactory-ha-artifactory-ha-member
+    app: artifactory-ha
+    component: "artifactory-ha"
+    release: artifactory-ha
+---

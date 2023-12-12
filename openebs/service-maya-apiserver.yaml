@@ -1,0 +1,23 @@
+# Source: openebs/templates/service-maya-apiserver.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: openebs-apiservice
+  labels:
+    app: openebs
+    chart: openebs-1.11.1
+    release: openebs
+    heritage: Helm
+    openebs.io/component-name: maya-apiserver-svc
+spec:
+  ports:
+  - name: api
+    port: 5656
+    targetPort: 5656
+    protocol: TCP
+  selector:
+    app: openebs
+    release: openebs
+    component: apiserver
+  sessionAffinity: None
+---

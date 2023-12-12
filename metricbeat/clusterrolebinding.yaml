@@ -1,0 +1,19 @@
+# Source: metricbeat/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: metricbeat
+  labels:
+    app: metricbeat
+    chart: metricbeat-1.7.3
+    release: metricbeat
+    heritage: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: metricbeat
+subjects:
+- kind: ServiceAccount
+  name: metricbeat
+  namespace: default
+---

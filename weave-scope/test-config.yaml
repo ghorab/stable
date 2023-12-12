@@ -1,0 +1,17 @@
+# Source: weave-scope/templates/test-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: weave-scope-weave-scope-tests
+  labels:    
+    chart: weave-scope-1.1.12
+    heritage: Helm
+    release: weave-scope
+    app: weave-scope
+data:
+  run.sh: |-
+
+    @test "Testing Weave Scope UI is accessible" {
+      curl --retry 12 --retry-delay 10 http://weave-scope-weave-scope.default.svc:80
+    }
+---

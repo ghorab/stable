@@ -1,0 +1,14 @@
+# Source: sonarqube/templates/install-plugins.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sonarqube-sonarqube-install-plugins
+  labels:
+    app: sonarqube
+    chart: sonarqube-4.0.1
+    release: sonarqube
+    heritage: Helm
+data:
+  install_plugins.sh: |-
+    cd /opt/sonarqube/extensions/plugins/tmp
+---

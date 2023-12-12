@@ -1,0 +1,13 @@
+# Source: sugarcrm/charts/mariadb/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sugarcrm-mariadb
+  labels:
+    app: sugarcrm-mariadb
+    chart: "mariadb-0.7.0"
+    release: "sugarcrm"
+    heritage: "Helm"
+data:
+  my.cnf: |-
+---

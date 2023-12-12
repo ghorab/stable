@@ -1,0 +1,21 @@
+# Source: hazelcast-jet/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hazelcast-jet
+  labels:
+    app.kubernetes.io/name: hazelcast-jet
+    helm.sh/chart: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+    app.kubernetes.io/managed-by: "Helm"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+---

@@ -1,0 +1,18 @@
+# Source: centrifugo/templates/tests/centrifugo-config-test.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: centrifugo-tests
+  namespace: default
+  labels:
+    helm.sh/chart: centrifugo-3.2.2
+    app.kubernetes.io/name: centrifugo
+    app.kubernetes.io/instance: centrifugo
+    app.kubernetes.io/version: "2.4.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  run.sh: |-
+    @test "Testing if centrifugo ui is accessible" {
+      curl --retry 48 --retry-delay 10 centrifugo.default.svc.cluster.local:8000
+    }
+---

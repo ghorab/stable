@@ -1,0 +1,41 @@
+# Source: keycloak/templates/test/test-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "keycloak-test-ur8a0"
+  labels:
+    app: keycloak
+    chart: keycloak-4.10.1
+    release: "keycloak"
+    heritage: "Helm"
+    role: test
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+  containers:
+    - name: keycloak-test
+      image: "unguiculus/docker-python3-phantomjs-selenium:v1"
+      imagePullPolicy: IfNotPresent
+      command:
+        - python3
+        - /tests/test.py
+      env:
+        - name: KEYCLOAK_USER
+          value: keycloak
+        - name: KEYCLOAK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-http
+              key: password
+      volumeMounts:
+        - name: tests
+          mountPath: /tests
+  volumes:
+    - name: tests
+      configMap:
+        name: keycloak-test
+  restartPolicy: Never

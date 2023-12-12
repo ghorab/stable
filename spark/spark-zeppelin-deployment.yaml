@@ -1,0 +1,40 @@
+# Source: spark/templates/spark-zeppelin-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-zeppelin
+  labels:
+    heritage: "Helm"
+    release: "spark"
+    chart: "spark-1.0.5"
+    component: "spark-zeppelin"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      component: "spark-zeppelin"
+  template:
+    metadata:
+      labels:
+        heritage: "Helm"
+        release: "spark"
+        chart: "spark-1.0.5"
+        component: "spark-zeppelin"
+    spec:
+      containers:
+        - name: spark-zeppelin
+          image: "apache/zeppelin:0.7.3"
+          ports:
+            - containerPort: 8080
+              name: http
+          resources:
+            requests:
+              cpu: "100m"
+          env:
+            - name: SPARK_MASTER
+              value: "spark://spark-master:7077"
+          volumeMounts:
+      volumes:
+---

@@ -1,0 +1,60 @@
+# Source: hlf-couchdb/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hlf-couchdb
+  labels:
+    app: hlf-couchdb
+    heritage: "Helm"
+    release: "hlf-couchdb"
+    chart: hlf-couchdb-1.0.9
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hlf-couchdb
+      release: hlf-couchdb
+  # Ensure we allow our pod to be unavailable, so we can upgrade
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: hlf-couchdb
+        heritage: "Helm"
+        release: "hlf-couchdb"
+        chart: hlf-couchdb-1.0.9
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: hlf-couchdb
+      containers:
+        - name: hlf-couchdb
+          image: "hyperledger/fabric-couchdb:0.4.10"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+          - secretRef:
+              name: hlf-couchdb
+          volumeMounts:
+          - mountPath: /opt/couchdb/data
+            name: data
+          ports:
+            - name: couchdb
+              containerPort: 5984
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 5984
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            tcpSocket:
+              port: 5984
+            initialDelaySeconds: 5
+            timeoutSeconds: 3
+            periodSeconds: 5
+          resources:
+            {}

@@ -1,0 +1,85 @@
+# Source: drupal/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drupal
+  labels:
+    app: drupal
+    chart: drupal-6.2.12
+    release: "drupal"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: drupal
+      release: "drupal"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: drupal
+        chart: drupal-6.2.12
+        release: "drupal"
+    spec:      
+      hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+        - "status.localhost"
+      containers:
+      - name: drupal
+        image: docker.io/bitnami/drupal:8.8.3-debian-10-r1
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MARIADB_HOST
+          value: drupal-mariadb
+        - name: MARIADB_PORT_NUMBER
+          value: "3306"
+        - name: DRUPAL_DATABASE_NAME
+          value: "bitnami_drupal"
+        - name: DRUPAL_DATABASE_USER
+          value: "bn_drupal"
+        - name: DRUPAL_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: drupal-mariadb
+              key: mariadb-password
+        - name: DRUPAL_PROFILE
+          value: "standard"
+        - name: DRUPAL_USERNAME
+          value: "user"
+        - name: DRUPAL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: drupal
+              key: drupal-password
+        - name: DRUPAL_EMAIL
+          value: "user@example.com"
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        livenessProbe:
+          httpGet:
+            path: /user/login
+            port: http
+          initialDelaySeconds: 120
+        readinessProbe:
+          httpGet:
+            path: /user/login
+            port: http
+          initialDelaySeconds: 30
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+        volumeMounts:
+        - name: drupal-data
+          mountPath: /bitnami/drupal
+      volumes:
+      - name: drupal-data
+        persistentVolumeClaim:
+          claimName: drupal-drupal
+---

@@ -1,0 +1,17 @@
+# Source: graphite/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: graphite-pvc
+  labels:
+    app: graphite
+    chart: graphite-0.2.2
+    heritage: Helm
+    release: graphite
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "10Gi"
+---

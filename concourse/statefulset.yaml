@@ -1,0 +1,122 @@
+# Source: concourse/charts/postgresql/templates/statefulset.yaml
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: concourse-postgresql
+  labels:
+    app: postgresql
+    chart: postgresql-5.3.8
+    release: "concourse"
+    heritage: "Helm"
+spec:
+  serviceName: concourse-postgresql-headless
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: postgresql
+      release: "concourse"
+      role: master
+  template:
+    metadata:
+      name: concourse-postgresql
+      labels:
+        app: postgresql
+        chart: postgresql-5.3.8
+        release: "concourse"
+        heritage: "Helm"
+        role: master
+    spec:      
+      securityContext:
+        fsGroup: 1001
+      initContainers:
+      - name: init-chmod-data
+        image: docker.io/bitnami/minideb:latest
+        imagePullPolicy: "Always"
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        command:
+          - sh
+          - -c
+          - |
+            mkdir -p /bitnami/postgresql/data
+            chmod 700 /bitnami/postgresql/data
+            find /bitnami/postgresql -mindepth 1 -maxdepth 1 -not -name ".snapshot" -not -name "lost+found" | \
+              xargs chown -R 1001:1001
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/postgresql
+          subPath: 
+      containers:
+      - name: concourse-postgresql
+        image: docker.io/bitnami/postgresql:11.3.0-debian-9-r38
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        securityContext:
+          runAsUser: 1001
+        env:
+        - name: BITNAMI_DEBUG
+          value: "false"
+        - name: POSTGRESQL_PORT_NUMBER
+          value: "5432"
+        - name: PGDATA
+          value: "/bitnami/postgresql/data"
+        - name: POSTGRES_USER
+          value: "concourse"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: concourse-postgresql
+              key: postgresql-password
+        - name: POSTGRES_DB
+          value: "concourse"
+        ports:
+        - name: postgresql
+          containerPort: 5432
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready -U "concourse" -d "concourse" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - |
+              pg_isready -U "concourse" -d "concourse" -h 127.0.0.1 -p 5432
+              [ -f /opt/bitnami/postgresql/tmp/.initialized ]
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/postgresql
+          subPath: 
+      volumes:
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---

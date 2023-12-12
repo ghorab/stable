@@ -1,0 +1,11 @@
+# Source: phpbb/charts/mariadb/templates/tests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: phpbb-mariadb-tests
+data:
+  run.sh: |-
+    @test "Testing MariaDB is accessible" {
+      mysql -h phpbb-mariadb -uroot -p$MARIADB_ROOT_PASSWORD -e 'show databases;'
+    }
+---

@@ -1,0 +1,89 @@
+# Source: hazelcast-jet/templates/management-center-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hazelcast-jet-management-center
+  labels:
+    app.kubernetes.io/name: hazelcast-jet
+    helm.sh/chart: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+    app.kubernetes.io/managed-by: "Helm"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hazelcast-jet
+      helm.sh/chart: hazelcast-jet
+      app.kubernetes.io/instance: "hazelcast-jet"
+      app.kubernetes.io/managed-by: "Helm"
+      role: hazelcast-jet-management-center
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hazelcast-jet
+        helm.sh/chart: hazelcast-jet
+        app.kubernetes.io/instance: "hazelcast-jet"
+        app.kubernetes.io/managed-by: "Helm"
+        role: hazelcast-jet-management-center
+    spec:
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+      containers:
+      - name: hazelcast-jet-management-center
+        image: "hazelcast/hazelcast-jet-management-center:4.1"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          null
+        ports:
+        - name: mc-port
+          containerPort: 8081
+        - name: mc-https-port
+          containerPort: 443
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:
+        - name: hazelcast-jet-management-center-storage
+          mountPath: /data/hazelcast-jet-management-center
+        env:
+        - name: MC_LICENSE_KEY
+          value: 
+        - name: JAVA_OPTS
+          value: " -Djet.clientConfig=/data/hazelcast-jet-management-center/hazelcast-client.yaml -DserviceName=hazelcast-jet -Dnamespace=default "
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          runAsGroup: 65534
+          privileged: false
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      serviceAccountName: hazelcast-jet
+      volumes:
+      - name: hazelcast-jet-management-center-storage
+        configMap:
+          name: hazelcast-jet-management-center-configuration
+---

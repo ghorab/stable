@@ -1,0 +1,18 @@
+# Source: burrow/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: burrow-000
+  labels:
+    app: burrow
+    release: burrow
+    nodeNumber: "000"
+  annotations:
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "80Gi"
+  storageClassName: "standard"
+---

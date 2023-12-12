@@ -1,0 +1,128 @@
+# Source: opa/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa
+  labels:
+    app: opa
+    chart: "opa-1.14.6"
+    release: "opa"
+    heritage: "Helm"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      annotations:
+        checksum/certs: 4252f90ed3279f0c66cc10c437d0dedde041a8b6eea758e5f1eeb65d2b349115
+        checksum/config: aa5ba5eb83297a2a7bbda9e6e4477f22080f373fd6f669a917b7294e2a12f0e1
+      labels:
+        app: opa
+      name: opa
+    spec:
+      initContainers:
+        - name: initpolicy
+          image: openpolicyagent/kube-mgmt:0.10
+          imagePullPolicy: IfNotPresent
+          resources:
+            {}
+          command:
+          - /bin/sh
+          - -c
+          - |
+            tr -dc 'A-F0-9' < /dev/urandom | dd bs=1 count=32 2>/dev/null > /bootstrap/mgmt-token
+            TOKEN=`cat /bootstrap/mgmt-token`
+            cat > /bootstrap/authz.rego <<EOF
+            package system.authz
+            default allow = false
+            # Allow anonymous access to the default policy decision.
+            allow { input.path = [""]; input.method = "POST" }
+            allow { input.path = [""]; input.method = "GET" }
+            # This is only used for health check in liveness and readiness probe
+            allow { input.path = ["health"]; input.method = "GET" }
+            allow { input.identity == "$TOKEN" }
+            EOF
+          volumeMounts:
+            - name: bootstrap
+              mountPath: /bootstrap
+      containers:
+        - name: opa
+          ports:
+          - name: https
+            containerPort: 443
+          image: openpolicyagent/opa:0.15.1
+          imagePullPolicy: IfNotPresent
+          resources:
+            {}
+          args:
+            - "run"
+            - "--server"
+            - "--config-file=/config/config.yaml"
+            - "--tls-cert-file=/certs/tls.crt"
+            - "--tls-private-key-file=/certs/tls.key"
+            - "--addr=0.0.0.0:443"
+            - "--log-level=info"
+            - "--log-format=text"
+            - "--authentication=token"
+            - "--authorization=basic"
+            - "--ignore=.*"
+            - "--addr=http://127.0.0.1:8181"
+            - "/bootstrap"
+          volumeMounts:
+            - name: certs
+              readOnly: true
+              mountPath: /certs
+            - name: config
+              readOnly: true
+              mountPath: /config
+            - name: bootstrap
+              readOnly: true
+              mountPath: /bootstrap
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 443
+              scheme: HTTPS
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 443
+              scheme: HTTPS
+            initialDelaySeconds: 3
+            periodSeconds: 5
+        - name: mgmt
+          image: openpolicyagent/kube-mgmt:0.10
+          imagePullPolicy: IfNotPresent
+          resources:
+            {}
+          args:
+            - --opa-auth-token-file=/bootstrap/mgmt-token
+            - --opa-url=http://127.0.0.1:8181/v1
+            - --replicate-path=kubernetes
+            - --enable-data=false
+            - --enable-policies=false
+          volumeMounts:
+            - name: bootstrap
+              readOnly: true
+              mountPath: /bootstrap
+      serviceAccountName: opa
+      volumes:
+        - name: certs
+          secret:
+            secretName: opa-cert
+        - name: config
+          secret:
+            secretName: opa-config
+        - name: bootstrap
+          emptyDir: {}
+      affinity:
+        {}
+      nodeSelector:
+        {}
+      tolerations:
+        []
+---

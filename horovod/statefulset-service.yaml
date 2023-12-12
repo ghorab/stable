@@ -1,0 +1,21 @@
+# Source: horovod/templates/statefulset-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: horovod
+  labels:
+    app: horovod
+    chart: horovod-1.0.2
+    release: horovod
+    heritage: Helm
+spec:
+  clusterIP: None
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+  selector:
+    app: horovod
+    release: horovod
+    role: worker
+---

@@ -1,0 +1,32 @@
+# Source: mercure/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mercure
+  labels:
+    app.kubernetes.io/name: mercure
+    helm.sh/chart: mercure-4.0.3
+    app.kubernetes.io/instance: mercure
+    app.kubernetes.io/version: "0.10.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+data:
+  allowAnonymous: "0"
+  subscriptions: "0"
+  metrics: "0"
+  metricsLogin: "mercure"
+  corsAllowedOrigins: ""
+  debug: "0"
+  demo: "0"
+  logFormat: "FLUENTD"
+  publishAllowedOrigins: ""
+  heartbeatInterval: "0s"
+  readTimeout: "5s"
+  writeTimeout: "60s"
+  dispatchTimeout: "5s"
+  compress: "0"
+  useForwardedHeaders: "0"
+  jwtAlgorithm: "HS256"
+---

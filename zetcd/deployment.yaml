@@ -1,0 +1,38 @@
+# Source: zetcd/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zetcd-zetcd
+  labels:
+    app: zetcd
+    chart: zetcd-0.1.11
+    release: zetcd
+    heritage: Helm
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: zetcd
+        release: zetcd
+    spec:
+      containers:
+        - name: zetcd
+          image: "quay.io/coreos/zetcd:v0.0.3"
+          imagePullPolicy: IfNotPresent
+          command:
+            - "/usr/local/bin/zetcd"
+            - "-zkaddr"
+            - "0.0.0.0:2181"
+            - "-endpoints"
+            - "etcd-cluster-client:2379"
+          ports:
+            - containerPort: 2181
+          livenessProbe:
+            tcpSocket:
+              port: 2181
+          readinessProbe:
+            tcpSocket:
+              port: 2181
+          resources:
+            {}

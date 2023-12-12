@@ -1,0 +1,19 @@
+# Source: xray/charts/postgresql/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: xray-postgresql
+  labels:
+    app: xray-postgresql
+    chart: "postgresql-0.8.7"
+    release: "xray"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: postgresql
+    port: 5432
+    targetPort: postgresql
+  selector:
+    app: xray-postgresql
+---

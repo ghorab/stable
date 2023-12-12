@@ -1,0 +1,22 @@
+# Source: hl-composer/templates/hl-composer-rest-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hl-composer-rest
+  labels:
+    app: hl-composer
+    heritage: "Helm"
+    release: "hl-composer"
+    chart: hl-composer-1.0.14
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    name: hl-composer-rest
+    app: hl-composer
+    release: hl-composer
+---

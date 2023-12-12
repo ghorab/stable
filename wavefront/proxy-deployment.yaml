@@ -1,0 +1,44 @@
+# Source: wavefront/templates/proxy-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name : wavefront
+    helm.sh/chart: wavefront-1.1.2
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io.instance: "wavefront"
+    app.kubernetes.io/component: proxy
+  name: wavefront-proxy 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name : wavefront
+      app.kubernetes.io/component: proxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name : wavefront
+        app.kubernetes.io/component: proxy
+    spec:
+      containers:
+      - name: wavefront-proxy
+        image: wavefronthq/proxy:5.7
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: WAVEFRONT_URL
+          value: https://YOUR_CLUSTER.wavefront.com/api
+        - name: WAVEFRONT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: wavefront
+              key: api-token
+        - name: WAVEFRONT_PROXY_ARGS
+          value: 
+        ports:
+        - containerPort: 2878
+          protocol: TCP
+        securityContext:
+          privileged: false
+        volumeMounts:
+      volumes:

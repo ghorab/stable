@@ -1,0 +1,23 @@
+# Source: mongodb-replicaset/templates/mongodb-service-client.yaml
+# An optional headless service for client applications to use
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: mongodb-replicaset
+    chart: mongodb-replicaset-3.17.2
+    heritage: Helm
+    release: mongodb-replicaset
+  name: mongodb-replicaset-client
+  namespace: default
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: mongodb
+      port: 27017
+  selector:
+    app: mongodb-replicaset
+    release: mongodb-replicaset
+---

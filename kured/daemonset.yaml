@@ -1,0 +1,54 @@
+# Source: kured/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kured
+  namespace: default
+  labels:
+    app: kured
+    chart: kured-1.6.0
+    release: kured
+    heritage: Helm
+spec:
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      app: kured
+      release: kured
+  template:
+    metadata:
+      labels:
+        app: kured
+        release: kured
+    spec:
+      serviceAccountName: kured
+      hostPID: true
+      restartPolicy: Always
+      containers:
+        - name: kured
+          image: "weaveworks/kured:1.4.0"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true # Give permission to nsenter /proc/1/ns/mnt
+          resources:
+            null
+          command:
+            - /usr/bin/kured
+          args:
+            - --ds-name=kured
+            - --ds-namespace=default
+          ports:
+            - containerPort: 8080
+              name: metrics          
+          env:
+            # Pass in the name of the node on which this pod is scheduled
+            # for use with drain/uncordon operations and lock acquisition
+            - name: KURED_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+      restartPolicy: Always
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master

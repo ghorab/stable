@@ -1,0 +1,64 @@
+# Source: ipfs/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ipfs-ipfs
+  labels:
+    app: ipfs
+    chart: ipfs-0.4.4
+    heritage: Helm
+    release: ipfs
+spec:
+  replicas: 1
+  serviceName: ipfs-ipfs
+  selector:
+    matchLabels:
+      app: ipfs
+      release: ipfs
+  template:
+    metadata:
+      labels:
+        app: ipfs
+        chart: ipfs-0.4.4
+        heritage: Helm
+        release: ipfs
+    spec:
+      securityContext:
+        # The image runs as uid 1000 by default, and needs to be able to write to
+        # the persistent volume to be able to start.
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+      - name: ipfs
+        image: ipfs/go-ipfs:v0.4.22
+        livenessProbe:
+          httpGet:
+            path: /debug/metrics/prometheus
+            port: api
+          initialDelaySeconds: 15
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /debug/metrics/prometheus
+            port: api
+          initialDelaySeconds: 15
+          periodSeconds: 3
+        ports:
+        - containerPort: 5001
+          name: api
+        - containerPort: 8080
+          name: gateway
+        volumeMounts:
+          - name: ipfs-storage
+            mountPath: /data/ipfs
+        resources:
+          {}
+  volumeClaimTemplates:
+    - metadata:
+        name: ipfs-storage
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"

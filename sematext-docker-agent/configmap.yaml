@@ -1,0 +1,13 @@
+# Source: sematext-docker-agent/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sematext-docker-agent-sematext-docker-agent
+  labels:
+    app: sematext-docker-agent
+    chart: sematext-docker-agent-1.0.1
+    release: sematext-docker-agent
+data:
+  SPM_RECEIVER_URL: "https://spm-receiver.sematext.com/receiver/v1"
+  LOGSENE_RECEIVER_URL: "https://logsene-receiver.sematext.com"
+  EVENTS_RECEIVER_URL: "https://event-receiver.sematext.com"

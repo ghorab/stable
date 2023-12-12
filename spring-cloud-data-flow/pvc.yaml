@@ -1,0 +1,18 @@
+# Source: spring-cloud-data-flow/charts/mysql/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: spring-cloud-data-flow-mysql
+  namespace: default
+  labels:
+    app: spring-cloud-data-flow-mysql
+    chart: "mysql-1.6.2"
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

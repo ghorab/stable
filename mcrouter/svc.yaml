@@ -1,0 +1,19 @@
+# Source: mcrouter/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcrouter-mcrouter
+  labels:
+    app: mcrouter-mcrouter
+    chart: "mcrouter-1.0.6"
+    release: "mcrouter"
+    heritage: "Helm"
+spec:
+  clusterIP: None
+  ports:
+  - name: mcrouter-port
+    port: 5000
+    targetPort: mcrouter-port
+  selector:
+    app: mcrouter-mcrouter
+---

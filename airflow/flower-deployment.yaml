@@ -1,0 +1,84 @@
+# Source: airflow/templates/flower/flower-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-flower
+  labels:
+    app: airflow
+    component: flower
+    chart: airflow-7.13.3
+    release: airflow
+    heritage: Helm
+spec:
+  replicas: 1
+  minReadySeconds: 5
+  strategy:
+    # this is safe - multiple flower pods can run concurrently
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: airflow
+      component: flower
+      release: airflow
+  template:
+    metadata:
+      annotations:
+        checksum/config-env: 7ef725357dcc3250bde412d19d3afe6466d279da663c28aa5c414d5c7f91909c
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: airflow
+        component: flower
+        release: airflow
+    spec:
+      restartPolicy: Always
+      serviceAccountName: airflow
+      containers:
+        - name: airflow-flower
+          image: apache/airflow:1.10.12-python3.6
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: "airflow-env"
+          env:            
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-password
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-redis
+                  key: redis-password
+          ports:
+            - name: flower
+              containerPort: 5555
+              protocol: TCP
+          command:
+            - "/usr/bin/dumb-init"
+            - "--"
+          args:
+            - "bash"
+            - "-c"
+            - >
+              true \
+               && mkdir -p /home/airflow/.local/bin \
+               && export PATH="/home/airflow/.local/bin:$PATH" \
+               && echo "*** running flower..." \
+               && exec airflow flower
+
+          livenessProbe:
+            httpGet:
+              path: "/"
+              port: flower
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            {}
+---

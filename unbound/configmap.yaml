@@ -1,0 +1,34 @@
+# Source: unbound/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unbound
+  labels:
+    app: unbound
+    chart: unbound-1.1.4
+    release: unbound
+    heritage: Helm
+data:
+  unbound.conf: |-
+    server:
+        chroot: ""
+        num-threads: 1
+        directory: "/etc/unbound"
+        port: 53
+        so-reuseport: yes
+        do-daemonize: no
+        logfile: ""
+        use-syslog: no
+        auto-trust-anchor-file: "/var/lib/unbound/root.key"
+        verbosity: 1
+        statistics-interval: 0
+        statistics-cumulative: no
+
+        interface: 127.0.0.1
+        interface: 0.0.0.0
+
+        access-control: 127.0.0.1/32 allow
+
+        local-data: "health.check.unbound A 127.0.0.1"
+        local-data-ptr: "127.0.0.1 health.check.unbound"
+---

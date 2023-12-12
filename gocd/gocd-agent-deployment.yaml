@@ -1,0 +1,45 @@
+# Source: gocd/templates/gocd-agent-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gocd-agent
+  labels:
+    app: gocd
+    chart:  "gocd-1.32.0"
+    release: "gocd"
+    heritage: "Helm"
+    component: agent
+  annotations:
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: gocd
+      release: "gocd"
+      component: agent
+  template:
+    metadata:
+      labels:
+        app: gocd
+        release: "gocd"
+        component: agent
+      annotations:
+    spec:
+      serviceAccountName: default
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+        - name: gocd-agent
+          image: "gocd/gocd-agent-alpine-3.9:v20.8.0"
+          imagePullPolicy: IfNotPresent
+          resources:
+            {}
+          env:
+            - name: GO_SERVER_URL
+              value: "http://gocd-server:8153/go"
+          securityContext:
+            privileged: false
+      restartPolicy: Always
+---

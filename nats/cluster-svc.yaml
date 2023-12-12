@@ -1,0 +1,20 @@
+# Source: nats/templates/cluster-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-cluster
+  labels:
+    app: "nats"
+    chart: "nats-4.3.7"
+    release: "nats"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6222
+      targetPort: cluster
+      name: cluster
+  selector:
+    app: "nats"
+    release: "nats"
+---

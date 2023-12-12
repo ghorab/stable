@@ -1,0 +1,15 @@
+# Source: spring-cloud-data-flow/charts/rabbitmq/templates/role.yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spring-cloud-data-flow-rabbitmq-endpoint-reader
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.16.6
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+rules:
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get"]
+---

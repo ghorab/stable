@@ -1,0 +1,65 @@
+# Source: vsphere-cpi/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: vsphere-cpi
+  labels:
+    app: vsphere-cpi
+    vsphere-cpi-infra: daemonset
+    chart: vsphere-cpi-0.2.3
+    component: cloud-controller-manager
+    tier: control-plane
+    heritage: Helm
+    release: vsphere-cpi
+  namespace: default
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+spec:
+  selector:
+    matchLabels:
+      app: vsphere-cpi
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: vsphere-cpi
+        component: cloud-controller-manager
+        tier: control-plane
+        release: vsphere-cpi
+        vsphere-cpi-infra: daemonset
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+      tolerations:
+      - key: node.cloudprovider.kubernetes.io/uninitialized
+        value: "true"
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      - key: node.kubernetes.io/not-ready
+        effect: NoSchedule
+        operator: Exists
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      serviceAccountName: cloud-controller-manager
+      hostNetwork: true
+      dnsPolicy: ClusterFirst
+      containers:
+      - name: vsphere-cpi
+        image: gcr.io/cloud-provider-vsphere/cpi/release/manager:v1.2.1
+        imagePullPolicy: IfNotPresent
+        args:
+          - --cloud-provider=vsphere
+          - --v=2
+          - --cloud-config=/etc/cloud/vsphere.conf
+        volumeMounts:
+          - mountPath: /etc/cloud
+            name: vsphere-config-volume
+            readOnly: true
+      volumes:
+        - name: vsphere-config-volume
+          configMap:
+            name: cloud-config
+---

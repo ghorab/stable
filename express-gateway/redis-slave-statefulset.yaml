@@ -1,0 +1,149 @@
+# Source: express-gateway/charts/redis/templates/redis-slave-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: express-gateway-redis-slave
+  labels:
+    app: redis
+    chart: redis-10.5.7
+    release: express-gateway
+    heritage: Helm
+spec:
+  replicas: 2
+  serviceName: express-gateway-redis-headless
+  selector:
+    matchLabels:
+      app: redis
+      release: express-gateway
+      role: slave
+  template:
+    metadata:
+      labels:
+        app: redis
+        release: express-gateway
+        chart: redis-10.5.7
+        role: slave
+      annotations:
+        checksum/health: beb1208025b14779b091987bb3f626f60b5faf8ecdbda04b0bc177c27a38ab83
+        checksum/configmap: e784116651dd12db4187bf7fe87ee2dc08833ac3ca43dec543cf51f951fe667b
+        checksum/secret: e639abc80a11c48ef8d5d19a3a9d9d0260041436450b9e62c4b7aad1033c0d51
+    spec:      
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: "default"
+      containers:
+      - name: express-gateway-redis
+        image: docker.io/bitnami/redis:5.0.7-debian-10-r32
+        imagePullPolicy: "IfNotPresent"
+        securityContext:
+          runAsUser: 1001
+        command:
+        - /bin/bash
+        - -c
+        - |
+          if [[ -n $REDIS_PASSWORD_FILE ]]; then
+            password_aux=`cat ${REDIS_PASSWORD_FILE}`
+            export REDIS_PASSWORD=$password_aux
+          fi
+          if [[ -n $REDIS_MASTER_PASSWORD_FILE ]]; then
+            password_aux=`cat ${REDIS_MASTER_PASSWORD_FILE}`
+            export REDIS_MASTER_PASSWORD=$password_aux
+          fi
+          if [[ ! -f /opt/bitnami/redis/etc/replica.conf ]];then
+            cp /opt/bitnami/redis/mounted-etc/replica.conf /opt/bitnami/redis/etc/replica.conf
+          fi
+          if [[ ! -f /opt/bitnami/redis/etc/redis.conf ]];then
+            cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+          fi
+          ARGS=("--port" "${REDIS_PORT}")
+          ARGS+=("--slaveof" "${REDIS_MASTER_HOST}" "${REDIS_MASTER_PORT_NUMBER}")
+          ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+          ARGS+=("--masterauth" "${REDIS_MASTER_PASSWORD}")
+          ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+          ARGS+=("--include" "/opt/bitnami/redis/etc/replica.conf")
+          /run.sh "${ARGS[@]}"
+        env:
+        - name: REDIS_REPLICATION_MODE
+          value: slave
+        - name: REDIS_MASTER_HOST
+          value: express-gateway-redis-master-0.express-gateway-redis-headless.default.svc.cluster.local
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_MASTER_PORT_NUMBER
+          value: "6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: express-gateway-redis
+              key: redis-password
+        - name: REDIS_MASTER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: express-gateway-redis
+              key: redis-password
+        ports:
+        - name: redis
+          containerPort: 6379
+        livenessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+          exec:
+            command:
+            - sh
+            - -c
+            - /health/ping_liveness_local_and_master.sh 5
+        readinessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 5
+          exec:
+            command:
+            - sh
+            - -c
+            - /health/ping_readiness_local_and_master.sh 5
+        resources:
+          null
+        volumeMounts:
+        - name: health
+          mountPath: /health
+        - name: redis-data
+          mountPath: /data
+        - name: config
+          mountPath: /opt/bitnami/redis/mounted-etc
+        - name: redis-tmp-conf
+          mountPath: /opt/bitnami/redis/etc
+      volumes:
+      - name: health
+        configMap:
+          name: express-gateway-redis-health
+          defaultMode: 0755
+      - name: config
+        configMap:
+          name: express-gateway-redis
+      - name: sentinel-tmp-conf
+        emptyDir: {}
+      - name: redis-tmp-conf
+        emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app: redis
+          release: express-gateway
+          heritage: Helm
+          component: slave
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+        
+        selector:
+  updateStrategy:
+    type: RollingUpdate

@@ -1,0 +1,17 @@
+# Source: seq/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: seq
+  labels:
+    app: seq
+    chart: "seq-2.3.2"
+    release: "seq"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

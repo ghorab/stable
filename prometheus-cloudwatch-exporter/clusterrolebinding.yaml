@@ -1,0 +1,19 @@
+# Source: prometheus-cloudwatch-exporter/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-cloudwatch-exporter
+  labels:
+    app: prometheus-cloudwatch-exporter
+    chart: prometheus-cloudwatch-exporter-0.8.4
+    release: prometheus-cloudwatch-exporter
+    heritage: Helm
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-cloudwatch-exporter
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: prometheus-cloudwatch-exporter
+  apiGroup: rbac.authorization.k8s.io
+---

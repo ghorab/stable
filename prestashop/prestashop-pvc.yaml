@@ -1,0 +1,17 @@
+# Source: prestashop/templates/prestashop-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: prestashop-prestashop
+  labels:
+    app: "prestashop"
+    chart: "prestashop-9.1.11"
+    release: "prestashop"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

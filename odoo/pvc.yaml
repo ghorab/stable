@@ -1,0 +1,17 @@
+# Source: odoo/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: odoo
+  labels:
+    app: odoo
+    chart: odoo-13.0.5
+    release: "odoo"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

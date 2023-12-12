@@ -1,0 +1,17 @@
+# Source: gocd/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: gocd-server
+  labels:
+    app: gocd
+    chart: "gocd-1.32.0"
+    release: "gocd"
+    heritage: "Helm"
+    component: server
+  annotations:
+spec:
+  backend:
+    serviceName: gocd-server
+    servicePort: 8153
+---

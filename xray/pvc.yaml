@@ -1,0 +1,17 @@
+# Source: xray/charts/postgresql/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: xray-postgresql
+  labels:
+    app: xray-postgresql
+    chart: "postgresql-0.8.7"
+    release: "xray"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "50Gi"
+---

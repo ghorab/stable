@@ -1,0 +1,14 @@
+# Source: cluster-overprovisioner/templates/priorityclass-default.yaml
+apiVersion: scheduling.k8s.io/v1beta1
+kind: PriorityClass
+metadata:
+  name: default
+  labels:
+    app.kubernetes.io/name: cluster-overprovisioner
+    helm.sh/chart: cluster-overprovisioner-0.4.1
+    app.kubernetes.io/instance: cluster-overprovisioner
+    app.kubernetes.io/managed-by: Helm
+value: 0
+globalDefault: true
+description: "Default priority class for all pods"
+---

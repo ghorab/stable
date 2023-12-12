@@ -1,0 +1,20 @@
+# Source: wavefront/templates/proxy-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name : wavefront
+    helm.sh/chart: wavefront-1.1.2
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io.instance: "wavefront"
+    app.kubernetes.io/component: proxy
+  name: wavefront-proxy
+spec:
+  ports:
+  - name: wavefront
+    port: 2878
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name : wavefront
+    app.kubernetes.io/component: proxy
+---

@@ -1,0 +1,21 @@
+# Source: zetcd/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: zetcd-zetcd
+  labels:
+    app: zetcd
+    chart: zetcd-0.1.11
+    release: zetcd
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 2181
+      targetPort: 2181
+      protocol: TCP
+      name: zetcd
+  selector:
+    app: zetcd
+    release: zetcd
+---

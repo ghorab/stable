@@ -1,0 +1,19 @@
+# Source: logdna-agent/templates/cluster_role.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: logdna-agent
+  labels:
+    app.kubernetes.io/name: logdna-agent
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: logdna-agent
+    app.kubernetes.io/version: 2.1.9
+    helm.sh/chart: logdna-agent-2.0.2
+rules:
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get","list","create","watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get","list","watch"]
+---

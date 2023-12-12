@@ -1,0 +1,36 @@
+# Source: kong/templates/config-custom-server-blocks.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-kong-default-custom-server-blocks
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-0.36.7
+    app.kubernetes.io/instance: "kong"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "1.4"
+data:
+  servers.conf: |
+    # Prometheus metrics and health-checking server
+    server {
+        server_name kong_prometheus_exporter;
+        listen 0.0.0.0:9542; # can be any other port as well
+        access_log off;
+        location /status {
+            default_type text/plain;
+            return 200;
+        }
+        location /metrics {
+            default_type text/plain;
+            content_by_lua_block {
+                 local prometheus = require "kong.plugins.prometheus.exporter"
+                 prometheus:collect()
+            }
+        }
+        location /nginx_status {
+            internal;
+            access_log off;
+            stub_status;
+        }
+    }
+---

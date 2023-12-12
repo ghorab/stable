@@ -1,0 +1,19 @@
+# Source: efs-provisioner/templates/storageclass.yaml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: aws-efs
+  labels:
+    app: efs-provisioner
+    env: dev
+    chart: efs-provisioner-0.13.2
+    release: "efs-provisioner"
+    heritage: "Helm"
+  annotations:
+provisioner: example.com/aws-efs
+parameters:
+  gidAllocate: "true"
+  gidMin: "40000"
+  gidMax: "50000"
+reclaimPolicy: Delete
+---

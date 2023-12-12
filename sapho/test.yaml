@@ -1,0 +1,28 @@
+# Source: sapho/charts/mysql/templates/tests/test.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sapho-mysql-test
+  namespace: default
+  labels:
+    app: sapho-mysql
+    chart: "mysql-1.6.7"
+    heritage: "Helm"
+    release: "sapho"
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: sapho-test
+      image: "bats/bats:1.2.1"
+      imagePullPolicy: "IfNotPresent"
+      command: ["/opt/bats/bin/bats", "-t", "/tests/run.sh"]
+      volumeMounts:
+      - mountPath: /tests
+        name: tests
+        readOnly: true
+  volumes:
+  - name: tests
+    configMap:
+      name: sapho-mysql-test
+  restartPolicy: Never

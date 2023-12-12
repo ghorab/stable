@@ -1,0 +1,21 @@
+# Source: efs-provisioner/templates/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: efs-provisioner
+  labels:
+    app: efs-provisioner
+    env: dev
+    chart: efs-provisioner-0.13.2
+    release: "efs-provisioner"
+    heritage: "Helm"
+  annotations:
+    {}
+subjects:
+  - kind: ServiceAccount
+    name: efs-provisioner
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: efs-provisioner
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,33 @@
+# Source: spring-cloud-data-flow/charts/rabbitmq/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-cloud-data-flow-rabbitmq
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.16.6
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: epmd
+    port: 4369
+    targetPort: epmd
+    nodePort: null
+  - name: amqp
+    port: 5672
+    targetPort: amqp
+    nodePort: null
+  - name: dist
+    port: 25672
+    targetPort: dist
+    nodePort: null
+  - name: stats
+    port: 15672
+    targetPort: stats
+    nodePort: null
+  selector:
+    app: rabbitmq
+    release: "spring-cloud-data-flow"
+---

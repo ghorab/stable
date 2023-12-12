@@ -1,0 +1,93 @@
+# Source: parse/templates/server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parse-server
+  labels: 
+    app.kubernetes.io/name: parse
+    helm.sh/chart: parse-10.3.10
+    app.kubernetes.io/instance: parse
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: server
+spec:
+  selector:
+    matchLabels: 
+      app.kubernetes.io/name: parse
+      app.kubernetes.io/instance: parse
+      app.kubernetes.io/component: server
+  replicas: 1
+  template:
+    metadata:
+      labels: 
+        app.kubernetes.io/name: parse
+        helm.sh/chart: parse-10.3.10
+        app.kubernetes.io/instance: parse
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: server
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001      
+      containers:
+        - name: parse
+          image: docker.io/bitnami/parse:3.10.0-debian-10-r30
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: PARSE_HOST
+              value: "0.0.0.0"
+            - name: PARSE_PORT_NUMBER
+              value: "1337"
+            - name: PARSE_MOUNT_PATH
+              value: "/parse"
+            - name: PARSE_APP_ID
+              value: "myappID"
+            - name: PARSE_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: parse
+                  key: master-key
+            - name: PARSE_ENABLE_CLOUD_CODE
+              value: "no"
+            - name: MONGODB_HOST
+              value: parse-mongodb
+            - name: MONGODB_PORT
+              value: "27017"
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: parse-mongodb
+                  key: mongodb-root-password
+          ports:
+            - name: server-http
+              containerPort: 1337
+          livenessProbe:
+            httpGet:
+              path: /parse/users
+              port: server-http
+              httpHeaders:
+                - name: X-Parse-Application-Id
+                  value: myappID
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /parse/users
+              port: server-http
+              httpHeaders:
+                - name: X-Parse-Application-Id
+                  value: myappID
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          volumeMounts:
+            - name: parse-data
+              mountPath: /bitnami/parse
+      volumes:
+        - name: parse-data
+          persistentVolumeClaim:
+            claimName: parse

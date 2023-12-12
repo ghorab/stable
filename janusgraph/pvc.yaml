@@ -1,0 +1,17 @@
+# Source: janusgraph/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: janusgraph
+  labels:
+    app: janusgraph
+    chart: janusgraph-0.2.6
+    release: "janusgraph"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "4Gi"
+---

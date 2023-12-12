@@ -1,0 +1,42 @@
+# Source: presto/templates/configmap-worker.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: presto-worker
+  labels:
+    app: presto
+    chart: presto-0.2.3
+    release: presto
+    heritage: Helm
+    component: worker
+data:
+  node.properties: |
+    node.environment=production
+    node.data-dir=/data/presto
+    plugin.dir=/usr/lib/presto/plugin
+
+  jvm.config: |
+    -server
+    -Xmx8G
+    -XX:+UseG1GC
+    -XX:G1HeapRegionSize=32M
+    -XX:+UseGCOverheadLimit
+    -XX:+ExplicitGCInvokesConcurrent
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:+ExitOnOutOfMemoryError
+    -Djdk.attach.allowAttachSelf=true
+
+  config.properties: |
+    coordinator=false
+    http-server.http.port=8080
+    query.max-memory=4GB
+    query.max-memory-per-node=1GB
+    discovery.uri=http://presto:8080
+
+  log.properties: |
+    io.prestosql=INFO
+
+  health_check.sh: |
+    #!/bin/bash 
+    curl --silent presto:8080/v1/node | tr "," "\n" | grep --silent $(hostname -i)
+---

@@ -1,0 +1,11 @@
+# Source: moodle/charts/mariadb/templates/tests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: moodle-mariadb-tests
+data:
+  run.sh: |-
+    @test "Testing MariaDB is accessible" {
+      mysql -h moodle-mariadb -uroot -p$MARIADB_ROOT_PASSWORD -e 'show databases;'
+    }
+---

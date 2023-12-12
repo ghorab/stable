@@ -1,0 +1,48 @@
+# Source: hl-composer/templates/hl-composer-rest-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hl-composer-rest
+  labels:
+    name: hl-composer-rest
+    app: hl-composer
+    heritage: "Helm"
+    release: "hl-composer"
+    chart: hl-composer-1.0.14
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hl-composer
+      release: hl-composer
+  template:
+    metadata:
+      name: hl-composer-rest
+      labels:
+        name: hl-composer-rest
+        app: hl-composer
+        heritage: "Helm"
+        release: "hl-composer"
+        chart: hl-composer-1.0.14
+    spec:
+      volumes:
+        - name: persistent-volume
+          emptyDir: {}
+      containers:
+        - name: rest-server
+          image: "hyperledger/composer-rest-server:0.20.0"
+          imagePullPolicy: IfNotPresent
+          # TODO: Add liveness and readiness probes
+          envFrom:
+            - secretRef:
+                name: hl-composer-rest
+          env:
+            - name: COMPOSER_CARD
+              value: admin@test-network
+            - name: COMPOSER_NAMESPACES
+              value: never
+          volumeMounts:
+            - name: persistent-volume
+              mountPath: /home/composer/.composer
+          resources:
+            {}

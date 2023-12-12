@@ -1,0 +1,17 @@
+# Source: elasticsearch/templates/tests/test-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-test
+  labels:
+    app: elasticsearch
+    chart: "elasticsearch-1.32.5"
+    heritage: "Helm"
+    release: "elasticsearch"
+data:
+  run.sh: |-
+    @test "Test Access and Health" {
+      curl -D - http://elasticsearch-client:9200
+      curl -D - http://elasticsearch-client:9200/_cluster/health?wait_for_status=green
+    }
+---

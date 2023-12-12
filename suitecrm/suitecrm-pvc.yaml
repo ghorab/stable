@@ -1,0 +1,17 @@
+# Source: suitecrm/templates/suitecrm-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: suitecrm-suitecrm
+  labels:
+    app: suitecrm
+    chart: "suitecrm-8.0.11"
+    release: "suitecrm"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

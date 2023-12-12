@@ -1,0 +1,17 @@
+# Source: sentry/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sentry
+  labels:
+    app: sentry
+    chart: "sentry-4.3.3"
+    release: "sentry"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "10Gi"
+---

@@ -1,0 +1,17 @@
+# Source: ghost/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: ghost
+  labels:
+    app: "ghost"
+    chart: "ghost-9.1.13"
+    release: "ghost"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

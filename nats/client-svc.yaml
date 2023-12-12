@@ -1,0 +1,20 @@
+# Source: nats/templates/client-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-client
+  labels:
+    app: "nats"
+    chart: "nats-4.3.7"
+    release: "nats"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4222
+      targetPort: client
+      name: client
+  selector:
+    app: "nats"
+    release: "nats"
+---

@@ -1,0 +1,25 @@
+# Source: dex/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  labels:
+    app.kubernetes.io/name: dex
+    helm.sh/chart: dex-2.15.2
+    app.kubernetes.io/instance: dex
+    app.kubernetes.io/version: "2.24.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+  - name: http
+    targetPort: http
+    port: 32000
+  - name: grpc
+    targetPort: grpc
+    port: 35000
+  selector:
+    app.kubernetes.io/name: dex
+    app.kubernetes.io/instance: dex
+---

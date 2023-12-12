@@ -1,0 +1,15 @@
+# Source: rethinkdb/templates/auth/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: rethinkdb-rethinkdb
+  labels:
+    app: rethinkdb
+    chart: rethinkdb-1.1.4
+    release: rethinkdb
+    heritage: Helm
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "list", "watch"]
+---

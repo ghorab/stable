@@ -1,0 +1,16 @@
+# Source: dask-distributed/templates/dask-jupyter-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dask-distributed-jupyter-config
+  labels:
+    app: dask-distributed
+    heritage: "Helm"
+    release: "dask-distributed"
+    chart: "dask-distributed-2.0.2"
+    component: "dask-distributed-jupyter-notebook"
+data:
+  jupyter_notebook_config.py: |
+    c = get_config()
+    c.NotebookApp.password = 'sha1:aae8550c0a44:9507d45e087d5ee481a5ce9f4f16f37a0867318c'
+---

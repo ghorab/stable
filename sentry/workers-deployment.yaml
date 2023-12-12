@@ -1,0 +1,98 @@
+# Source: sentry/templates/workers-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentry-worker
+  labels:
+    app: sentry
+    chart: "sentry-4.3.3"
+    release: "sentry"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+        app: sentry
+        release: "sentry"
+        role: worker
+  replicas: 2
+  template:
+    metadata:
+      annotations:
+        metrics-enabled: "false"
+        checksum/configYml: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        checksum/sentryConfPy: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        checksum/secrets.yaml: 28aec6f4bc2856ac8630c64cb822f796a13f12cd097e0058595bc0dc40238f1a
+      labels:
+        app: sentry
+        release: "sentry"
+        role: worker
+    spec:
+      serviceAccountName: sentry
+      containers:
+      - name: sentry-workers
+        image: "sentry:9.1.2"
+        imagePullPolicy: IfNotPresent
+        args:
+          - "run"
+          - "worker"
+        ports:
+        - containerPort: 9000
+        env:
+        - name: SENTRY_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sentry
+              key: sentry-secret
+        - name: SENTRY_DB_USER
+          value: "postgres"
+        - name: SENTRY_DB_NAME
+          value: "sentry"
+        - name: SENTRY_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sentry-sentry-postgresql
+              key: "postgresql-password"
+        - name: SENTRY_POSTGRES_HOST
+          value: sentry-sentry-postgresql
+        - name: SENTRY_POSTGRES_PORT
+          value: "5432"
+        - name: SENTRY_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sentry-sentry-redis
+              key: "redis-password"
+        - name: SENTRY_REDIS_HOST
+          value: sentry-sentry-redis-master
+        - name: SENTRY_REDIS_PORT
+          value: "6379"
+        - name: SENTRY_EMAIL_HOST
+          value: "smtp"
+        - name: SENTRY_EMAIL_PORT
+          value: "25"
+        - name: SENTRY_EMAIL_USER
+          value: ""
+        - name: SENTRY_EMAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sentry
+              key: smtp-password
+        - name: SENTRY_EMAIL_USE_TLS
+          value: "false"
+        - name: SENTRY_SERVER_EMAIL
+          value: "sentry@sentry.local"
+        
+        volumeMounts:
+        - mountPath: /etc/sentry
+          name: config
+          readOnly: true
+        - mountPath: /var/lib/sentry/files
+          name: sentry-data
+        resources:
+            {}
+      volumes:
+      - name: config
+        configMap:
+          name: sentry
+      - name: sentry-data
+        emptyDir: {}
+---

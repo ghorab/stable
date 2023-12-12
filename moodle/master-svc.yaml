@@ -1,0 +1,22 @@
+# Source: moodle/charts/mariadb/templates/master-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: moodle-mariadb
+  labels:
+    app: "mariadb"
+    component: "master"
+    chart: "mariadb-7.3.12"
+    release: "moodle"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: "mariadb"
+    component: "master"
+    release: "moodle"
+---

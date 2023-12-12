@@ -1,0 +1,37 @@
+# Source: eventrouter/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:     
+    app: eventrouter
+    heritage: Helm
+    release: eventrouter
+    chart: eventrouter-0.3.2
+  name: eventrouter
+  namespace: default
+spec:
+  replicas: 
+  selector:
+    matchLabels:
+      app: eventrouter
+      release: eventrouter
+  template:
+    metadata:
+      labels:
+        app: eventrouter
+        release: eventrouter
+    spec:
+      containers:
+      - name: eventrouter
+        image: "gcr.io/heptio-images/eventrouter:v0.3"
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/eventrouter
+        resources:
+          {}
+      serviceAccountName: eventrouter
+      volumes:
+        - name: config-volume
+          configMap:
+            name: eventrouter

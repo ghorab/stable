@@ -1,0 +1,5 @@
+# Source: openldap/templates/configmap-customldif.yaml
+#
+# A ConfigMap spec for openldap slapd that map directly to files under
+# /container/service/slapd/assets/config/bootstrap/ldif/custom
+#

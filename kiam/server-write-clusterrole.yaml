@@ -1,0 +1,20 @@
+# Source: kiam/templates/server-write-clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  labels:
+    app: kiam
+    chart: kiam-2.5.3
+    component: "server"
+    heritage: Helm
+    release: kiam
+  name: kiam-write
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+---

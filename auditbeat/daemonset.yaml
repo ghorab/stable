@@ -1,0 +1,73 @@
+# Source: auditbeat/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: auditbeat
+  labels:
+    app: auditbeat
+    chart: auditbeat-1.1.2
+    release: auditbeat
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: auditbeat
+      release: auditbeat
+  minReadySeconds: 10
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: auditbeat
+        release: auditbeat
+      annotations:
+        checksum/secret: 4454bd731f75c11ce9a915a7329f05952a4d378825820928a224142c2ada1409
+    spec:
+      hostPID: true
+      containers:
+      - name: auditbeat
+        image: "docker.elastic.co/beats/auditbeat:6.7.0"
+        imagePullPolicy: IfNotPresent
+        args:
+        - "-e"
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        securityContext:
+          runAsUser: 0
+          # `hostPID: true`, along with the AUDIT_CONTROL and AUDIT_READ capabilities are required.
+          # Otherwise you'll see a startup error like:
+          #   2018-06-13T03:23:30.026ZERRORinstance/beat.go:667Exiting: 1 error: 1 error: failed to create audit client: failed to get audit status: operation not permitted
+          #   Exiting: 1 error: 1 error: failed to create audit client: failed to get audit status: operation not permitted
+          #
+          # See https://github.com/elastic/beats-docker/issues/25 for more info
+          capabilities:
+            add: ["AUDIT_CONTROL", "AUDIT_READ"]
+        resources:
+          {}
+        volumeMounts:
+        - name: auditbeat-config
+          mountPath: /usr/share/auditbeat/auditbeat.yml
+          readOnly: true
+          subPath: auditbeat.yml
+        - name: data
+          mountPath: /usr/share/auditbeat/data
+      volumes:
+      - name: auditbeat-config
+        secret:
+          secretName: auditbeat
+      - name: data
+        hostPath:
+          path: /var/lib/auditbeat
+          type: DirectoryOrCreate
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: auditbeat

@@ -1,0 +1,12 @@
+# Source: velero/templates/volumesnapshotlocation.yaml
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: default
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: velero-2.7.4
+spec:
+  provider:

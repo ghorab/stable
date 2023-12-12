@@ -1,0 +1,18 @@
+# Source: chronograf/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: chronograf-chronograf
+  labels:
+    app: chronograf-chronograf
+    chart: "chronograf-1.1.1"
+    release: "chronograf"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8888
+  selector:
+    app: chronograf-chronograf
+---

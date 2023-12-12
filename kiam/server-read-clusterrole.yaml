@@ -1,0 +1,22 @@
+# Source: kiam/templates/server-read-clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  labels:
+    app: kiam
+    chart: kiam-2.5.3
+    component: "server"
+    heritage: Helm
+    release: kiam
+  name: kiam-read
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+      - pods
+    verbs:
+      - watch
+      - get
+      - list
+---

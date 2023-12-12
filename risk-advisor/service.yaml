@@ -1,0 +1,22 @@
+# Source: risk-advisor/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-advisor-risk-advisor
+  labels:
+    chart: "risk-advisor-2.0.6"
+    app: "risk-advisor"
+    release: "risk-advisor"
+    heritage: "Helm"
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    protocol: TCP
+    port: 9997
+    targetPort: 9997
+    nodePort: 31111
+  selector:
+    app: "risk-advisor"
+    release: "risk-advisor"
+---

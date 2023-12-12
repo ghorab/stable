@@ -1,0 +1,19 @@
+# Source: couchbase-operator/templates/admission-cluster-role-binding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: couchbase-operator-couchbase-admission-controller
+  labels:
+    app.kubernetes.io/name: couchbase-admission-controller
+    app.kubernetes.io/instance: couchbase-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: couchbase-operator-1.0.4
+subjects:
+- kind: ServiceAccount
+  name: couchbase-operator-couchbase-admission-controller
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: couchbase-operator-couchbase-admission-controller
+---

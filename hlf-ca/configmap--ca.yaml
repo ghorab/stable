@@ -1,0 +1,16 @@
+# Source: hlf-ca/templates/configmap--ca.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hlf-ca--ca
+  labels:
+    app: hlf-ca
+    heritage: "Helm"
+    release: "hlf-ca"
+    chart: hlf-ca-1.2.3
+data:
+  GODEBUG: "netdns=go"
+  FABRIC_CA_HOME: /var/hyperledger/fabric-ca
+  FABRIC_CA_SERVER_CA_NAME: "org1-ca"
+  SERVICE_DNS: 0.0.0.0  # Point to itself
+---

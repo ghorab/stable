@@ -1,0 +1,22 @@
+# Source: logstash/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  labels:
+    app: logstash
+    chart: logstash-2.4.3
+    release: logstash
+    heritage: Helm
+  annotations:
+spec:
+  type: ClusterIP
+  ports:
+    - name: beats
+      port: 5044
+      protocol: TCP
+      targetPort: beats
+  selector:
+    app: logstash
+    release: logstash
+---

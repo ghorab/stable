@@ -1,0 +1,11 @@
+# Source: suitecrm/charts/mariadb/templates/tests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: suitecrm-mariadb-tests
+data:
+  run.sh: |-
+    @test "Testing MariaDB is accessible" {
+      mysql -h suitecrm-mariadb -uroot -p$MARIADB_ROOT_PASSWORD -e 'show databases;'
+    }
+---

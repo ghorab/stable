@@ -1,0 +1,20 @@
+# Source: hoard/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: hoard
+  labels:
+    app.kubernetes.io/name: hoard
+    app.kubernetes.io/instance: hoard
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: hoard-1.0.2
+  annotations:
+    helm.sh/resource-policy: "keep"
+spec:
+  accessModes:
+  - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "10Gi"
+  storageClassName: "standard"
+---

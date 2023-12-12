@@ -1,0 +1,67 @@
+# Source: mcrouter/charts/memcached/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mcrouter-memcached
+  labels:
+    app: mcrouter-memcached
+    chart: "memcached-3.1.0"
+    release: "mcrouter"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: mcrouter-memcached
+      release: "mcrouter"
+  serviceName: mcrouter-memcached
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: mcrouter-memcached
+        chart: "memcached-3.1.0"
+        release: "mcrouter"
+        heritage: "Helm"
+    spec:
+      securityContext:
+        fsGroup: 1001
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                app:  mcrouter-memcached
+                release: "mcrouter"
+      containers:
+      - name: mcrouter-memcached
+        image: memcached:1.5.19-alpine
+        imagePullPolicy: ""
+        securityContext:
+          runAsUser: 1001
+        command:
+        - memcached
+        - -m 64
+        - -o
+        - modern
+        - -v
+        ports:
+        - name: memcache
+          containerPort: 11211
+        livenessProbe:
+          tcpSocket:
+            port: memcache
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          tcpSocket:
+            port: memcache
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+  updateStrategy:
+    type: RollingUpdate
+---

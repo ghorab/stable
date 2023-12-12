@@ -1,0 +1,55 @@
+# Source: tensorflow-serving/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tensorflow-serving
+  labels:
+    heritage: "Helm"
+    release: "tensorflow-serving"
+    chart: tensorflow-serving-1.1.2
+    app: tensorflow-serving
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      release: "tensorflow-serving"
+      app: tensorflow-serving 
+  template:
+    metadata:
+      labels:
+        heritage: "Helm"
+        release: "tensorflow-serving"
+        chart: tensorflow-serving-1.1.2
+        app: tensorflow-serving
+    spec:
+      containers:
+        - name: serving
+          image: "cheyang/tf-model-server:1.4"
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - "/usr/bin/tensorflow_model_server"
+          args:
+            - "--port=9090"
+            - "--model_name=inception"
+            - "--model_base_path=/serving/inception-export"
+          ports:
+            - containerPort: 9090
+              name: serving
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: serving
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          resources:
+            {}
+          volumeMounts:
+            - mountPath: /data
+              name: model-volume
+      volumes:
+        - name: model-volume
+          persistentVolumeClaim:
+              claimName: tensorflow-serving
+---

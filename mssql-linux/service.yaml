@@ -1,0 +1,21 @@
+# Source: mssql-linux/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-linux
+  labels:
+    app: mssql-linux
+    chart: mssql-linux-0.11.4
+    release: mssql-linux
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+  - name: mssql
+    port: 1433
+    targetPort: mssql
+    protocol: TCP
+  selector:
+    app: mssql-linux
+    release: mssql-linux
+---

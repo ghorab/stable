@@ -1,0 +1,23 @@
+# Source: prometheus-operator/templates/prometheus/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-operator-prometheus
+  namespace: default
+  labels:
+    app: prometheus-operator-prometheus
+    self-monitor: "true"
+    
+    chart: prometheus-operator-9.3.2
+    release: "prometheus-operator"
+    heritage: "Helm"
+spec:
+  ports:
+  - name: web
+    port: 9090
+    targetPort: 9090
+  selector:
+    app: prometheus
+    prometheus: prometheus-operator-prometheus
+  type: "ClusterIP"
+---

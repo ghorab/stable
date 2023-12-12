@@ -1,0 +1,51 @@
+# Source: kube-ops-view/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-ops-view
+  labels:
+    app.kubernetes.io/name: kube-ops-view
+    helm.sh/chart: kube-ops-view-1.2.4
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: kube-ops-view
+    app.kubernetes.io/version: 20.4.0
+    app.kubernetes.io/part-of: kube-ops-view
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-ops-view
+      app.kubernetes.io/part-of: kube-ops-view
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kube-ops-view
+        helm.sh/chart: kube-ops-view-1.2.4
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: kube-ops-view
+        app.kubernetes.io/version: 20.4.0
+        app.kubernetes.io/part-of: kube-ops-view
+    spec:
+      serviceAccountName: "default"
+      containers:
+      - name: kube-ops-view
+        image: "hjacobs/kube-ops-view:20.4.0"
+        imagePullPolicy: IfNotPresent
+        env:
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+        resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 80m
+              memory: 64Mi

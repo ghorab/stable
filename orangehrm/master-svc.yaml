@@ -1,0 +1,22 @@
+# Source: orangehrm/charts/mariadb/templates/master-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: orangehrm-mariadb
+  labels:
+    app: "mariadb"
+    component: "master"
+    chart: "mariadb-7.3.11"
+    release: "orangehrm"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: "mariadb"
+    component: "master"
+    release: "orangehrm"
+---

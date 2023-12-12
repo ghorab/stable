@@ -1,0 +1,21 @@
+# Source: goldpinger/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: goldpinger
+  labels:
+    app.kubernetes.io/name: goldpinger
+    helm.sh/chart: goldpinger-2.0.4
+    app.kubernetes.io/instance: goldpinger
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: goldpinger
+    app.kubernetes.io/instance: goldpinger
+---

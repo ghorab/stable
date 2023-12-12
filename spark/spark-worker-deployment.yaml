@@ -1,0 +1,43 @@
+# Source: spark/templates/spark-worker-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-worker
+  labels:
+    heritage: "Helm"
+    release: "spark"
+    chart: "spark-1.0.5"
+    component: "spark-spark-worker"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      component: "spark-spark-worker"
+  template:
+    metadata:
+      labels:
+        heritage: "Helm"
+        release: "spark"
+        chart: "spark-1.0.5"
+        component: "spark-spark-worker"
+    spec:
+      containers:
+        - name: spark-worker
+          image: "k8s.gcr.io/spark:1.5.1_v3"
+          command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+          ports:
+            - containerPort: 8081
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+          env:
+          - name: SPARK_DAEMON_MEMORY
+            value: "1g"
+          - name: SPARK_WORKER_MEMORY
+            value: "1g"
+          - name: SPARK_WORKER_WEBUI_PORT
+            value: "8080"
+---

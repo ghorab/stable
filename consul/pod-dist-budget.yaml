@@ -1,0 +1,16 @@
+# Source: consul/templates/pod-dist-budget.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "consul-pdb"
+  labels:
+    heritage: "Helm"
+    release: "consul"
+    chart: consul-3.9.6
+    component: "consul-consul"
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      component: "consul-consul"
+---

@@ -1,0 +1,41 @@
+# Source: hl-composer/templates/hl-composer-pg-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hl-composer-pg
+  labels:
+    name: hl-composer-pg
+    app: hl-composer
+    heritage: "Helm"
+    release: "hl-composer"
+    chart: hl-composer-1.0.14
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hl-composer
+      release: hl-composer
+  template:
+    metadata:
+      name: hl-composer-pg
+      labels:
+        name: hl-composer-pg
+        app: hl-composer
+        heritage: "Helm"
+        release: "hl-composer"
+        chart: hl-composer-1.0.14
+    spec:
+      volumes:
+        - name: persistent-volume
+          emptyDir: {}
+      containers:
+        - name: composer-playground
+          image: "hyperledger/composer-playground:0.20.0"
+          imagePullPolicy: IfNotPresent
+          # TODO: Add liveness and readiness probes
+          volumeMounts:
+            - mountPath: /home/composer/.composer
+              name: persistent-volume
+          resources:
+            {}
+---

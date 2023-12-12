@@ -1,0 +1,21 @@
+# Source: prometheus-rabbitmq-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-rabbitmq-exporter
+  labels:
+    app: prometheus-rabbitmq-exporter
+    chart: prometheus-rabbitmq-exporter-0.5.6
+    release: prometheus-rabbitmq-exporter
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9419
+      targetPort: publish
+      protocol: TCP
+      name: rabbitmq-exporter
+  selector:
+    app: prometheus-rabbitmq-exporter
+    release: prometheus-rabbitmq-exporter
+---

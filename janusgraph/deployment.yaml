@@ -1,0 +1,47 @@
+# Source: janusgraph/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: janusgraph
+  labels:
+    app: janusgraph
+    chart: janusgraph-0.2.6
+    release: janusgraph
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: janusgraph
+      release: janusgraph
+  template:
+    metadata:
+      labels:
+        app: janusgraph
+        release: janusgraph
+    spec:
+      containers:
+        - name: janusgraph
+          image: "gcr.io/cloud-solutions-images/janusgraph:v2"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8182
+              protocol: TCP
+          volumeMounts:
+            - name: janusgraph-config
+              mountPath: /janusgraph-config
+            - name: local-db
+              mountPath: /db
+          livenessProbe:
+            exec:
+              command:
+                - /tmp/healthcheck.py
+          resources:
+            {}
+      volumes:
+        - name: janusgraph-config
+          configMap:
+            name: janusgraph-config
+        - name: local-db
+          persistentVolumeClaim:
+            claimName: janusgraph

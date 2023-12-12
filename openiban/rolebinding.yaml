@@ -1,0 +1,18 @@
+# Source: openiban/templates/rolebinding.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: openiban
+  labels:
+    app: openiban
+    chart: openiban-1.0.2
+    release: "openiban"
+    heritage: "Helm"
+subjects:
+- kind: ServiceAccount
+  name: openiban
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: openiban
+---

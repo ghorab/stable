@@ -1,0 +1,32 @@
+# Source: spring-cloud-data-flow/templates/server-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-cloud-data-flow-data-flow-server
+  labels:
+    app: spring-cloud-data-flow
+    component: server
+    chart: "spring-cloud-data-flow-2.8.1"
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+data:
+  application.yaml: |-
+    spring:
+      cloud:
+        dataflow:
+          task:
+            platform:
+              kubernetes:
+                accounts:
+                  default:
+                    limits:
+                      memory: 1024Mi
+                      cpu: 500m
+      datasource:
+        url: 'jdbc:mysql://${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_HOST}:${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_PORT}/dataflow'
+        driverClassName: org.mariadb.jdbc.Driver
+        username: root
+        password: ${mysql-root-password}
+        testOnBorrow: true
+        validationQuery: "SELECT 1"
+---

@@ -1,0 +1,14 @@
+# Source: gitlab-ce/templates/etc-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: gitlab-ce-gitlab-ce-etc
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: default
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

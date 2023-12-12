@@ -1,0 +1,22 @@
+# Source: metrics-server/templates/tests/test-version.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: metrics-server-test
+  labels:
+    app: metrics-server
+    chart: metrics-server-2.11.4
+    release: metrics-server
+    heritage: Helm
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+  - name: wget
+    image: "busybox:latest"
+    imagePullPolicy: IfNotPresent
+    command: ['/bin/sh']
+    args:
+    - -c
+    - 'wget -qO- https://metrics-server:443/version | grep -F v0.3.6'
+  restartPolicy: Never

@@ -1,0 +1,25 @@
+# Source: prisma/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prisma
+  labels:
+    app: prisma
+    chart: prisma-1.2.4
+    release: prisma
+    heritage: Helm
+data:
+  config: |
+    port: 4466
+    databases:
+      default:
+        connector: $PRISMA_DB_CONNECTOR
+        host: $PRISMA_DB_HOST
+        port: $PRISMA_DB_PORT
+        user: $PRISMA_DB_USER
+        password: $PRISMA_DB_PASSWORD
+        migrations: $PRISMA_DB_MIGRATIONS
+        database: $PRISMA_DB_NAME
+        ssl: $PRISMA_DB_SSL
+        connectionLimit: $PRISMA_DB_CONNECTIONLIMIT
+---

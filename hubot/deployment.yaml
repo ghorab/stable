@@ -1,0 +1,78 @@
+# Source: hubot/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hubot
+  labels:
+    
+    app.kubernetes.io/name: hubot
+    app.kubernetes.io/instance: hubot
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: hubot-1.0.4
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hubot
+      app.kubernetes.io/instance: hubot
+  template:
+    metadata:
+      annotations:
+        checksum/config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/secret-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/external-scripts.json: 478ae8b4ebc2aeabfeae540d483acf16a50a735ef198ef79aef1d329a1802565
+      labels:
+        app.kubernetes.io/name: hubot
+        app.kubernetes.io/instance: hubot
+    spec:
+      initContainers:
+        - name: wait-for-redis
+          image: busybox
+          env:
+          - name: HUBOT_REDIS_HOST
+            value: hubot-redis-master
+          - name: HUBOT_REDIS_PORT
+            value: "6379"
+          command: [ "/bin/sh", "-c", "until nc -zv $HUBOT_REDIS_HOST $HUBOT_REDIS_PORT -w1; do echo 'waiting for redis'; sleep 1; done" ]
+      containers:
+        - name: hubot
+          image: "minddocdev/hubot:3.3.2"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --name
+            - ${HUBOT_NAME}
+            - --adapter
+            - slack
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          volumeMounts:
+            - name: hubot-external-scripts
+              mountPath: /home/hubot/external-scripts.json
+              subPath: external-scripts.json
+              readOnly: true
+
+          env:
+            - name: REDIS_URL
+              value: redis://hubot-redis-master:/hubot
+            - name: EXTRA_PACKAGES
+              value: ""
+          envFrom:
+          resources:
+            {}
+      volumes:
+        - name: hubot-external-scripts
+          configMap:
+            name: hubot-external-scripts
+---

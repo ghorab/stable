@@ -1,0 +1,91 @@
+# Source: kafka-manager/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-manager
+  labels:
+    app.kubernetes.io/instance: kafka-manager
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka-manager
+    app.kubernetes.io/version: 1.3.3.22
+    helm.sh/chart: kafka-manager-2.3.5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-manager
+      release: kafka-manager
+  template:
+    metadata:
+      labels:
+        app: kafka-manager
+        release: kafka-manager
+    spec:
+      serviceAccountName: kafka-manager
+      containers:
+        - name: kafka-manager
+          image: "zenko/kafka-manager:1.3.3.22"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: kafka-manager
+              containerPort: 9000
+              protocol: TCP
+          env:
+            - name: ZK_HOSTS
+              value: "localhost:2181"
+            - name: JAVA_OPTS
+              value: 
+            - name: APPLICATION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-manager
+                  key: applicationSecret
+            - name: KAFKA_MANAGER_AUTH_ENABLED
+              value: "false"
+            - name: KAFKA_MANAGER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-manager
+                  key: basicAuthUsername
+            - name: KAFKA_MANAGER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-manager
+                  key: basicAuthPassword
+            - name: KAFKA_MANAGER_LDAP_ENABLED
+              value: "false"
+            - name: KAFKA_MANAGER_LDAP_SERVER
+              value: ""
+            - name: KAFKA_MANAGER_LDAP_PORT
+              value: "389"
+            - name: KAFKA_MANAGER_LDAP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-manager
+                  key: basicAuthLDAPUsername
+            - name: KAFKA_MANAGER_LDAP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-manager
+                  key: basicAuthLDAPPassword
+            - name: KAFKA_MANAGER_LDAP_SEARCH_BASE_DN
+              value: ""
+            - name: KAFKA_MANAGER_LDAP_SEARCH_FILTER
+              value: "(uid=$capturedLogin$)"
+            - name: KAFKA_MANAGER_LDAP_CONNECTION_POOL_SIZE
+              value: "10"
+            - name: KAFKA_MANAGER_LDAP_SSL
+              value: "false"
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /api/health
+              port: kafka-manager
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: kafka-manager
+          resources:
+            {}

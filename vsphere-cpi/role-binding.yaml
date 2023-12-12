@@ -1,0 +1,50 @@
+# Source: vsphere-cpi/templates/role-binding.yaml
+apiVersion: v1
+kind: List
+metadata: {}
+items:
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: RoleBinding
+  metadata:
+    name: servicecatalog.k8s.io:apiserver-authentication-reader
+    labels:
+      app: vsphere-cpi
+      vsphere-cpi-infra: role-binding
+      chart: vsphere-cpi-0.2.3
+      component: cloud-controller-manager
+      heritage: Helm
+      release: vsphere-cpi
+    namespace: default
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: extension-apiserver-authentication-reader
+  subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: cloud-controller-manager
+    namespace: default
+  - apiGroup: ""
+    kind: User
+    name: cloud-controller-manager
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRoleBinding
+  metadata:
+    name: cloud-controller-manager
+    labels:
+      app: vsphere-cpi
+      vsphere-cpi-infra: cluster-role-binding
+      chart: vsphere-cpi-0.2.3
+      component: cloud-controller-manager
+      heritage: Helm
+      release: vsphere-cpi
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: cloud-controller-manager
+  subjects:
+  - kind: ServiceAccount
+    name: cloud-controller-manager
+    namespace: default
+  - kind: User
+    name: cloud-controller-manager

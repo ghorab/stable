@@ -1,0 +1,86 @@
+# Source: kiam/templates/server-daemonset.yaml
+apiVersion: apps/v1beta2
+kind: DaemonSet
+metadata:
+  labels:
+    app: kiam
+    chart: kiam-2.5.3
+    component: "server"
+    heritage: Helm
+    release: kiam
+  name: kiam-server
+spec:
+  selector:
+    matchLabels:
+      app: kiam
+      component: "server"
+      release: kiam
+  template:
+    metadata:
+      labels:
+        app: kiam
+        component: "server"
+        release: kiam
+    spec:
+      serviceAccountName: kiam-server
+      hostNetwork: false
+      tolerations:
+        []
+      volumes:
+        - name: tls
+          secret:
+            secretName: kiam-server
+      containers:
+        - name: kiam-server
+          image: "quay.io/uswitch/kiam:v3.3"
+          imagePullPolicy: IfNotPresent
+          command:
+            - /kiam
+            - server
+          args:
+            - --json-log
+            - --level=info
+            - --bind=0.0.0.0:443
+            - --cert=/etc/kiam/tls/cert
+            - --key=/etc/kiam/tls/key
+            - --ca=/etc/kiam/tls/ca
+            - --role-base-arn-autodetect
+            - --session-duration=15m
+            - --sync=1m
+            - --prometheus-listen-addr=0.0.0.0:9620
+            - --prometheus-sync-interval=5s
+          volumeMounts:
+            - mountPath: /etc/kiam/tls
+              name: tls
+          livenessProbe:
+            exec:
+              command:
+                - /kiam
+                - health
+                - --cert=/etc/kiam/tls/cert
+                - --key=/etc/kiam/tls/key
+                - --ca=/etc/kiam/tls/ca
+                - --server-address=127.0.0.1:443
+                - --server-address-refresh=2s
+                - --timeout=5s
+                - --gateway-timeout-creation=50ms
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - /kiam
+                - health
+                - --cert=/etc/kiam/tls/cert
+                - --key=/etc/kiam/tls/key
+                - --ca=/etc/kiam/tls/ca
+                - --server-address=127.0.0.1:443
+                - --server-address-refresh=2s
+                - --timeout=5s
+                - --gateway-timeout-creation=50ms
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 10
+  updateStrategy:
+    type: OnDelete

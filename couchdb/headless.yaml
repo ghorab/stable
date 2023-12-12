@@ -1,0 +1,20 @@
+# Source: couchdb/templates/headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: couchdb-couchdb
+  labels:
+    app: couchdb
+    chart: couchdb-2.3.0
+    release: couchdb
+    heritage: Helm
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: couchdb
+      port: 5984
+  selector:
+    app: couchdb
+    release: couchdb
+---

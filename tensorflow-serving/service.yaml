@@ -1,0 +1,20 @@
+# Source: tensorflow-serving/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tensorflow-serving
+  labels:
+    heritage: "Helm"
+    release: "tensorflow-serving"
+    chart: tensorflow-serving-1.1.2
+    app: tensorflow-serving
+spec:
+  type: LoadBalancer
+  ports:
+    - name: serving
+      port: 9090
+      targetPort: serving
+  selector:
+    release: "tensorflow-serving"
+    app: tensorflow-serving
+---

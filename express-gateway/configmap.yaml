@@ -1,0 +1,60 @@
+# Source: express-gateway/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "express-gateway-express-gateway"
+  labels:
+    app: "express-gateway"
+    chart: "express-gateway-1.6.6"
+    release: "express-gateway"
+    heritage: "Helm"
+data:
+  system.config.yml: |-
+    db:
+      redis:
+        emulate: true
+        sentinels:
+        - host: express-gateway-redis-master
+          port: 6379
+        - host: express-gateway-redis-slave
+          port: 6379
+        name: express-gateway-redis-master
+        password: express-gateway
+        namespace: EG
+
+    cli:
+      url: http://localhost:9876
+
+    crypto:
+      algorithm: aes256
+      cipherKey: sensitiveKey
+      saltRounds: 10
+    session:
+      resave: false
+      saveUninitialized: false
+      secret: keyboard cat
+    accessTokens:
+      timeToExpiry: 7200000
+    refreshTokens:
+      timeToExpiry: 7200000
+    authorizationCodes:
+      timeToExpiry: 300000
+
+  gateway.config.yml: |-
+    admin:
+      port: 9876
+      hostname: 0.0.0.0
+    https:
+      port: 8080
+      tls:
+        {}
+    apiEndpoints:
+    serviceEndpoints:
+    policies:
+      - proxy
+      - cors
+      - expression
+      - jwt
+      - terminate
+    pipelines:
+---

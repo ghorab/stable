@@ -1,0 +1,52 @@
+# Source: nats/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: "nats"
+    chart: "nats-4.3.7"
+    heritage: "Helm"
+    release: "nats"
+  name: nats
+data:
+  nats-server.conf: |-
+    listen: 0.0.0.0:4222
+    http: 0.0.0.0:8222
+
+    # Authorization for client connections
+    authorization {
+      user: nats_client
+      password: X6xV6zE5Xj
+      timeout:  1
+    }
+
+    # Logging options
+    debug: false
+    trace: false
+    logtime: false
+
+    # Pid file
+    pid_file: "/tmp/nats-server.pid"
+
+    # Some system overides
+
+
+    # Clustering definition
+    cluster {
+      listen: 0.0.0.0:6222
+
+      # Authorization for cluster connections
+      authorization {
+        user: nats_cluster
+        password: Y3OJr8M00t
+        timeout:  1
+      }
+
+      # Routes are actively solicited and connected to from this server.
+      # Other servers can connect to us if they supply the correct credentials
+      # in their routes definitions from above
+      routes = [
+        nats://nats_cluster:Y3OJr8M00t@nats-cluster:6222
+      ]
+    }
+---

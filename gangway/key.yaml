@@ -1,0 +1,14 @@
+# Source: gangway/templates/key.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gangway-key
+  labels:
+    app.kubernetes.io/name: gangway
+    helm.sh/chart: gangway-0.4.5
+    app.kubernetes.io/instance: gangway
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  sessionkey: "cE9aYkRyTVB3TnZyckpYdHRHMlpxeHdPSDY3T3BqMDc="
+---

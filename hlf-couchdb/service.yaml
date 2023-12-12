@@ -1,0 +1,21 @@
+# Source: hlf-couchdb/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hlf-couchdb
+  labels:
+    app: hlf-couchdb
+    heritage: "Helm"
+    release: "hlf-couchdb"
+    chart: hlf-couchdb-1.0.9
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5984
+      targetPort: couchdb
+      protocol: TCP
+      name: couchdb
+  selector:
+    app: hlf-couchdb
+    release: hlf-couchdb
+---

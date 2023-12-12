@@ -1,0 +1,42 @@
+# Source: terracotta/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: terracotta-configuration
+  labels:
+    app: terracotta
+    chart: terracotta-1.1.2
+    release: "terracotta"
+    heritage: "Helm"
+data:
+  tc-config.xml: |
+    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <tc-config xmlns="http://www.terracotta.org/config">
+        <plugins>
+            <config>
+                <ohr:offheap-resources xmlns:ohr="http://www.terracotta.org/config/offheap-resource">
+                    <ohr:resource name="offheap-1" unit="MB">512</ohr:resource>
+                    <ohr:resource name="offheap-2" unit="MB">256</ohr:resource>
+                </ohr:offheap-resources>
+            </config>
+        </plugins>
+        <servers>
+        
+            <server host="terracotta-0.terracotta" name="terracotta-0" bind="0.0.0.0">
+                <logs>stdout:</logs>
+                <tsa-port bind="0.0.0.0">9410</tsa-port>
+                <tsa-group-port bind="0.0.0.0">9430</tsa-group-port>
+            </server>
+        
+            <server host="terracotta-1.terracotta" name="terracotta-1" bind="0.0.0.0">
+                <logs>stdout:</logs>
+                <tsa-port bind="0.0.0.0">9410</tsa-port>
+                <tsa-group-port bind="0.0.0.0">9430</tsa-group-port>
+            </server>
+        
+        </servers>
+        <failover-priority>
+          <availability/>
+        </failover-priority>
+    </tc-config>
+---

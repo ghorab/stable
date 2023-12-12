@@ -1,0 +1,21 @@
+# Source: kubernetes-dashboard/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetes-dashboard
+  labels:
+    app: kubernetes-dashboard
+    chart: kubernetes-dashboard-1.11.1
+    release: kubernetes-dashboard
+    heritage: Helm
+    kubernetes.io/cluster-service: "true"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 443
+    targetPort: 8443
+    name: "https"
+  selector:
+    app: kubernetes-dashboard
+    release: kubernetes-dashboard
+---

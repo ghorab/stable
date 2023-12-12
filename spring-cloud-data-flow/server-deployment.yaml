@@ -1,0 +1,90 @@
+# Source: spring-cloud-data-flow/templates/server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-cloud-data-flow-data-flow-server
+  labels:
+    app: spring-cloud-data-flow
+    component: server
+    chart: "spring-cloud-data-flow-2.8.1"
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: spring-cloud-data-flow
+      component: server
+      release: "spring-cloud-data-flow"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: spring-cloud-data-flow
+        component: server
+        release: "spring-cloud-data-flow"
+    spec:
+      containers:
+      - name: spring-cloud-data-flow-data-flow-server
+        image: springcloud/spring-cloud-dataflow-server:2.6.0
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: database
+            mountPath: /etc/secrets/database
+            readOnly: true
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          {}
+        livenessProbe:
+          httpGet:
+            path: /management/health
+            port: http
+          initialDelaySeconds: 45
+        readinessProbe:
+          httpGet:
+            path: /management/info
+            port: http
+          initialDelaySeconds: 45
+        env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: SERVER_PORT
+          value: '8080'
+        - name: SPRING_CLOUD_CONFIG_ENABLED
+          value: 'false'
+        - name: SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API
+          value: 'true'
+        - name: SPRING_CLOUD_KUBERNETES_SECRETS_PATHS
+          value: /etc/secrets
+        - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
+          value: spring-cloud-data-flow-data-flow-server
+        - name: SPRING_CLOUD_SKIPPER_CLIENT_SERVER_URI
+          value: 'http://${SPRING_CLOUD_DATA_FLOW_DATA_FLOW_SKIPPER_SERVICE_HOST}/api'
+        - name: SPRING_CLOUD_DATAFLOW_SERVER_URI
+          value: 'http://${SPRING_CLOUD_DATA_FLOW_DATA_FLOW_SERVER_SERVICE_HOST}:${SPRING_CLOUD_DATA_FLOW_DATA_FLOW_SERVER_SERVICE_PORT}'
+        - name: SPRING_APPLICATION_JSON
+          value: "{ \"maven\": { \"local-repository\": null, \"remote-repositories\": { \"repo1\": { \"url\": \"https://repo.spring.io/libs-snapshot\"} } } }"
+        - name: KUBERNETES_TRUST_CERTIFICATES
+          value: "false"
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_STREAMS_ENABLED
+          value: "true"
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_TASKS_ENABLED
+          value: "true"
+        - name: SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED
+          value: "true"
+        - name: SPRING_CLOUD_DATAFLOW_TASK_COMPOSED_TASK_RUNNER_URI
+          value: 'docker://springcloud/spring-cloud-dataflow-composed-task-runner:2.6.0'
+      volumes:
+        - name: database
+          secret:
+            secretName: spring-cloud-data-flow-mysql
+      initContainers:
+      - name: init-db-wait
+        image: busybox:1.30.1
+        imagePullPolicy: IfNotPresent
+        command: ['sh', '-c', 'until nc -w3 -z ${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_HOST} ${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_PORT}; do echo waiting for database; sleep 3; done;']
+      serviceAccountName: spring-cloud-data-flow-data-flow
+---

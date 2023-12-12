@@ -1,0 +1,45 @@
+# Source: mailhog/templates/deployment.yaml
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mailhog
+    chart: mailhog-2.3.1
+    heritage: Helm
+    release: mailhog
+  name: mailhog
+spec:
+  template:
+    metadata:
+      labels:
+        app: mailhog
+        release: mailhog
+    spec:
+      securityContext:
+        runAsUser: 1000
+      containers:
+        - name: mailhog
+          image: "mailhog/mailhog:v1.0.0"
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: MH_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: http
+              containerPort: 8025
+              protocol: TCP
+            - name: smtp
+              containerPort: 1025
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: smtp
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+          readinessProbe:
+            tcpSocket:
+              port: smtp
+          resources:
+            {}

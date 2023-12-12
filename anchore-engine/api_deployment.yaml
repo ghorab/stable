@@ -1,0 +1,81 @@
+# Source: anchore-engine/templates/api_deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anchore-engine-anchore-engine-api
+  labels:
+    app: anchore-engine-anchore-engine
+    component: api
+    chart: anchore-engine-1.7.0
+    release: anchore-engine
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: anchore-engine-anchore-engine
+      component: api
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  template:
+    metadata:
+      labels:
+        app: anchore-engine-anchore-engine
+        component: api
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+      - name: "anchore-engine-api"
+        image: docker.io/anchore/anchore-engine:v0.7.3
+        imagePullPolicy: IfNotPresent
+        args: ["anchore-manager", "service", "start", "--no-auto-upgrade", "apiext"]
+        envFrom:
+        - secretRef:
+            name: anchore-engine-anchore-engine
+        - configMapRef:
+            name: anchore-engine-anchore-engine-env
+        env:
+        - name: ANCHORE_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: ANCHORE_CLI_PASS
+          valueFrom:
+            secretKeyRef:
+              name: anchore-engine-anchore-engine
+              key: ANCHORE_ADMIN_PASSWORD
+        ports:
+        - containerPort: 8228
+          name: external-api
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config/config.yaml
+          subPath: config.yaml
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: external-api
+          initialDelaySeconds: 120
+          timeoutSeconds: 10
+          periodSeconds: 10
+          failureThreshold: 6
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: external-api
+          timeoutSeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        resources:
+          
+          null
+      volumes:
+        - name: config-volume
+          configMap:
+            name: anchore-engine-anchore-engine
+---

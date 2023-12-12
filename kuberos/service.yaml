@@ -1,0 +1,21 @@
+# Source: kuberos/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kuberos
+  labels:
+    app: kuberos
+    chart: kuberos-0.2.3
+    release: kuberos
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: kuberos-port
+      protocol: TCP
+      name: http
+  selector:
+    app: kuberos
+    release: kuberos
+---

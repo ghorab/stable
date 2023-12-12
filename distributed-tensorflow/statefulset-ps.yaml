@@ -1,0 +1,60 @@
+# Source: distributed-tensorflow/templates/statefulset-ps.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: distributed-tensorflow-ps
+  labels:
+    app: distributed-tensorflow
+    chart: distributed-tensorflow-1.2.2
+    release: distributed-tensorflow
+    heritage: Helm
+    role: ps
+spec:
+  selector:
+    matchLabels:
+      app: distributed-tensorflow
+      release: distributed-tensorflow
+      role: ps
+  serviceName: distributed-tensorflow-ps
+  podManagementPolicy: Parallel
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: distributed-tensorflow
+        chart: distributed-tensorflow-1.2.2
+        release: distributed-tensorflow
+        heritage: Helm
+        role: ps
+    spec:
+      containers:
+      - name: ps
+        image: "dysproz/distributed-tf:1.7.0"
+        imagePullPolicy: IfNotPresent
+        command:
+        - "python"
+        - "train_distributed.py"
+        - --learning_rate
+        - "0.001"
+        - --batch_size
+        - "20"
+        env:
+        - name: WORKER_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-tensorflow
+              key: worker.hostList
+        - name: PS_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: distributed-tensorflow
+              key: ps.hostList
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: JOB_NAME
+          value: ps
+        ports:
+        - containerPort: 8000
+---

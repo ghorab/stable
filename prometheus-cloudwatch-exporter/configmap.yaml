@@ -1,0 +1,41 @@
+# Source: prometheus-cloudwatch-exporter/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-cloudwatch-exporter
+  labels:
+    app: prometheus-cloudwatch-exporter
+    chart: prometheus-cloudwatch-exporter-0.8.4
+    release: prometheus-cloudwatch-exporter
+    heritage: Helm
+data:
+  config.yml: |
+    # This is the default configuration for prometheus-cloudwatch-exporter
+    region: eu-west-1
+    period_seconds: 240
+    metrics:
+    - aws_namespace: AWS/ELB
+      aws_metric_name: HealthyHostCount
+      aws_dimensions: [AvailabilityZone, LoadBalancerName]
+      aws_statistics: [Average]
+    
+    - aws_namespace: AWS/ELB
+      aws_metric_name: UnHealthyHostCount
+      aws_dimensions: [AvailabilityZone, LoadBalancerName]
+      aws_statistics: [Average]
+    
+    - aws_namespace: AWS/ELB
+      aws_metric_name: RequestCount
+      aws_dimensions: [AvailabilityZone, LoadBalancerName]
+      aws_statistics: [Sum]
+    
+    - aws_namespace: AWS/ELB
+      aws_metric_name: Latency
+      aws_dimensions: [AvailabilityZone, LoadBalancerName]
+      aws_statistics: [Average]
+    
+    - aws_namespace: AWS/ELB
+      aws_metric_name: SurgeQueueLength
+      aws_dimensions: [AvailabilityZone, LoadBalancerName]
+      aws_statistics: [Maximum, Sum]
+---

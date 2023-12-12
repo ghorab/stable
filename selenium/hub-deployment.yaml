@@ -1,0 +1,55 @@
+# Source: selenium/templates/hub-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-selenium-hub
+  labels:
+    chart: "selenium-1.2.3"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-selenium-hub
+      release: "selenium"
+  template:
+    metadata:
+      labels:
+        app: selenium-selenium-hub
+        chart: "selenium-1.2.3"
+        release: "selenium"
+        heritage: "Helm"
+    spec:
+      containers:
+        - name: selenium
+          image: "selenium/hub:3.141.59"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4444
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /wd/hub/status
+              port: 4444
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /wd/hub/status
+              port: 4444
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx400m"
+            - name: SE_OPTS
+              value: ""
+            - name: GRID_HUB_PORT
+              value: "4444"
+          resources:
+            limits:
+              cpu: ".5"
+              memory: 512Mi
+      nodeSelector:
+      affinity:
+      tolerations:

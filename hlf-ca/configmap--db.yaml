@@ -1,0 +1,13 @@
+# Source: hlf-ca/templates/configmap--db.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hlf-ca--db
+  labels:
+    app: hlf-ca
+    heritage: "Helm"
+    release: "hlf-ca"
+    chart: hlf-ca-1.2.3
+data:
+  DB_SSL: "disable"
+---

@@ -1,0 +1,17 @@
+# Source: satisfy/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: satisfy
+  labels:
+    app.kubernetes.io/name: satisfy
+    helm.sh/chart: satisfy-1.1.2
+    app.kubernetes.io/instance: satisfy
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

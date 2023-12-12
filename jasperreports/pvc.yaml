@@ -1,0 +1,17 @@
+# Source: jasperreports/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jasperreports
+  labels:
+    app: "jasperreports"
+    chart: "jasperreports-7.0.11"
+    release: "jasperreports"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

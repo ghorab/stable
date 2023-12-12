@@ -1,0 +1,19 @@
+# Source: etcd-operator/templates/operator-clusterrole-binding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: etcd-operator-etcd-operator-etcd-operator
+  labels:
+    chart: "etcd-operator-0.11.2"
+    app: etcd-operator
+    heritage: Helm
+    release: etcd-operator
+subjects:
+- kind: ServiceAccount
+  name: etcd-operator-etcd-operator-etcd-operator
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: etcd-operator-etcd-operator-etcd-operator
+---

@@ -1,0 +1,22 @@
+# Source: hubot/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hubot
+  labels:
+    
+    app.kubernetes.io/name: hubot
+    app.kubernetes.io/instance: hubot
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: hubot-1.0.4
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: hubot
+    app.kubernetes.io/instance: hubot
+---

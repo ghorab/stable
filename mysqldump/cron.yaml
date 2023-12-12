@@ -1,0 +1,53 @@
+# Source: mysqldump/templates/cron.yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: mysqldump
+  labels:
+    app.kubernetes.io/name: mysqldump
+    helm.sh/chart: mysqldump-2.6.2
+    app.kubernetes.io/instance: mysqldump
+    app.kubernetes.io/version: "2.4.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  schedule: "0 3 * * *"
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    metadata:
+      labels:
+        app: mysqldump
+        chart: mysqldump-2.6.2
+        cronjob-name: mysqldump
+        release: "mysqldump"
+        heritage: "Helm"
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+          - name: mysql-backup
+            image: "monotek/gcloud-mysql:8"
+            imagePullPolicy: "IfNotPresent"
+            command: ["/bin/bash", "/scripts/backup.sh"]
+            envFrom:
+            - configMapRef:
+                name: "mysqldump"
+            - secretRef:
+                name: "mysqldump"
+            volumeMounts:
+            - name: backups
+              mountPath: /backup
+            - name: mysql-backup-script
+              mountPath: /scripts
+            resources:
+                    {}
+          restartPolicy: Never
+          volumes:
+          - name: backups
+            persistentVolumeClaim:
+              claimName: mysqldump
+          - name: mysql-backup-script
+            configMap:
+              name: mysqldump-script

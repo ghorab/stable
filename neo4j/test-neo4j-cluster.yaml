@@ -1,0 +1,50 @@
+# Source: neo4j/templates/tests/test-neo4j-cluster.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "neo4j-neo4j-service-test-ev766"
+  labels:
+    heritage: Helm
+    release: neo4j
+    chart: neo4j-3.0.1
+    app: neo4j
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
+spec:
+  containers:
+    - name: neo4j-ui-test
+      image: markhneedham/k8s-kubectl:master
+      env:
+        - name: "STATEFULSET_NAME"
+          value: "neo4j-neo4j"
+        - name: "CORE_REPLICAS"
+          value: "3"
+        - name: "NAMESPACE"
+          value: default
+        - name: NEO4J_SECRETS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: neo4j-neo4j-secrets
+              key: neo4j-password
+      command: ["/tools/bats/bats", "-t", "/tests/run.sh"]
+      volumeMounts:
+      - mountPath: /tests
+        name: tests
+        readOnly: true
+      - mountPath: /tools
+        name: tools
+  initContainers:
+  - name: test-framework
+    image: "dduportal/bats:0.4.0"
+    command: ["bash", "-c", "set -ex\ncp -R /usr/local/libexec/ /tools/bats/"]
+    volumeMounts:
+      - mountPath: "/tools"
+        name: tools
+  volumes:
+  - name: tests
+    configMap:
+      name: neo4j-neo4j-tests
+  - name: tools
+    emptyDir: {}
+  restartPolicy: Never

@@ -1,0 +1,74 @@
+# Source: kuberhealthy/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuberhealthy
+  labels:
+    app: kuberhealthy
+    chart: kuberhealthy
+    release: kuberhealthy
+    heritage: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kuberhealthy
+      release: kuberhealthy
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: kuberhealthy
+        chart: kuberhealthy
+        release: kuberhealthy
+        heritage: Helm
+    spec:
+      serviceAccountName: kuberhealthy
+      automountServiceAccountToken: true
+      containers:
+      - image: quay.io/comcast/kuberhealthy:v1.0.2
+        command: [/app/kuberhealthy]
+        ports:
+        - containerPort: 8080
+          name: http
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 999
+          allowPrivilegeEscalation: false
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 2
+          periodSeconds: 4
+          successThreshold: 1
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 1
+        name: kuberhealthy
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 2
+          periodSeconds: 4
+          successThreshold: 1
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 80Mi
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 310

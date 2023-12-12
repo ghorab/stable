@@ -1,0 +1,17 @@
+# Source: redmine/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: redmine
+  labels:
+    app.kubernetes.io/name: redmine
+    helm.sh/chart: redmine-14.1.12
+    app.kubernetes.io/instance: redmine
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

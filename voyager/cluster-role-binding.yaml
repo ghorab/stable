@@ -1,0 +1,19 @@
+# Source: voyager/templates/cluster-role-binding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: voyager-voyager
+  labels:
+    chart: "voyager-3.2.4"
+    app: "voyager"
+    heritage: "Helm"
+    release: "voyager"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: voyager-voyager
+subjects:
+- kind: ServiceAccount
+  name: voyager-voyager
+  namespace: default
+---

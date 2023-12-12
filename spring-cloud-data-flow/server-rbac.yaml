@@ -1,0 +1,18 @@
+# Source: spring-cloud-data-flow/templates/server-rbac.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spring-cloud-data-flow-data-flow
+  labels:
+    app: spring-cloud-data-flow
+    chart: "spring-cloud-data-flow-2.8.1"
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+roleRef:
+  kind: Role
+  name: spring-cloud-data-flow-data-flow
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: spring-cloud-data-flow-data-flow
+---

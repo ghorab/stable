@@ -1,0 +1,22 @@
+# Source: couchdb/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: couchdb-couchdb
+  labels:
+    app: couchdb
+    chart: "couchdb-2.3.0"
+    heritage: "Helm"
+    release: "couchdb"
+data:
+  inifile: |
+    [chttpd]
+    bind_address = any
+    require_valid_user = false
+    
+    
+
+  seedlistinifile: |
+    [cluster]
+    seedlist = couchdb@couchdb-couchdb-0.couchdb-couchdb.default.svc.cluster.local,couchdb@couchdb-couchdb-1.couchdb-couchdb.default.svc.cluster.local,couchdb@couchdb-couchdb-2.couchdb-couchdb.default.svc.cluster.local
+---

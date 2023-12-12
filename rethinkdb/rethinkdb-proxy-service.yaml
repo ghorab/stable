@@ -1,0 +1,20 @@
+# Source: rethinkdb/templates/rethinkdb-proxy-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: rethinkdb-rethinkdb-proxy
+  labels:
+    app: rethinkdb-proxy
+    chart: rethinkdb-1.1.4
+    heritage: Helm
+    release: rethinkdb
+  annotations:
+spec:
+  type: ClusterIP
+  ports:
+    - port: 28015
+      targetPort: driver
+  selector:
+    app: rethinkdb-proxy
+    release: rethinkdb
+---

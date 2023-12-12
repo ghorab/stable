@@ -1,0 +1,67 @@
+# Source: hackmd/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hackmd
+  labels:
+    app: hackmd
+    chart: hackmd-2.0.3
+    release: hackmd
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hackmd
+      release: hackmd
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: hackmd
+        release: hackmd
+    spec:
+      containers:
+        - name: hackmd
+          image: "hackmdio/hackmd:1.3.0-alpine"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 3000
+            initialDelaySeconds: 120
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 3000
+            initialDelaySeconds: 30
+          env:
+            - name: CMD_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hackmd-postgresql
+                  key: postgresql-password
+            - name: CMD_SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: hackmd
+                  key: sessionSecret
+            - name: CMD_DB_URL
+              value: postgres://hackmd:$(CMD_DB_PASSWORD)@hackmd-postgresql:5432/hackmd
+            - name: HMD_DB_URL
+              value: postgres://hackmd:$(CMD_DB_PASSWORD)@hackmd-postgresql:5432/hackmd
+          volumeMounts:
+            - name: data
+              mountPath: "/hackmd/public/uploads"
+          resources:
+            {}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hackmd
+---

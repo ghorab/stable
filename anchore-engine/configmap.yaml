@@ -1,0 +1,12 @@
+# Source: anchore-engine/charts/postgresql/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anchore-engine-postgresql
+  labels:
+    app: postgresql
+    chart: postgresql-1.0.1
+    release: anchore-engine
+    heritage: Helm
+data:
+---

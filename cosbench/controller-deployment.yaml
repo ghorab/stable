@@ -1,0 +1,41 @@
+# Source: cosbench/templates/controller-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cosbench-cosbench-controller
+  labels:
+    app: cosbench
+    chart: cosbench-1.0.3
+    component: controller
+    heritage: Helm
+    release: cosbench
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cosbench
+      release: cosbench
+      component: controller
+  template:
+    metadata:
+      labels:
+        app: cosbench
+        release: cosbench
+        component: controller
+    spec:
+      serviceAccountName: cosbench-cosbench-controller
+      containers:
+        - name: cosbench
+          image: "zenko/zenko-cosbench:0.0.6"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: controller
+              containerPort: 19088
+              protocol: TCP
+          env:
+            - name: LOG_LEVEL
+              value: "DEBUG"
+            - name: DRIVERS
+              value: "cosbench-cosbench-driver-0.cosbench-cosbench-driver"
+          args: ['java','-Dcosbench.tomcat.config=conf/controller-tomcat-server.xml','-server','-cp','main/*','org.eclipse.equinox.launcher.Main','-configuration','conf/.controller','-console','19089']
+---

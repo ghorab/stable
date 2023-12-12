@@ -1,0 +1,22 @@
+# Source: distributed-tensorflow/templates/service-ps.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: distributed-tensorflow-ps
+  labels:
+    app: distributed-tensorflow
+    chart: distributed-tensorflow-1.2.2
+    release: distributed-tensorflow
+    heritage: Helm
+spec:
+  clusterIP: None
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: ps
+  selector:
+    app: distributed-tensorflow
+    release: distributed-tensorflow
+    role: ps
+---

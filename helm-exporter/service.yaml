@@ -1,0 +1,24 @@
+# Source: helm-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: helm-exporter
+  labels:
+    app.kubernetes.io/name: helm-exporter
+    helm.sh/chart: helm-exporter-0.3.3
+    app.kubernetes.io/instance: helm-exporter
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    prometheus.io/scrape: "true"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: 9571
+      targetPort: http
+      protocol: TCP
+      name: metrics
+  selector:
+    app.kubernetes.io/name: helm-exporter
+    app.kubernetes.io/instance: helm-exporter
+---

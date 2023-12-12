@@ -1,0 +1,21 @@
+# Source: hoard/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hoard
+  labels:
+    app.kubernetes.io/name: hoard
+    app.kubernetes.io/instance: hoard
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: hoard-1.0.2
+spec:
+  type: ClusterIP
+  ports:
+  - port: 53431
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: hoard
+    release: hoard
+---

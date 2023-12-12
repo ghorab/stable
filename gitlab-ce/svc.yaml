@@ -1,0 +1,25 @@
+# Source: gitlab-ce/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-ce-gitlab-ce
+  labels:
+    app: gitlab-ce-gitlab-ce
+    chart: "gitlab-ce-0.2.3"
+    release: "gitlab-ce"
+    heritage: "Helm"
+spec:
+  type: LoadBalancer
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: ssh
+  - name: http
+    port: 80
+    targetPort: http
+  - name: https
+    port: 443
+    targetPort: https
+  selector:
+    app: gitlab-ce-gitlab-ce
+---

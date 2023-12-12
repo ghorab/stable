@@ -1,0 +1,36 @@
+# Source: metricbeat/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: metricbeat
+  labels:
+    app: metricbeat
+    chart: metricbeat-1.7.3
+    release: metricbeat
+    heritage: Helm
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - namespaces
+  - events
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources:
+  - replicasets
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources:
+  - statefulsets
+  - deployments
+  - replicasets
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - nodes/stats
+  - nodes/metrics
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---

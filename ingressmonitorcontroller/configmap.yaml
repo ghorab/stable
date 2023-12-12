@@ -1,0 +1,24 @@
+# Source: ingressmonitorcontroller/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingressmonitorcontroller
+  annotations:
+    fabric8.io/target-platform: kubernetes
+  labels:
+    app: ingressmonitorcontroller
+    chart: "ingressmonitorcontroller-1.0.50"
+    release: "ingressmonitorcontroller"
+    heritage: "Helm"
+data:
+  config.yaml: |-
+    providers:
+    - name: UptimeRobot
+      apiKey: your-api-key
+      apiURL: https://api.uptimerobot.com/v2
+      username: null
+      password: null
+      alertContacts: some-alert-contacts
+    enableMonitorDeletion: true
+    monitorNameTemplate: "{{.Namespace}}-{{.IngressName}}"
+---

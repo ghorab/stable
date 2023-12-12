@@ -1,0 +1,32 @@
+# Source: rabbitmq-ha/templates/service-discovery.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-ha-discovery
+  namespace: default
+  labels:
+    app: rabbitmq-ha
+    chart: rabbitmq-ha-1.47.1
+    release: rabbitmq-ha
+    heritage: Helm
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      protocol: TCP
+      port: 15672
+      targetPort: http
+    - name: amqp
+      protocol: TCP
+      port: 5672
+      targetPort: amqp
+    - name: epmd
+      protocol: TCP
+      port: 4369
+      targetPort: epmd
+  publishNotReadyAddresses: true
+  selector:
+    app: rabbitmq-ha
+    release: rabbitmq-ha
+  type: ClusterIP
+---

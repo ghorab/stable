@@ -1,0 +1,60 @@
+# Source: namerd/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: namerd-namerd
+  labels:
+    app: namerd-namerd
+    chart: "namerd-0.2.2"
+    heritage: "Helm"
+    release: "namerd"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: namerd-namerd
+      release: "namerd"
+  template:
+    metadata:
+      labels:
+        app: namerd-namerd
+        release: "namerd"
+    spec:
+      volumes:
+      - name: namerd-namerd-config
+        configMap:
+          name: "namerd-namerd-config"
+      containers:
+      - name: namerd-namerd
+        image: "buoyantio/namerd:0.9.1"
+        imagePullPolicy: "IfNotPresent"
+        args:
+        - /io.buoyant/namerd/config/config.yaml
+        ports:
+        - name: sync
+          containerPort: 4100
+        - name: api
+          containerPort: 4180
+        volumeMounts:
+        - name: "namerd-namerd-config"
+          mountPath: "/io.buoyant/namerd/config"
+          readOnly: true
+        resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 0
+              memory: 512Mi
+      - name: kubectl
+        image: "buoyantio/kubectl:v1.4.0"
+        imagePullPolicy: "IfNotPresent"
+        args:
+        - "proxy"
+        - "-p"
+        - "8001"
+        resources:
+            requests:
+              cpu: 0
+              memory: 32Mi
+---

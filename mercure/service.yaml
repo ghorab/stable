@@ -1,0 +1,22 @@
+# Source: mercure/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mercure
+  labels:
+    app.kubernetes.io/name: mercure
+    helm.sh/chart: mercure-4.0.3
+    app.kubernetes.io/instance: mercure
+    app.kubernetes.io/version: "0.10.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: mercure
+    app.kubernetes.io/instance: mercure
+---

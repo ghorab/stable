@@ -1,0 +1,21 @@
+# Source: owncloud/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: owncloud
+  labels:
+    app: owncloud
+    chart: owncloud-8.1.8
+    release: "owncloud"
+    heritage: "Helm"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: "Cluster"
+  loadBalancerIP: 
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  selector:
+    app: owncloud
+---

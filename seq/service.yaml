@@ -1,0 +1,25 @@
+# Source: seq/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: seq
+  labels:
+    app: seq
+    chart: seq-2.3.2
+    release: seq
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: ui
+      protocol: TCP
+      name: ui
+    - port: 5341
+      targetPort: ingestion
+      protocol: TCP
+      name: ingestion
+  selector:
+    app: seq
+    release: seq
+---

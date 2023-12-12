@@ -1,0 +1,18 @@
+# Source: sapho/charts/mysql/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sapho-mysql
+  namespace: default
+  labels:
+    app: sapho-mysql
+    chart: "mysql-1.6.7"
+    release: "sapho"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

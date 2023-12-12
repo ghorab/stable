@@ -1,0 +1,80 @@
+# Source: jasperreports/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jasperreports
+  labels:
+    app: "jasperreports"
+    chart: "jasperreports-7.0.11"
+    release: "jasperreports"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: "jasperreports"
+      release: "jasperreports"
+  template:
+    metadata:
+      labels:
+        app: "jasperreports"
+        chart: "jasperreports-7.0.11"
+        release: "jasperreports"
+    spec:      
+      containers:
+      - name: jasperreports
+        image: docker.io/bitnami/jasperreports:7.2.0-debian-10-r24
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MARIADB_HOST
+          value: jasperreports-mariadb
+        - name: MARIADB_PORT_NUMBER
+          value: "3306"
+        - name: JASPERREPORTS_DATABASE_NAME
+          value: "bitnami_jasperreports"
+        - name: JASPERREPORTS_DATABASE_USER
+          value: "bn_jasperreports"
+        - name: JASPERREPORTS_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jasperreports-mariadb
+              key: mariadb-password
+        - name: JASPERREPORTS_USERNAME
+          value: "user"
+        - name: JASPERREPORTS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jasperreports
+              key: jasperreports-password
+        - name: JASPERREPORTS_EMAIL
+          value: "user@example.com"
+        ports:
+        - name: http
+          containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /jasperserver/login.html
+            port: http
+          initialDelaySeconds: 300
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          httpGet:
+            path: /jasperserver/login.html
+            port: http
+          initialDelaySeconds: 30
+          timeoutSeconds: 3
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+        volumeMounts:
+        - name: jasperreports-data
+          mountPath: /bitnami/jasperreports
+      volumes:
+      - name: jasperreports-data
+        persistentVolumeClaim:
+          claimName: jasperreports
+---

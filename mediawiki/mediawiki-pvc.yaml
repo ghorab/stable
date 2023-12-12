@@ -1,0 +1,17 @@
+# Source: mediawiki/templates/mediawiki-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mediawiki-mediawiki
+  labels:
+    app: mediawiki
+    chart: mediawiki-9.1.9
+    release: "mediawiki"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

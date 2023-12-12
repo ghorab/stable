@@ -1,0 +1,27 @@
+# Source: ethereum/templates/geth.configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ethereum-geth-config
+  labels:
+    app: ethereum
+    chart: ethereum-1.0.2
+    release: ethereum
+    heritage: Helm
+data:
+  networkid: "98052"
+  genesis.json: |-
+    {
+        "config": {
+            "chainId": 98052,
+            "homesteadBlock": 0,
+            "eip150Block": 0,
+            "eip155Block": 0,
+            "eip158Block": 0
+        },
+        "difficulty":  "0x0400",
+        "gasLimit": "0x8000000",
+        "alloc": {
+        }
+    }
+---

@@ -1,0 +1,20 @@
+# Source: gce-ingress/templates/config-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gce-ingress
+  labels:
+    app: gce-ingress
+    chart: gce-ingress-1.2.2
+    release: gce-ingress
+    heritage: Helm
+data:
+  gce.conf: |
+    [global]
+    token-url = nil
+    project-id = 
+    network = 
+    subnetwork = 
+    node-instance-prefix = 
+    node-tags =
+---

@@ -1,0 +1,153 @@
+# Source: graylog/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: graylog
+  labels:
+    helm.sh/chart: graylog-1.6.12
+    app.kubernetes.io/name: graylog
+    app.kubernetes.io/instance: "graylog"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "3.1"
+spec:
+  serviceName: graylog
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: graylog
+      app.kubernetes.io/instance: "graylog"
+      app.kubernetes.io/managed-by: "Helm"
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: graylog-1.6.12
+        app.kubernetes.io/name: graylog
+        app.kubernetes.io/instance: "graylog"
+        app.kubernetes.io/managed-by: "Helm"
+        app.kubernetes.io/version: "3.1"
+      annotations:
+    spec:
+      serviceAccountName: graylog
+      initContainers:
+        - name: "setup"
+          image: "alpine"
+          imagePullPolicy: "IfNotPresent"
+          # Graylog journal will recursive in every subdirectories. Any invalid format directories will cause errors
+          command:
+            - /bin/sh
+            - -c
+            - |
+              rm -rf /usr/share/graylog/data/journal/lost+found
+              wget https://storage.googleapis.com/kubernetes-release/release/v1.16.3/bin/linux/amd64/kubectl -O /k8s/kubectl
+              chmod +x /k8s/kubectl
+
+              GRAYLOG_HOME=/usr/share/graylog
+              chown -R 1100:1100 ${GRAYLOG_HOME}/data/
+          env:
+          volumeMounts:
+            - name: journal
+              mountPath: /usr/share/graylog/data/journal
+            - mountPath: /k8s
+              name: kubectl
+      containers:
+        - name: graylog-server
+          image: "graylog/graylog:3.1"
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - /entrypoint.sh
+          env:
+            - name: GRAYLOG_SERVER_JAVA_OPTS
+              value: "-Djava.net.preferIPv4Stack=true -XX:NewRatio=1 -server -XX:+ResizeTLAB -XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSClassUnloadingEnabled -XX:+UseParNewGC -XX:-OmitStackTraceInFastThrow -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap "
+            - name: GRAYLOG_PASSWORD_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: graylog
+                  key: graylog-password-secret
+            - name: GRAYLOG_ROOT_PASSWORD_SHA2
+              valueFrom:
+                secretKeyRef:
+                  name: graylog
+                  key: graylog-password-sha2
+          securityContext:
+            privileged: false
+          ports:
+            - containerPort: 9000
+              name: graylog
+          resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: 500m
+              memory: 1024Mi
+          livenessProbe:
+            httpGet:
+              path: /api/system/lbstatus
+              port: 9000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /api/system/lbstatus
+              port: 9000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: journal
+              mountPath: /usr/share/graylog/data/journal
+            - name: config
+              mountPath: /usr/share/graylog/config
+            - name: entrypoint
+              mountPath: /entrypoint.sh
+              subPath: entrypoint.sh
+            - name: kubectl
+              mountPath: /k8s
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - bash
+                  - -ec
+                  - |
+                    curl  -XPOST -sS \
+                      -u "admin:${GRAYLOG_PASSWORD_SECRET}" \
+                      -H "X-Requested-By: graylog" \
+                      http://localhost:9000/api/system/shutdown/shutdown
+      terminationGracePeriodSeconds: 120
+      volumes:
+        - name: config
+          configMap:
+            name: graylog
+            items:
+              - key: graylog.conf
+                path: graylog.conf
+                mode: 292 # 0444
+              - key: log4j2.xml
+                path: log4j2.xml
+                mode: 292 # 0444
+        - name: entrypoint
+          configMap:
+            name: graylog
+            items:
+              - key: entrypoint.sh
+                path: entrypoint.sh
+                mode: 365 # 0555
+        - name: kubectl
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: journal
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "20Gi"
+---

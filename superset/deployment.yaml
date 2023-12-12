@@ -1,0 +1,70 @@
+# Source: superset/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superset
+  labels:
+    app: superset
+    chart: superset-1.1.13
+    release: superset
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: superset
+      release: superset
+  template:
+    metadata:
+      name: superset
+      labels:
+        app: superset
+        chart: superset-1.1.13
+        release: superset
+        heritage: Helm
+      annotations:
+        checksum/secrets: 5da19493926730af1e842ff1b4d8bb53ce639bc4c46c8f284d5414f6af3d558f
+    spec:
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
+      volumes:
+        - name: superset-configs
+          secret:
+            secretName: superset
+        - name: storage-volume
+          emptyDir: {}
+      containers:
+        - name: superset
+          image: "amancevice/superset:0.36.0"
+          imagePullPolicy: IfNotPresent
+          command: ["/usr/bin/env"]
+          args:
+          - bash
+          - /home/superset/init_superset.sh
+          - production-mode
+          volumeMounts:
+            - name: superset-configs
+              mountPath: /home/superset
+            - name: storage-volume
+              mountPath: /var/lib/superset
+          ports:
+            - name: http
+              containerPort: 8088
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 80
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5

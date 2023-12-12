@@ -1,0 +1,22 @@
+# Source: hazelcast-jet/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hazelcast-jet
+  labels:
+    app.kubernetes.io/name: hazelcast-jet
+    helm.sh/chart: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+    app.kubernetes.io/managed-by: "Helm"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+  ports:
+  - protocol: TCP
+    port: 5701
+    targetPort: hazelcast-jet
+    name: hzport
+---

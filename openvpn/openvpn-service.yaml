@@ -1,0 +1,21 @@
+# Source: openvpn/templates/openvpn-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: openvpn
+  labels:
+    app: openvpn
+    chart: openvpn-4.2.5
+    release: openvpn
+    heritage: Helm
+spec:
+  ports:
+    - name: openvpn
+      port: 443
+      targetPort: 443
+      protocol: TCP
+  selector:
+    app: openvpn
+    release: openvpn
+  type: LoadBalancer
+---

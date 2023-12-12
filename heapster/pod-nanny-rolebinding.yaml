@@ -1,0 +1,19 @@
+# Source: heapster/templates/pod-nanny-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: heapster-pod-nanny
+  labels:
+    app: heapster
+    chart: heapster-1.0.4
+    heritage: Helm
+    release: heapster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: heapster-pod-nanny
+subjects:
+- kind: ServiceAccount
+  name: heapster
+  namespace: default
+---

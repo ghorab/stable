@@ -1,0 +1,21 @@
+# Source: schema-registry-ui/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: schema-registry-ui
+  labels:
+    app: schema-registry-ui
+    chart: schema-registry-ui-0.4.4
+    release: schema-registry-ui
+    heritage: Helm
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: schema-registry-ui
+    release: schema-registry-ui
+---

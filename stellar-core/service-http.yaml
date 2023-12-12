@@ -1,0 +1,21 @@
+# Source: stellar-core/templates/service-http.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: stellar-core-http
+  labels:
+    app: stellar-core
+    chart: stellar-core-1.0.2
+    release: stellar-core
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 11626
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: stellar-core
+    release: stellar-core
+---

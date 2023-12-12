@@ -1,0 +1,22 @@
+# Source: express-gateway/templates/service-eg-admin.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: express-gateway-express-gateway-admin
+  annotations:
+  labels:
+    app: express-gateway
+    chart: "express-gateway-1.6.6"
+    release: "express-gateway"
+    heritage: "Helm"
+spec:
+  type: NodePort
+  ports:
+  - name: eg-admin
+    port: 9876
+    targetPort: 9876
+    protocol: TCP
+  selector:
+    app: express-gateway
+    release: express-gateway
+---

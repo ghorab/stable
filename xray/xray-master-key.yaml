@@ -1,0 +1,14 @@
+# Source: xray/templates/xray-master-key.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: xray-master-key
+  labels:
+    app: xray
+    chart: xray-0.4.3
+    heritage: Helm
+    release: xray
+type: Opaque
+data:
+  master-key: "RkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRg=="
+---

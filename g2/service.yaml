@@ -1,0 +1,25 @@
+# Source: g2/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: g2-g2
+  labels:
+    app: "g2"
+    chart: "g2-0.3.3"
+    release: "g2"
+    heritage: "Helm"
+spec:
+  ports:
+  - name: http
+    port: 4730
+    protocol: TCP
+    targetPort: http
+  - name: restapi
+    port: 3000
+    protocol: TCP
+    targetPort: restapi
+  selector:
+    app: "g2"
+    release: "g2"
+  type: 'ClusterIP'
+---

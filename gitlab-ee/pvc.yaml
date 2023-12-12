@@ -1,0 +1,19 @@
+# Source: gitlab-ee/charts/redis/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: gitlab-ee-redis
+  labels:
+    app: gitlab-ee-redis
+    chart: "redis-0.9.0"
+    release: "gitlab-ee"
+    heritage: "Helm"
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: default
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "10Gi"
+---

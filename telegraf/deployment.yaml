@@ -1,0 +1,48 @@
+# Source: telegraf/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegraf
+  labels:
+    app.kubernetes.io/name: telegraf
+    helm.sh/chart: telegraf-1.6.1
+    app.kubernetes.io/instance: telegraf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: telegraf
+      app.kubernetes.io/instance: telegraf
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: telegraf
+        app.kubernetes.io/instance: telegraf
+      annotations:
+        checksum/config: b47d85b7191b07e9cbc0e4583334a836269f404e351202efbe67043ce1450b03
+    spec:
+      serviceAccountName: telegraf
+      containers:
+      - name: telegraf
+        image: "telegraf:1.12-alpine"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          {}
+        env:
+        - name: HOSTNAME
+          value: telegraf-polling-service
+        volumeMounts:
+        - name: config
+          mountPath: /etc/telegraf
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8888
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8888
+      volumes:
+      - name: config
+        configMap:
+          name: telegraf

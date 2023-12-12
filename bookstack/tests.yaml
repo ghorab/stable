@@ -1,0 +1,11 @@
+# Source: bookstack/charts/mariadb/templates/tests.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bookstack-mariadb-tests
+data:
+  run.sh: |-
+    @test "Testing MariaDB is accessible" {
+      mysql -h bookstack-mariadb -uroot -p$MARIADB_ROOT_PASSWORD -e 'show databases;'
+    }
+---

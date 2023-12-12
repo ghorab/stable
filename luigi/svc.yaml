@@ -1,0 +1,21 @@
+# Source: luigi/charts/mysql/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: luigi-mysql
+  namespace: default
+  labels:
+    app: luigi-mysql
+    chart: "mysql-1.6.7"
+    release: "luigi"
+    heritage: "Helm"
+  annotations:
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: luigi-mysql
+---

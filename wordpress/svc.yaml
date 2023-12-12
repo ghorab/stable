@@ -1,0 +1,24 @@
+# Source: wordpress/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  labels:
+    app.kubernetes.io/name: wordpress
+    helm.sh/chart: wordpress-9.0.3
+    app.kubernetes.io/instance: wordpress
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: "Cluster"
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+    - name: https
+      port: 443
+      targetPort: https
+  selector:
+    app.kubernetes.io/name: wordpress
+    app.kubernetes.io/instance: wordpress
+---

@@ -1,0 +1,28 @@
+# Source: artifactory-ha/templates/nginx-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: artifactory-ha-nginx
+  labels:
+    app: artifactory-ha
+    chart: artifactory-ha-0.4.2
+    heritage: Helm
+    release: artifactory-ha
+    component: nginx
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  - port: 443
+    targetPort: 443
+    protocol: TCP
+    name: https
+  selector:
+    app: artifactory-ha
+    component: nginx
+    release: artifactory-ha
+---

@@ -1,0 +1,41 @@
+# Source: nginx-lego/templates/nginx-deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-lego-nginx-lego
+  labels:
+    chart: "nginx-lego-0.3.1"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-lego-nginx-lego
+    spec:
+      containers:
+      - name: nginx-lego
+        image: "k8s.gcr.io/nginx-ingress-controller:0.8.3"
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 128Mi
+        args:
+        - /nginx-ingress-controller
+        - --default-backend-service=default/nginx-lego-nginx-lego-default-backend
+        - --nginx-configmap=default/nginx-lego-nginx-lego

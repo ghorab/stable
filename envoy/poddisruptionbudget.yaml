@@ -1,0 +1,17 @@
+# Source: envoy/templates/poddisruptionbudget.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: envoy
+  labels:
+    app: envoy
+    chart: envoy-1.9.4
+    release: envoy
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: envoy
+      release: envoy
+  maxUnavailable: 1
+---

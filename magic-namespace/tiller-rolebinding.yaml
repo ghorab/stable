@@ -1,0 +1,20 @@
+# Source: magic-namespace/templates/tiller-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tiller-admin
+  labels:
+    app: helm
+    name: tiller
+    chart: magic-namespace-0.6.0
+    release: magic-namespace
+    heritage: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+- kind: ServiceAccount
+  name: tiller
+  namespace: default
+---

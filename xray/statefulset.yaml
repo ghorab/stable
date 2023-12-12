@@ -1,0 +1,126 @@
+# Source: xray/charts/rabbitmq-ha/templates/statefulset.yaml
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: xray-rabbitmq-ha
+  labels:
+    app: rabbitmq-ha
+    chart: rabbitmq-ha-1.5.2
+    release: xray
+    heritage: Helm
+spec:
+  serviceName: xray-rabbitmq-ha-discovery
+  replicas: 1
+  updateStrategy:
+    type: OnDelete
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-ha
+        release: xray
+      annotations:
+    spec:
+      terminationGracePeriodSeconds: 10
+      serviceAccountName: xray-rabbitmq-ha
+      initContainers:
+        - name: copy-rabbitmq-config
+          image: busybox
+          command: ['sh', '-c', 'cp /configmap/* /etc/rabbitmq; rm -f /var/lib/rabbitmq/.erlang.cookie']
+          volumeMounts:
+            - name: configmap
+              mountPath: /configmap
+            - name: config
+              mountPath: /etc/rabbitmq
+            - name: data
+              mountPath: /var/lib/rabbitmq
+      containers:
+        - name: rabbitmq-ha
+          image: rabbitmq:3.7-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: epmd
+              protocol: TCP
+              containerPort: 4369
+            - name: amqp
+              protocol: TCP
+              containerPort: 5672
+            - name: http
+              protocol: TCP
+              containerPort: 15672
+          livenessProbe:
+            exec:
+              command:
+                - rabbitmqctl
+                - status
+            initialDelaySeconds: 120
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - rabbitmqctl
+                - status
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 5
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: RABBITMQ_USE_LONGNAME
+              value: "true"
+            - name: RABBITMQ_NODENAME
+              value: rabbit@$(MY_POD_NAME).xray-rabbitmq-ha-discovery.default.svc.cluster.local
+            - name: K8S_HOSTNAME_SUFFIX
+              value: .xray-rabbitmq-ha-discovery.default.svc.cluster.local
+            - name: K8S_SERVICE_NAME
+              value: xray-rabbitmq-ha-discovery
+            - name: RABBITMQ_ERLANG_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: xray-rabbitmq-ha
+                  key: rabbitmq-erlang-cookie
+            - name: RABBITMQ_DEFAULT_USER
+              value: "guest"
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: xray-rabbitmq-ha
+                  key: rabbitmq-password
+            - name: RABBITMQ_DEFAULT_VHOST
+              value: "/"
+          resources:
+            {}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
+            - name: config
+              mountPath: /etc/rabbitmq
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: rabbitmq-ha
+                    release: xray
+      volumes:
+        - name: config
+          emptyDir: {}
+        - name: configmap
+          configMap:
+            name: xray-rabbitmq-ha
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        annotations:
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "20Gi"

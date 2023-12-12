@@ -1,0 +1,83 @@
+# Source: phpbb/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "phpbb"
+  labels:
+    app: "phpbb"
+    chart: "phpbb-7.0.10"
+    release: "phpbb"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: "phpbb"
+      release: "phpbb"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "phpbb"
+        chart: "phpbb-7.0.10"
+        release: "phpbb"
+    spec:      
+      hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+        - "status.localhost"
+      containers:
+      - name: "phpbb"
+        image: docker.io/bitnami/phpbb:3.3.0-debian-10-r25
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MARIADB_HOST
+          value: phpbb-mariadb
+        - name: MARIADB_PORT_NUMBER
+          value: "3306"
+        - name: PHPBB_DATABASE_NAME
+          value: "bitnami_phpbb"
+        - name: PHPBB_DATABASE_USER
+          value: "bn_phpbb"
+        - name: PHPBB_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: phpbb-mariadb
+              key: mariadb-password
+        - name: PHPBB_USERNAME
+          value: "user"
+        - name: PHPBB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "phpbb"
+              key: phpbb-password
+        - name: PHPBB_EMAIL
+          value: "user@example.com"
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        livenessProbe:
+          httpGet:
+            path: /ucp.php
+            port: http
+          initialDelaySeconds: 120
+        readinessProbe:
+          httpGet:
+            path: /ucp.php
+            port: http
+          initialDelaySeconds: 30
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+        volumeMounts:
+        - name: phpbb-data
+          mountPath: /bitnami/phpbb
+      volumes:
+      - name: phpbb-data
+        persistentVolumeClaim:
+          claimName: "phpbb-phpbb"
+---

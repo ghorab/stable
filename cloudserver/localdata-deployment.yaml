@@ -1,0 +1,66 @@
+# Source: cloudserver/templates/localdata-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudserver-localdata
+  labels:
+    app: cloudserver
+    chart: cloudserver-1.0.7
+    component: localdata
+    heritage: Helm
+    release: cloudserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudserver
+      component: localdata
+      release: cloudserver
+  template:
+    metadata:
+      labels:
+        app: cloudserver
+        component: localdata
+        release: cloudserver
+    spec:
+      serviceAccountName: cloudserver-localdata
+      initContainers:
+        - name: cloudserver-localdata-init
+          image: busybox
+          command: ['sh', '-x', '-c', 'if ! test -d /data/3511; then for i in `seq 1 3511`; do mkdir -p /data/$i; done; fi']
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /data
+      containers:
+        - name: cloudserver
+          image: "zenko/cloudserver:8.1.5"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: localdata
+              containerPort: 9991
+          args: ['npm', 'run', 'start_dataserver']
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /data
+          env:
+            - name: S3DATAPATH
+              value: /data
+            - name: LISTEN_ADDR
+              value: "0.0.0.0"
+            - name: HEALTHCHECKS_ALLOWFROM
+              value: "0.0.0.0/0"
+          livenessProbe:
+            tcpSocket:
+              port: localdata
+            initialDelaySeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: localdata
+            initialDelaySeconds: 5
+          resources:
+            {}
+      volumes:
+        - name: persistent-storage
+          persistentVolumeClaim:
+            claimName: cloudserver-localdata
+---

@@ -1,0 +1,17 @@
+# Source: hlf-couchdb/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: hlf-couchdb
+  labels:
+    app: hlf-couchdb
+    heritage: "Helm"
+    release: "hlf-couchdb"
+    chart: hlf-couchdb-1.0.9
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

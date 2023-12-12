@@ -1,0 +1,17 @@
+# Source: quassel/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: quassel-config
+  labels:
+    app: quassel
+    chart: quassel-0.2.13
+    heritage: Helm
+    release: quassel
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

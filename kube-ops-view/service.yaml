@@ -1,0 +1,21 @@
+# Source: kube-ops-view/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-ops-view
+  labels:
+    app.kubernetes.io/name: kube-ops-view
+    helm.sh/chart: kube-ops-view-1.2.4
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: kube-ops-view
+    app.kubernetes.io/version: 20.4.0
+    app.kubernetes.io/part-of: kube-ops-view
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: kube-ops-view
+---

@@ -1,0 +1,18 @@
+# Source: couchbase-operator/templates/admission-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: couchbase-operator-couchbase-admission-controller
+  labels:
+    app.kubernetes.io/name: couchbase-admission-controller
+    app.kubernetes.io/instance: couchbase-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: couchbase-operator-1.0.4
+spec:
+  selector:
+    app.kubernetes.io/name : couchbase-admission-controller
+  ports:
+  - protocol: TCP
+    port: 443
+    targetPort: 8443
+---

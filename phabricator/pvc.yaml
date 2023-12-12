@@ -1,0 +1,17 @@
+# Source: phabricator/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: phabricator
+  labels:
+    app.kubernetes.io/name: phabricator
+    helm.sh/chart: phabricator-9.0.13
+    app.kubernetes.io/instance: phabricator
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

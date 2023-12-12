@@ -1,0 +1,15 @@
+# Source: bookstack/templates/role.yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bookstack
+  labels:
+    app: bookstack
+    chart: bookstack-1.2.4
+    release: "bookstack"
+    heritage: "Helm"
+rules:
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get"]
+---

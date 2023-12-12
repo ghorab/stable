@@ -1,0 +1,78 @@
+# Source: odoo/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo
+  labels:
+    app: odoo
+    chart: odoo-13.0.5
+    release: "odoo"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: odoo
+      release: "odoo"
+  template:
+    metadata:
+      labels:
+        app: odoo
+        chart: odoo-13.0.5
+        release: "odoo"
+    spec:      
+      containers:
+      - name: odoo
+        image: docker.io/bitnami/odoo:12.0.20200215-debian-10-r1
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: POSTGRESQL_HOST
+          value: "odoo-postgresql"
+        - name: POSTGRESQL_USER
+          value: "postgres"
+        - name: POSTGRESQL_PORT_NUMBER
+          value: "5432"
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "odoo-postgresql"
+              key: "postgresql-password"
+        - name: ODOO_EMAIL
+          value: "user@example.com"
+        - name: ODOO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: odoo
+              key: odoo-password
+        ports:
+        - name: http
+          containerPort: 8069
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 600
+          periodSeconds: 30
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+        volumeMounts:
+        - name: odoo-data
+          mountPath: /bitnami/odoo
+      volumes:
+      - name: odoo-data
+        persistentVolumeClaim:
+          claimName: odoo
+---

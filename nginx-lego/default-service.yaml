@@ -1,0 +1,15 @@
+# Source: nginx-lego/templates/default-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-lego-nginx-lego-default-backend
+  labels:
+    chart: "nginx-lego-0.3.1"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: nginx-lego-nginx-lego-default-backend
+---

@@ -1,0 +1,66 @@
+# Source: prometheus-cloudwatch-exporter/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-cloudwatch-exporter
+  labels:
+    app: prometheus-cloudwatch-exporter
+    chart: prometheus-cloudwatch-exporter-0.8.4
+    release: prometheus-cloudwatch-exporter
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-cloudwatch-exporter
+      release: prometheus-cloudwatch-exporter
+  template:
+    metadata:
+      labels:
+        app: prometheus-cloudwatch-exporter
+        release: prometheus-cloudwatch-exporter
+      annotations:
+        
+        checksum/config: b1598375df0cd40fc565a18012826dff9d70e054c81189ca4b4ab9d1491d08ee
+        checksum/secrets: 16ec85969ba1e0ef5617103b7301f21a6fb4342cafc6b79f3316021f348fc918
+    spec:
+      containers:
+        - name: prometheus-cloudwatch-exporter
+          image: "prom/cloudwatch-exporter:cloudwatch_exporter-0.8.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: container-port
+              containerPort: 9106
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: container-port
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: container-port
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            {}
+          volumeMounts:
+            - name: vol-prometheus-cloudwatch-exporter
+              mountPath: /config
+      securityContext:
+        runAsUser: 65534
+      serviceAccount: prometheus-cloudwatch-exporter
+      serviceAccountName: prometheus-cloudwatch-exporter
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: prometheus-cloudwatch-exporter
+        name: vol-prometheus-cloudwatch-exporter

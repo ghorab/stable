@@ -1,0 +1,21 @@
+# Source: redis-ha/templates/tests/test-redis-ha-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis-ha-service-test
+  labels:
+    app: redis-ha
+    heritage: "Helm"
+    release: "redis-ha"
+    chart: redis-ha-4.4.6
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+  - name: "redis-ha-service-test"
+    image: redis:5.0.6-alpine
+    command:
+      - sh
+      - -c
+      - redis-cli -h redis-ha -p 6379 info server
+  restartPolicy: Never

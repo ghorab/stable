@@ -1,0 +1,83 @@
+# Source: oauth2-proxy/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: oauth2-proxy
+    chart: oauth2-proxy-3.2.5
+    heritage: Helm
+    release: oauth2-proxy
+  name: oauth2-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+      release: oauth2-proxy
+  template:
+    metadata:
+      annotations:
+        checksum/config: 16f279d4794a6a38e8dd9d445558aac790de9ca56615cfdd21d3a4bd651d1ebf
+        checksum/config-emails: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/secret: 4f6058bf510efdedd076561b0c5c47c47c1781140aef79a782c067eafef2cced
+        checksum/google-secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      labels:
+        app: oauth2-proxy
+        release: "oauth2-proxy"
+    spec:
+      serviceAccountName: oauth2-proxy
+      containers:
+      - name: oauth2-proxy
+        image: "quay.io/pusher/oauth2_proxy:v5.1.0"
+        imagePullPolicy: IfNotPresent
+        args:
+          - --http-address=0.0.0.0:4180
+          - --config=/etc/oauth2_proxy/oauth2_proxy.cfg
+        env:
+        - name: OAUTH2_PROXY_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name:  oauth2-proxy
+              key: client-id
+        - name: OAUTH2_PROXY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name:  oauth2-proxy
+              key: client-secret
+        - name: OAUTH2_PROXY_COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name:  oauth2-proxy
+              key: cookie-secret
+        ports:
+          - containerPort: 4180
+            name: http
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 0
+          timeoutSeconds: 1
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 0
+          timeoutSeconds: 1
+          successThreshold: 1
+          periodSeconds: 10
+        resources:
+          {}
+        volumeMounts:
+        - mountPath: /etc/oauth2_proxy
+          name: configmain
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: oauth2-proxy
+        name: configmain
+      tolerations:
+        []

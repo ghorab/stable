@@ -1,0 +1,21 @@
+# Source: collabora-code/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: collabora-code
+  labels:
+    app.kubernetes.io/name: collabora-code
+    helm.sh/chart: collabora-code-1.0.8
+    app.kubernetes.io/instance: collabora-code
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9980
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: collabora-code
+    app.kubernetes.io/instance: collabora-code
+---

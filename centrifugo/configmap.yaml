@@ -1,0 +1,16 @@
+# Source: centrifugo/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: centrifugo-config
+  namespace: default
+  labels:
+    helm.sh/chart: centrifugo-3.2.2
+    app.kubernetes.io/name: centrifugo
+    app.kubernetes.io/instance: centrifugo
+    app.kubernetes.io/version: "2.4.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  config.json: |-
+    {"namespaces":[{"anonymous":false,"history_lifetime":60,"history_recover":true,"history_size":10,"join_leave":true,"name":"chat","presence":true,"presence_stats":true,"publish":true},{"anonymous":true,"history_lifetime":60,"history_recover":true,"history_size":10,"join_leave":true,"name":"public","presence":true,"presence_stats":true,"publish":true}]}
+---

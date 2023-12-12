@@ -1,0 +1,73 @@
+# Source: dex/templates/job-web-certs.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded
+  name: dex-web-certs
+  labels:
+    app.kubernetes.io/name: dex
+    helm.sh/chart: dex-2.15.2
+    app.kubernetes.io/instance: dex
+    app.kubernetes.io/version: "2.24.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: "job-web-certs"
+spec:
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dex
+        app.kubernetes.io/instance: dex
+        app.kubernetes.io/component: "job"
+    spec:
+      securityContext:
+        runAsUser: 65534
+        fsGroup: 65534
+      serviceAccountName: dex
+      nodeSelector:
+        {}
+      restartPolicy: OnFailure
+      containers:
+      - name: main
+        image: "gcr.io/google_containers/kubernetes-dashboard-init-amd64:v1.0.0"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: HOME
+          value: /tmp
+        workingDir: /tmp
+        command:
+        - /bin/bash
+        - -exc
+        - |
+          cat << EOF > req.cnf
+          [req]
+          req_extensions = v3_req
+          distinguished_name = req_distinguished_name
+
+          [req_distinguished_name]
+
+          [ v3_req ]
+          basicConstraints = CA:FALSE
+          keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+          subjectAltName = @alt_names
+
+          [alt_names]
+          DNS.1 = dex.example.com
+          EOF
+
+          openssl genrsa -out ca-key.pem 2048;
+          openssl req -x509 -new -nodes -key ca-key.pem -days 10000 -out ca.pem -subj "/CN=dex-ca";
+
+          openssl genrsa -out key.pem 2048;
+          openssl req -new -key key.pem -out csr.pem -subj "/CN=dex" -config req.cnf;
+          openssl x509 -req -in csr.pem -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out cert.pem -days 10000 -extensions v3_req -extfile req.cnf;
+
+          kubectl delete configmap "dex-web-server-ca" --namespace default || true
+          kubectl delete secret "dex-web-server-ca" dex-web-server-tls --namespace default || true
+
+          kubectl create configmap "dex-web-server-ca" --namespace default --from-file dex-ca.pem=ca.pem;
+          kubectl create secret tls "dex-web-server-ca" --namespace default --cert=ca.pem --key=ca-key.pem;
+          kubectl create secret tls dex-web-server-tls --namespace default --cert=cert.pem --key=key.pem;

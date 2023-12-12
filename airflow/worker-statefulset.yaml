@@ -1,0 +1,84 @@
+# Source: airflow/templates/worker/worker-statefulset.yaml
+## A StatefulSet is used to give workers consistent names for DNS,
+## allowing the web server to access the log files.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: airflow-worker
+  labels:
+    app: airflow
+    component: worker
+    chart: airflow-7.13.3
+    release: airflow
+    heritage: Helm
+spec:
+  serviceName: "airflow-worker"
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  ## we do not need to guarantee the order in which workers are scaled
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: airflow
+      component: worker
+      release: airflow
+  template:
+    metadata:
+      annotations:
+        checksum/config-env: 7ef725357dcc3250bde412d19d3afe6466d279da663c28aa5c414d5c7f91909c
+        checksum/config-git-clone: 8d91f664c6efe85acde0ff82ffa86fb277dec3b0b52fd6ca36cc13aea855400a
+        checksum/config-scripts: 05cf92e4968d8817e918334edf85fdbc3e91838c0ab2f14bb54f384ef120f97a
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: airflow
+        component: worker
+        release: airflow
+    spec:
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: airflow
+      containers:
+        - name: airflow-worker
+          imagePullPolicy: IfNotPresent
+          image: "apache/airflow:1.10.12-python3.6"
+          envFrom:
+            - configMapRef:
+                name: "airflow-env"
+          env:            
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-password
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-redis
+                  key: redis-password
+          volumeMounts:
+            - name: scripts
+              mountPath: /home/airflow/scripts
+          command:
+            - "/usr/bin/dumb-init"
+            - "--"
+          args:
+            - "bash"
+            - "-c"
+            - >
+              true \
+               && mkdir -p /home/airflow/.local/bin \
+               && export PATH="/home/airflow/.local/bin:$PATH" \
+               && echo "*** running worker..." \
+               && exec airflow worker
+          ports:
+            - name: wlog
+              containerPort: 8793
+              protocol: TCP
+          resources:
+            {}
+      volumes:
+        - name: scripts
+          configMap:
+            name: airflow-scripts
+            defaultMode: 0755

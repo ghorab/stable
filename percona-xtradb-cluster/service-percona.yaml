@@ -1,0 +1,19 @@
+# Source: percona-xtradb-cluster/templates/service-percona.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: percona-xtradb-cluster-pxc
+  labels:
+    app: percona-xtradb-cluster-pxc
+    chart: "percona-xtradb-cluster-1.0.8"
+    release: "percona-xtradb-cluster"
+    heritage: "Helm"
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: percona-xtradb-cluster-pxc
+    release: "percona-xtradb-cluster"
+---

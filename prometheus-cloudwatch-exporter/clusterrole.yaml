@@ -1,0 +1,16 @@
+# Source: prometheus-cloudwatch-exporter/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-cloudwatch-exporter
+  labels:
+    app: prometheus-cloudwatch-exporter
+    chart: prometheus-cloudwatch-exporter-0.8.4
+    release: prometheus-cloudwatch-exporter
+    heritage: Helm
+rules:
+  - apiGroups: [""]
+    resources: ["secrets","configmap"]
+    resourceNames: ["prometheus-cloudwatch-exporter"]
+    verbs: ["get"]
+---

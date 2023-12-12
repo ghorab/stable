@@ -1,0 +1,26 @@
+# Source: pomerium/templates/ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pomerium
+  labels:
+    app.kubernetes.io/name: pomerium
+    app.kubernetes.io/instance: pomerium
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: pomerium-4.2.6
+spec:
+  tls:
+    - secretName: 
+      hosts:
+        - "authorize.corp.beyondperimeter.com"
+        - "authenticate.corp.beyondperimeter.com"
+        - forwardauth.corp.beyondperimeter.com
+  rules:
+    - host: authenticate.corp.beyondperimeter.com
+      http:
+        paths:
+          - paths:
+            backend:
+              serviceName: pomerium-authenticate
+              servicePort: https
+---

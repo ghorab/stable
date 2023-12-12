@@ -1,0 +1,81 @@
+# Source: pomerium/templates/authorize-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: pomerium-authorize
+    helm.sh/chart: pomerium-4.2.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: pomerium
+    app.kubernetes.io/component: authorize
+  name: pomerium-authorize
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pomerium-authorize
+      app.kubernetes.io/instance: pomerium
+  template:
+    metadata:
+      annotations:
+        checksum/config: 52133ddfcd583280388a8bbfb67a417b6b660f75bc63ec1b01beec811d4498ef
+        checksum/secret: 778bf298949c372f61886f324bb9b9ebda84b887f765b115df0c11b13db3dd5b
+      labels:
+        app.kubernetes.io/name: pomerium-authorize
+        helm.sh/chart: pomerium-4.2.6
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: pomerium
+    spec:
+      containers:
+      - name: pomerium
+        image: pomerium/pomerium:v0.5.2
+        imagePullPolicy: IfNotPresent
+        args:
+        env:
+        - name: SERVICES
+          value: authorize
+        - name: SHARED_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: pomerium
+              key: shared-secret
+        - name: CERTIFICATE_FILE
+          value: "/pomerium/cert.pem"
+        - name: CERTIFICATE_KEY_FILE
+          value: "/pomerium/privkey.pem"
+        - name: CERTIFICATE_AUTHORITY_FILE
+          value: "/pomerium/ca.pem"
+        ports:
+          - containerPort: 443
+            name: https
+            protocol: TCP
+          - containerPort: 9090
+            name: metrics
+            protocol: TCP
+        livenessProbe:
+          tcpSocket:
+            port: https
+          initialDelaySeconds: 15
+        readinessProbe:
+          tcpSocket:
+            port: https
+        resources:
+          {}
+        volumeMounts:
+        - mountPath: /pomerium/cert.pem
+          name: service-tls
+          subPath: tls.crt
+        - mountPath: /pomerium/privkey.pem
+          name: service-tls
+          subPath: tls.key
+        - mountPath: /pomerium/ca.pem
+          name: ca-tls
+          subPath: ca.crt
+      volumes:
+      - name: service-tls
+        secret:
+          secretName: pomerium-authorize-tls
+      - name: ca-tls
+        secret:
+          secretName: pomerium-ca-tls
+---

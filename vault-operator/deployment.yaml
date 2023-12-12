@@ -1,0 +1,40 @@
+# Source: vault-operator/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-operator
+  labels:
+    app: vault-operator
+    chart: vault-operator-0.1.4
+    release: vault-operator
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-operator
+      release: vault-operator
+  template:
+    metadata:
+      labels:
+        app: vault-operator
+        release: vault-operator
+    spec:
+      serviceAccountName: vault-operator
+      containers:
+      - name: vault-operator
+        image: "quay.io/coreos/vault-operator:0.1.9"
+        imagePullPolicy: IfNotPresent
+        command:
+        - vault-operator
+        env:
+        - name: MY_POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        resources:
+            {}

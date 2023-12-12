@@ -1,0 +1,17 @@
+# Source: fluentd/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: fluentd
+  labels:
+    app: fluentd
+    chart: fluentd-2.5.3
+    release: fluentd
+    heritage: Helm
+rules:
+- apiGroups: ['extensions']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - fluentd
+---

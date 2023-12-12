@@ -1,0 +1,2 @@
+# Source: etcd-operator/templates/crds.yaml
+# Synced with https://github.com/coreos/etcd-operator/blob/master/pkg/util/k8sutil/crd.go

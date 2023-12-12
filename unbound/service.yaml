@@ -1,0 +1,24 @@
+# Source: unbound/templates/service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: unbound
+  labels:
+    app: unbound
+    chart: unbound-1.1.4
+    release: unbound
+    heritage: Helm
+spec:
+  selector:
+    app: unbound
+    release: unbound
+  ports:
+  - name: dns-udp
+    protocol: UDP
+    port: 53
+    targetPort: dns-udp
+  - name: dns-tcp
+    protocol: TCP
+    port: 53
+    targetPort: dns-tcp
+---

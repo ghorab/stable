@@ -1,0 +1,22 @@
+# Source: mariadb/templates/slave-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-slave
+  labels:
+    app: "mariadb"
+    chart: "mariadb-7.3.14"
+    component: "slave"
+    release: "mariadb"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: "mariadb"
+    component: "slave"
+    release: "mariadb"
+---

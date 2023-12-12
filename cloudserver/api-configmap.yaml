@@ -1,0 +1,15 @@
+# Source: cloudserver/templates/api-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudserver
+  labels:
+    app: cloudserver
+    chart: cloudserver-1.0.7
+    component: api
+    heritage: Helm
+    release: cloudserver
+data:
+  locationConfig.json: |
+    {"us-east-1":{"details":{},"legacyAwsBehavior":true,"objectId":"us-east-1","type":"file"}}
+---

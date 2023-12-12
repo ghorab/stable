@@ -1,0 +1,128 @@
+# Source: hubot/charts/redis/templates/redis-master-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hubot-redis-master
+  labels:
+    app: redis
+    chart: redis-9.4.3
+    release: hubot
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: redis
+      release: hubot
+      role: master
+  serviceName: hubot-redis-headless
+  template:
+    metadata:
+      labels:
+        app: redis
+        chart: redis-9.4.3
+        release: hubot
+        role: master
+      annotations:
+        checksum/health: 87981914d5e8460b60d8db4b120334747d95cbc5a10d9720c98a5bac9c312e1b
+        checksum/configmap: 95413d1e43224b61e2991df80d639315237e265da36830503a9c5de2ca4b9f8e
+        checksum/secret: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    spec:      
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: "default"
+      containers:
+      - name: hubot-redis
+        image: "docker.io/bitnami/redis:5.0.5-debian-9-r169"
+        imagePullPolicy: "IfNotPresent"
+        securityContext:
+          runAsUser: 1001
+        command:
+        - /bin/bash
+        - -c
+        - |
+          if [[ -n $REDIS_PASSWORD_FILE ]]; then
+            password_aux=`cat ${REDIS_PASSWORD_FILE}`
+            export REDIS_PASSWORD=$password_aux
+          fi
+          if [[ ! -f /opt/bitnami/redis/etc/master.conf ]];then
+            cp /opt/bitnami/redis/mounted-etc/master.conf /opt/bitnami/redis/etc/master.conf
+          fi
+          if [[ ! -f /opt/bitnami/redis/etc/redis.conf ]];then
+            cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+          fi
+          ARGS=("--port" "${REDIS_PORT}")
+          ARGS+=("--protected-mode" "no")
+          ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+          ARGS+=("--include" "/opt/bitnami/redis/etc/master.conf")
+          /run.sh ${ARGS[@]}
+        env:
+        - name: REDIS_REPLICATION_MODE
+          value: master
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: REDIS_PORT
+          value: "6379"
+        ports:
+        - name: redis
+          containerPort: 6379
+        livenessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+          exec:
+            command:
+            - sh
+            - -c
+            - /health/ping_liveness_local.sh 5
+        readinessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 5
+          exec:
+            command:
+            - sh
+            - -c
+            - /health/ping_readiness_local.sh 5
+        resources:
+          null
+        volumeMounts:
+        - name: health
+          mountPath: /health
+        - name: redis-data
+          mountPath: /data
+          subPath: 
+        - name: config
+          mountPath: /opt/bitnami/redis/mounted-etc
+        - name: redis-tmp-conf
+          mountPath: /opt/bitnami/redis/etc/
+      volumes:
+      - name: health
+        configMap:
+          name: hubot-redis-health
+          defaultMode: 0755
+      - name: config
+        configMap:
+          name: hubot-redis
+      - name: redis-tmp-conf
+        emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app: redis
+          release: hubot
+          heritage: Helm
+          component: master
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+        
+  updateStrategy:
+    type: RollingUpdate

@@ -1,0 +1,39 @@
+# Source: ethereum/templates/ethstats.deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ethereum-ethstats
+  labels:
+    app: ethereum
+    chart: ethereum-1.0.2
+    release: ethereum
+    heritage: Helm
+    component: ethstats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ethereum
+      release: ethereum
+      component: ethstats
+  template:
+    metadata:
+      labels:
+        app: ethereum
+        release: ethereum
+        component: ethstats
+    spec:
+      containers:
+      - name: ethstats
+        image: ethereumex/eth-stats-dashboard:v0.0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3000
+        env:
+        - name: WS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: ethereum-ethstats
+              key: WS_SECRET
+---

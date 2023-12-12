@@ -1,0 +1,19 @@
+# Source: auditbeat/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: auditbeat
+  labels:
+    app: auditbeat
+    chart: auditbeat-1.1.2
+    release: auditbeat
+    heritage: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: auditbeat
+subjects:
+- kind: ServiceAccount
+  name: auditbeat
+  namespace: default
+---

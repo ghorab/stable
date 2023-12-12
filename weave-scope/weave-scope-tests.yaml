@@ -1,0 +1,43 @@
+# Source: weave-scope/templates/weave-scope-tests.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "weave-scope-ui-test-djojn"
+  annotations:
+    "helm.sh/hook": test-success
+  labels:    
+    chart: weave-scope-1.1.12
+    heritage: Helm
+    release: weave-scope
+    app: weave-scope
+spec:
+  initContainers:
+    - name: "test-framework"
+      image: "dduportal/bats:0.4.0"
+      command:
+      - "bash"
+      - "-c"
+      - |
+        set -ex
+        # copy bats to tools dir
+        cp -R /usr/local/libexec/ /tools/bats/
+      volumeMounts:
+      - mountPath: /tools
+        name: tools
+  containers:
+    - name: weave-scope-ui-test
+      image: dduportal/bats:0.4.0
+      command: ["/tools/bats/bats", "-t", "/tests/run.sh"]
+      volumeMounts:
+      - mountPath: /tests
+        name: tests
+        readOnly: true
+      - mountPath: /tools
+        name: tools
+  volumes:
+  - name: tests
+    configMap:
+      name: weave-scope-weave-scope-tests
+  - name: tools
+    emptyDir: {}
+  restartPolicy: Never

@@ -1,0 +1,20 @@
+# Source: pachyderm/templates/etcd_svc.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: etcd
+  labels:
+    app: pachyderm-etcd
+    chart: "pachyderm-0.2.3"
+    release: "pachyderm"
+    heritage: "Helm"
+    suite: pachyderm-pachyderm
+spec:
+  ports:
+    - name: client-port
+      port: 2379
+      targetPort: 0
+  selector:
+    app: pachyderm-etcd
+  type: NodePort
+---

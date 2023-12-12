@@ -1,0 +1,20 @@
+# Source: nats/templates/monitoring-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-monitoring
+  labels:
+    app: "nats"
+    chart: "nats-4.3.7"
+    release: "nats"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8222
+      targetPort: monitoring
+      name: monitoring
+  selector:
+    app: "nats"
+    release: "nats"
+---

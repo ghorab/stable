@@ -1,0 +1,18 @@
+# Source: prometheus-consul-exporter/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: prometheus-consul-exporter
+  labels:
+    app: prometheus-consul-exporter
+    chart: prometheus-consul-exporter-0.1.6
+    heritage: Helm
+    release: prometheus-consul-exporter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prometheus-consul-exporter
+subjects:
+- kind: ServiceAccount
+  name: prometheus-consul-exporter
+---

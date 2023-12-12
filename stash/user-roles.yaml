@@ -1,0 +1,18 @@
+# Source: stash/templates/user-roles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: appscode:stash:view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+- apiGroups:
+  - stash.appscode.com
+  resources:
+  - restics
+  - recoveries
+  verbs:
+  - get
+  - list
+  - watch
+---

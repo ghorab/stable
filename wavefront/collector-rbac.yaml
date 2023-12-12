@@ -1,0 +1,20 @@
+# Source: wavefront/templates/collector-rbac.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app.kubernetes.io/name : wavefront
+    helm.sh/chart: wavefront-1.1.2
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io.instance: "wavefront"
+    app.kubernetes.io/component: collector
+  name: wavefront-collector
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: wavefront-collector
+subjects:
+- kind: ServiceAccount
+  name: wavefront-collector
+  namespace: default
+---

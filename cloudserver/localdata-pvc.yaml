@@ -1,0 +1,20 @@
+# Source: cloudserver/templates/localdata-pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cloudserver-localdata
+  annotations:
+    "helm.sh/resource-policy": keep
+  labels:
+    app: cloudserver
+    chart: cloudserver-1.0.7
+    component: localdata
+    heritage: Helm
+    release: cloudserver
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

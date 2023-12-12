@@ -1,0 +1,54 @@
+# Source: ignite/templates/stateful-set.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ignite
+  labels:
+    app.kubernetes.io/name: ignite
+    helm.sh/chart: ignite-1.2.2
+    app.kubernetes.io/instance: ignite
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app: ignite
+  serviceName: ignite
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: ignite
+    spec:
+      serviceAccountName: ignite
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ignite-configmap
+            items:
+            - key: ignite-config.xml
+              path: default-config.xml
+      containers:
+      - name: ignite
+        image: "apacheignite/ignite:2.7.6"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          {}
+        env:
+        - name: "IGNITE_QUIET"
+          value: "false"
+        - name: "JVM_OPTS"
+          value: "-Djava.net.preferIPv4Stack=true"
+        - name: "OPTION_LIBS"
+          value: "ignite-kubernetes,ignite-rest-http"
+        ports:
+        - containerPort: 11211 # JDBC port number.
+        - containerPort: 47100 # communication SPI port number.
+        - containerPort: 47500 # discovery SPI port number.
+        - containerPort: 49112 # JMX port number.
+        - containerPort: 10800 # SQL port number.
+        - containerPort: 8080 # REST port number.
+        - containerPort: 10900 #Thin clients port number.
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/ignite/apache-ignite/config
+  volumeClaimTemplates:

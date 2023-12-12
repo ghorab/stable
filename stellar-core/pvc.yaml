@@ -1,0 +1,17 @@
+# Source: stellar-core/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: stellar-core
+  labels:
+    app: stellar-core
+    chart: stellar-core-1.0.2
+    release: stellar-core
+    heritage: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

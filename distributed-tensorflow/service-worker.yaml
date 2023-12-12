@@ -1,0 +1,22 @@
+# Source: distributed-tensorflow/templates/service-worker.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: distributed-tensorflow-worker
+  labels:
+    app: distributed-tensorflow
+    chart: distributed-tensorflow-1.2.2
+    release: distributed-tensorflow
+    heritage: Helm
+spec:
+  clusterIP: None
+  ports:
+  - port: 9000
+    targetPort: 9000
+    protocol: TCP
+    name: worker
+  selector:
+    app: distributed-tensorflow
+    release: distributed-tensorflow
+    role: worker
+---

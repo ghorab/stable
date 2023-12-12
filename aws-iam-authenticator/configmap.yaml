@@ -1,0 +1,14 @@
+# Source: aws-iam-authenticator/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-iam-authenticator
+  labels:
+    app: aws-iam-authenticator
+    chart: aws-iam-authenticator-0.1.5
+    release: aws-iam-authenticator
+    heritage: Helm
+data:
+  config.yaml: |
+    {}
+---

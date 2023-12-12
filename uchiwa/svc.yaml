@@ -1,0 +1,18 @@
+# Source: uchiwa/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: uchiwa
+  labels:
+    heritage: "Helm"
+    release: "uchiwa"
+    chart: "uchiwa-1.0.2"
+  
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: uchiwa
+---

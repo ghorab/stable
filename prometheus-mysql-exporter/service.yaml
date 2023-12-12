@@ -1,0 +1,21 @@
+# Source: prometheus-mysql-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-mysql-exporter
+  labels:
+    app: prometheus-mysql-exporter
+    chart: prometheus-mysql-exporter-0.7.1
+    release: prometheus-mysql-exporter
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9104
+      targetPort: 9104
+      protocol: TCP
+      name: mysql-exporter
+  selector:
+    app: prometheus-mysql-exporter
+    release: prometheus-mysql-exporter
+---

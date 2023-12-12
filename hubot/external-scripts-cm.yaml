@@ -1,0 +1,21 @@
+# Source: hubot/templates/external-scripts-cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hubot-external-scripts
+  labels:
+    
+    app.kubernetes.io/name: hubot
+    app.kubernetes.io/instance: hubot
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: hubot-1.0.4
+data:
+  external-scripts.json: |-
+    [
+      "hubot-diagnostics",
+      "hubot-help",
+      "hubot-redis-brain",
+      "hubot-rules",
+      "hubot-health"
+    ]
+---

@@ -1,0 +1,24 @@
+# Source: kubed/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubed-kubed
+  labels:
+    app: "kubed"
+    chart: "kubed-0.3.3"
+    release: "kubed"
+    heritage: "Helm"
+spec:
+  ports:
+  - name: api
+    port: 8080
+    protocol: TCP
+    targetPort: api
+  - name: web
+    port: 56790
+    protocol: TCP
+    targetPort: web
+  selector:
+    app: "kubed"
+    release: "kubed"
+---

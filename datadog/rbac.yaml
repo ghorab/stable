@@ -1,0 +1,20 @@
+# Source: datadog/templates/rbac.yaml
+apiVersion: "rbac.authorization.k8s.io/v1"
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    helm.sh/chart: "datadog-2.3.42"
+    app.kubernetes.io/name: "datadog"
+    app.kubernetes.io/instance: "datadog"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "7"
+  name: datadog
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: datadog
+subjects:
+  - kind: ServiceAccount
+    name: datadog
+    namespace: default
+---

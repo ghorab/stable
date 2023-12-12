@@ -1,0 +1,48 @@
+# Source: wavefront/templates/collector-cluster-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name : wavefront
+    helm.sh/chart: wavefront-1.1.2
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io.instance: "wavefront"
+    app.kubernetes.io/component: collector
+    kubernetes.io/bootstrapping: rbac-defaults
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  name: wavefront-collector
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  - namespaces
+  - nodes
+  - nodes/stats
+  - pods
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - update
+  - create
+- apiGroups:
+  - extensions
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+- nonResourceURLs: ["/metrics"]
+  verbs:
+  - get
+---

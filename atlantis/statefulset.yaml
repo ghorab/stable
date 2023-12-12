@@ -1,0 +1,87 @@
+# Source: atlantis/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: atlantis
+  labels:
+    app: atlantis
+    chart: atlantis-3.12.4
+    release: atlantis
+    heritage: Helm
+spec:
+  serviceName: atlantis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atlantis
+      release: atlantis
+  template:
+    metadata:
+      labels:
+        app: atlantis
+        release: atlantis
+    spec:
+      serviceAccountName: atlantis
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 100
+      volumes:
+      containers:
+        - name: atlantis
+          image: "runatlantis/atlantis:v0.14.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - server
+          ports:
+          - name: atlantis
+            containerPort: 4141
+          env:
+          - name: ATLANTIS_DATA_DIR
+            value: /atlantis-data
+          - name: ATLANTIS_REPO_WHITELIST
+            value: <replace-me>
+          - name: ATLANTIS_PORT
+            value: "4141"
+          - name: ATLANTIS_ATLANTIS_URL
+            value: http://chart-example.local
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 4141
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 60
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 4141
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 60
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          volumeMounts:
+          - name: atlantis-data
+            mountPath: /atlantis-data
+          resources:
+            limits:
+              cpu: 100m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 1Gi
+  volumeClaimTemplates:
+  - metadata:
+      name: atlantis-data
+    spec:
+      accessModes: ["ReadWriteOnce"] # Volume should not be shared by multiple nodes.
+      resources:
+        requests:
+          # The biggest thing Atlantis stores is the Git repo when it checks it out.
+          # It deletes the repo after the pull request is merged.
+          storage: 5Gi
+---

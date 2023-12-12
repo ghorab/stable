@@ -1,0 +1,28 @@
+# Source: searchlight/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: searchlight-searchlight
+  labels:
+    app: "searchlight"
+    chart: "searchlight-0.3.3"
+    release: "searchlight"
+    heritage: "Helm"
+spec:
+  ports:
+  - name: ui
+    port: 80
+    targetPort: ui
+  - name: icinga
+    port: 5665
+    targetPort: icinga
+  - name: api
+    port: 8080
+    targetPort: api
+  - name: web
+    port: 56790
+    targetPort: web
+  selector:
+    app: "searchlight"
+    release: "searchlight"
+---

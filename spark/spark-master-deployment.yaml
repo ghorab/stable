@@ -1,0 +1,47 @@
+# Source: spark/templates/spark-master-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+  labels:
+    heritage: "Helm"
+    release: "spark"
+    chart: "spark-1.0.5"
+    component: "spark-spark-master"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      component: "spark-spark-master"
+  template:
+    metadata:
+      labels:
+        heritage: "Helm"
+        release: "spark"
+        chart: "spark-1.0.5"
+        component: "spark-spark-master"
+    spec:
+      containers:
+        - name: spark-master
+          image: "k8s.gcr.io/spark:1.5.1_v3"
+          command: ["/bin/sh","-c"]
+          args: ["echo $(hostname -i) spark-master >> /etc/hosts; /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master"]
+          ports:
+            - containerPort: 7077
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+          env:
+          - name: SPARK_DAEMON_MEMORY
+            value: "1g"
+          - name: SPARK_MASTER_HOST
+            value: spark-master
+          - name: SPARK_MASTER_PORT
+            value: "7077"
+          - name: SPARK_MASTER_WEBUI_PORT
+            value: "8080"
+---

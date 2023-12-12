@@ -1,0 +1,4 @@
+# Source: velero/templates/cleanup-crds.yaml
+# This job is meant primarily for cleaning up on CI systems.
+# Using this on production systems, especially those that have multiple releases of Velero, will be destructive.
+---

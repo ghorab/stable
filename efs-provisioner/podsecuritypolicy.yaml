@@ -1,0 +1,39 @@
+# Source: efs-provisioner/templates/podsecuritypolicy.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: efs-provisioner
+  labels:
+    app: efs-provisioner
+    env: dev
+    chart: efs-provisioner-0.13.2
+    release: "efs-provisioner"
+    heritage: "Helm"
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  volumes:
+    - 'configMap'
+    - 'secret'
+    - 'nfs'
+  runAsUser:
+    rule: 'RunAsAny'    
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  readOnlyRootFilesystem: true
+---

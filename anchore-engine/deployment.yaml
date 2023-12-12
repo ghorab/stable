@@ -1,0 +1,81 @@
+# Source: anchore-engine/charts/postgresql/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anchore-engine-postgresql
+  labels:
+    app: postgresql
+    chart: postgresql-1.0.1
+    release: anchore-engine
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: postgresql
+      release: anchore-engine
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgresql
+        release: anchore-engine
+    spec:
+      containers:
+      - name: anchore-engine-postgresql
+        image: "postgres:9.6.18"
+        imagePullPolicy: ""
+        args:
+        env:
+        - name: POSTGRES_USER
+          value: "anchoreengine"
+          # Required for pg_isready in the health probes.
+        - name: PGUSER
+          value: "anchoreengine"
+        - name: POSTGRES_DB
+          value: "anchore"
+        - name: POSTGRES_INITDB_ARGS
+          value: ""
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: anchore-engine-postgresql
+              key: postgres-password
+        - name: POD_IP
+          valueFrom: { fieldRef: { fieldPath: status.podIP } }
+        ports:
+        - name: postgresql
+          containerPort: 5432
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready --host $POD_IP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready --host $POD_IP
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data/pgdata
+          subPath: postgresql-db
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: anchore-engine-postgresql
+---

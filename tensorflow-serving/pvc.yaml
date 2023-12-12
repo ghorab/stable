@@ -1,0 +1,18 @@
+# Source: tensorflow-serving/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tensorflow-serving
+  labels:
+    heritage: "Helm"
+    release: "tensorflow-serving"
+    chart: tensorflow-serving-1.1.2
+    app: tensorflow-serving
+  annotations:
+    "helm.sh/hook": pre-install
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "10Gi"

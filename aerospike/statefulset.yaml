@@ -1,0 +1,60 @@
+# Source: aerospike/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: aerospike
+  labels:
+    app: aerospike
+    chart: aerospike-0.3.5
+    release: aerospike
+    heritage: Helm
+spec:
+  serviceName: aerospike
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aerospike
+      release: aerospike
+  template:
+    metadata:
+      labels:
+        app: aerospike
+        release: aerospike
+      annotations:
+        checksum/config: 0e07919467cc16f2c07ac99d0036405deafa06f7d3b430215915470b3a6ca631
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: aerospike
+        image: "aerospike/aerospike-server:4.5.0.5"
+        imagePullPolicy: IfNotPresent
+        
+        
+        ports:
+        - containerPort: 3000
+          name: clients
+        - containerPort: 3002
+          name: mesh
+        - containerPort: 3003
+          name: info
+        readinessProbe:
+          tcpSocket:
+              port: 3000
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/aerospike
+        resources:
+          
+          {}
+      
+      volumes:
+      - name: config-volume
+        configMap:
+          name: aerospike
+          items:
+          - key: aerospike.conf
+            path: aerospike.conf
+      
+  volumeClaimTemplates:

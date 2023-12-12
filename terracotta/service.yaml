@@ -1,0 +1,25 @@
+# Source: terracotta/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: terracotta
+  labels:
+    app: terracotta
+    chart: terracotta-1.1.2
+    release: terracotta
+    heritage: Helm
+  annotations:
+    # see https://github.com/kubernetes/kubernetes/issues/39363 , to have dns entries available immediately
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: terracotta-port
+      port: 9410
+    - name: sync-port
+      port: 9430
+  selector:
+    app: terracotta
+    release: "terracotta"
+---

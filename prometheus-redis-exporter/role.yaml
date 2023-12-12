@@ -1,0 +1,16 @@
+# Source: prometheus-redis-exporter/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: prometheus-redis-exporter
+  labels:
+    app: prometheus-redis-exporter
+    chart: prometheus-redis-exporter-3.5.1
+    heritage: Helm
+    release: prometheus-redis-exporter
+rules:
+- apiGroups:      ['extensions']
+  resources:      ['podsecuritypolicies']
+  verbs:          ['use']
+  resourceNames:  [prometheus-redis-exporter]
+---

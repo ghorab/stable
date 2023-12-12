@@ -1,0 +1,50 @@
+# Source: hazelcast-jet/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hazelcast-jet-configuration
+  labels:
+    app.kubernetes.io/name: hazelcast-jet
+    helm.sh/chart: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+    app.kubernetes.io/managed-by: "Helm"
+data:
+  hazelcast.yaml: |-
+    hazelcast:
+     cluster-name: jet
+     management-center:
+       enabled: ${hazelcast.mancenter.enabled}
+       url: ${hazelcast.mancenter.url}
+     network:
+       join:
+         kubernetes:
+           enabled: true
+           namespace: ${namespace}
+           resolve-not-ready-addresses: true
+           service-name: ${serviceName}
+         multicast:
+           enabled: false
+       rest-api:
+         enabled: true
+         endpoint-groups:
+           HEALTH_CHECK:
+             enabled: true
+
+  hazelcast-jet.yaml: |-
+    hazelcast-jet:
+     edge-defaults:
+       packet-size-limit: 16384
+       queue-size: 1024
+       receive-window-multiplier: 3
+     instance:
+       backup-count: 1
+       flow-control-period: 100
+       lossless-restart-enabled: false
+       scale-up-delay-millis: 10000
+     metrics:
+       collection-interval-seconds: 5
+       enabled: true
+       jmx-enabled: true
+       metrics-for-data-structures: false
+       retention-seconds: 120
+---

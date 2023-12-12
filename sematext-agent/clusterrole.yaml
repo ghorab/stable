@@ -1,0 +1,22 @@
+# Source: sematext-agent/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sematext-agent
+  labels:
+    app: sematext-agent
+    chart: sematext-agent-1.0.31
+    release: sematext-agent
+    heritage: Helm
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  - pods
+  - pods/log
+  verbs:
+  - list
+  - get
+  - watch
+---

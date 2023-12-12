@@ -1,0 +1,28 @@
+# Source: hazelcast/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hazelcast-configuration
+  labels:
+    app.kubernetes.io/name: hazelcast
+    helm.sh/chart: hazelcast-3.3.2
+    app.kubernetes.io/instance: "hazelcast"
+    app.kubernetes.io/managed-by: "Helm"
+data:
+  hazelcast.yaml: |-
+    hazelcast:
+      network:
+        join:
+          kubernetes:
+            enabled: true
+            namespace: ${namespace}
+            resolve-not-ready-addresses: true
+            service-name: ${serviceName}
+          multicast:
+            enabled: false
+        rest-api:
+          enabled: true
+          endpoint-groups:
+            HEALTH_CHECK:
+              enabled: true
+---

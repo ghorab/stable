@@ -1,0 +1,23 @@
+# Source: airflow/templates/flower/flower-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-flower
+  labels:
+    app: airflow
+    component: flower
+    chart: airflow-7.13.3
+    release: airflow
+    heritage: Helm
+spec:
+  type: ClusterIP
+  selector:
+    app: airflow
+    component: flower
+    release: airflow
+  ports:
+    - name: flower
+      protocol: TCP
+      port: 5555
+      targetPort: 5555
+---

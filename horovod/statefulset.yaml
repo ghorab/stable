@@ -1,0 +1,66 @@
+# Source: horovod/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: horovod
+  labels:
+    app: horovod
+    chart: horovod-1.0.2
+    release: horovod
+    heritage: Helm
+    role: worker
+spec:
+  selector:
+    matchLabels:
+      app: horovod
+      release: horovod
+      heritage: Helm
+      role: worker
+  serviceName: horovod
+  podManagementPolicy: Parallel
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: horovod
+        chart: horovod-1.0.2
+        release: horovod
+        heritage: Helm
+        role: worker
+    spec:
+      selector:
+        matchLabels:
+          app: horovod
+          release: horovod
+          role: worker
+      volumes:
+      - name: horovod-cm
+        configMap:
+          name: horovod
+          items:
+          - key: hostfile.config
+            path: hostfile
+            mode: 438
+          - key: ssh.readiness
+            path: check.sh
+            mode: 365
+          - key: worker.run
+            path: run.sh
+            mode: 365
+      containers:
+      - name: worker
+        image: "uber/horovod:0.12.1-tf1.8.0-py3.5"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SSHPORT
+          value: "22"
+        ports:
+        - containerPort: 22
+        volumeMounts:
+        - name: horovod-cm
+          mountPath: /horovod/generated
+        command:
+        - /horovod/generated/run.sh
+        resources:
+          {}
+---

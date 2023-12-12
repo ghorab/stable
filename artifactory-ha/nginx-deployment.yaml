@@ -1,0 +1,101 @@
+# Source: artifactory-ha/templates/nginx-deployment.yaml
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: artifactory-ha-nginx
+  labels:
+    app: artifactory-ha
+    chart: artifactory-ha-0.4.2
+    heritage: Helm
+    release: artifactory-ha
+    component: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: artifactory-ha
+      release: artifactory-ha
+      component: nginx
+  template:
+    metadata:
+      labels:
+        app: artifactory-ha
+        component: nginx
+        release: artifactory-ha
+    spec:
+      serviceAccountName: artifactory-ha
+      initContainers:
+      - name: "wait-for-artifactory"
+        image: "alpine:3.6"
+        command:
+        - 'sh'
+        - '-c'
+        - >
+          until nc -z -w 2 artifactory-ha 8081 && echo artifactory ok; do
+            sleep 2;
+          done;
+      containers:
+      - name: nginx
+        image: 'docker.bintray.io/jfrog/nginx-artifactory-pro:6.2.0'
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - '/bin/sh'
+              - '-c'
+              - >
+                if [ -f /tmp/replicator-nginx.conf ]; then
+                cp -fv /tmp/replicator-nginx.conf /etc/nginx/conf.d/replicator-nginx.conf;
+                fi;
+                if [ -f /tmp/ssl/*.crt ]; then
+                rm -rf /var/opt/jfrog/nginx/ssl/example.*;
+                cp -fv /tmp/ssl/* /var/opt/jfrog/nginx/ssl;
+                fi;
+                until [ -f /etc/nginx/conf.d/artifactory.conf ]; do sleep 1; done;
+                if ! grep -q 'upstream' /etc/nginx/conf.d/artifactory.conf; then
+                sed -i -e 's,proxy_pass .*,proxy_pass     http://artifactory-ha:8081/artifactory/;,g' \
+                    -e 's,server_name .*,server_name ~(?<repo>.+)\\.artifactory-ha artifactory-ha;,g' \
+                    /etc/nginx/conf.d/artifactory.conf;
+                fi;
+                if ! grep -q 'proxy_http_version' /etc/nginx/conf.d/artifactory.conf; then
+                sed -i 's,\(proxy_next_upstream .*\),proxy_http_version  1.1;\n    \1,g' /etc/nginx/conf.d/artifactory.conf;
+                fi;
+                sleep 5; nginx -s reload; touch /var/log/nginx/conf.done
+        env:
+        - name: ART_BASE_URL
+          value: 'http://artifactory-ha:8081/artifactory'
+        - name: SSL
+          value: "true"
+        - name: SKIP_AUTO_UPDATE_CONFIG
+          value: "false"
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: nginx-volume
+          mountPath: "/var/opt/jfrog/nginx"
+        resources:
+          {}
+        readinessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 80
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 10
+          successThreshold: 1
+        livenessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 80
+          initialDelaySeconds: 100
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 10
+          successThreshold: 1
+      volumes:
+      - name: nginx-volume
+        emptyDir: {}
+---

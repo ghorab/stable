@@ -1,0 +1,21 @@
+# Source: cerebro/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cerebro
+  labels:
+    app: cerebro
+    chart: cerebro-1.9.5
+    release: cerebro
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: cerebro
+    release: cerebro
+---

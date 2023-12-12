@@ -1,0 +1,21 @@
+# Source: sysdig/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sysdig
+  labels:
+    app.kubernetes.io/name: sysdig
+    helm.sh/chart: sysdig-1.7.16
+    app.kubernetes.io/instance: sysdig
+    app.kubernetes.io/version: "10.0.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  dragent.yaml: |
+    new_k8s: true
+    security:
+      enabled: true
+    commandlines_capture:
+      enabled: true
+    memdump:
+      enabled: true
+---

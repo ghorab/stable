@@ -1,0 +1,19 @@
+# Source: fluent-bit/templates/cluster-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: fluent-bit
+    chart: fluent-bit-2.10.3
+    heritage: Helm
+    release: fluent-bit
+  name: fluent-bit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluent-bit
+subjects:
+  - kind: ServiceAccount
+    name: fluent-bit
+    namespace: default
+---

@@ -1,0 +1,21 @@
+# Source: satisfy/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: satisfy
+  labels:
+    app.kubernetes.io/name: satisfy
+    helm.sh/chart: satisfy-1.1.2
+    app.kubernetes.io/instance: satisfy
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: satisfy
+    app.kubernetes.io/instance: satisfy
+---

@@ -1,0 +1,21 @@
+# Source: kubernetes-dashboard/templates/rolebinding.yaml
+# Role binding for clusterAdminRole == false and clusterReadOnlyRole=false
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app: kubernetes-dashboard
+    chart: kubernetes-dashboard-1.11.1
+    heritage: Helm
+    release: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kubernetes-dashboard
+subjects:
+  - kind: ServiceAccount
+    name: kubernetes-dashboard
+    namespace: default
+---

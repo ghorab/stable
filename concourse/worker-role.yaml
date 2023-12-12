@@ -1,0 +1,20 @@
+# Source: concourse/templates/worker-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: concourse-worker
+  labels:
+    app: concourse-worker
+    chart: concourse-8.3.7
+    heritage: Helm
+    release: concourse
+rules:
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - privileged
+  verbs:
+  - use
+---

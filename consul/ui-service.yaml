@@ -1,0 +1,18 @@
+# Source: consul/templates/ui-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: "consul-ui"
+  labels:
+    heritage: "Helm"
+    release: "consul"
+    chart: consul-3.9.6
+    component: "consul-consul"
+spec:
+  ports:
+  - name: http
+    port: 8500
+  selector:
+    component: "consul-consul"
+  type: "NodePort"
+---

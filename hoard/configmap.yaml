@@ -1,0 +1,36 @@
+# Source: hoard/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hoard
+  labels:
+    app.kubernetes.io/name: hoard
+    app.kubernetes.io/instance: hoard
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: hoard-1.0.2
+data:
+  hoard.conf: |
+    listenaddress: tcp://:53431
+    logging:
+      channels:
+      - info
+      - trace
+      loggingtype: json
+    secrets:
+      openpgp:
+        file: keyring
+        privateid: ""
+      symmetric: []
+    storage:
+      addressencoding: base64
+      chunksize: 65536
+      cloudconfig:
+        bucket: ""
+        prefix: ""
+        region: ""
+      filesystemconfig:
+        rootdirectory: /data
+      ipfsconfig:
+        remoteapi: ""
+      storagetype: filesystem
+---

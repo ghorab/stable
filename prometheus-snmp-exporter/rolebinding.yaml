@@ -1,0 +1,19 @@
+# Source: prometheus-snmp-exporter/templates/rolebinding.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: prometheus-snmp-exporter
+  namespace: default
+  labels:
+    app.kubernetes.io/name: prometheus-snmp-exporter
+    app.kubernetes.io/instance: prometheus-snmp-exporter
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: prometheus-snmp-exporter-0.0.6
+subjects:
+- kind: ServiceAccount
+  name: prometheus-snmp-exporter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: prometheus-snmp-exporter
+---

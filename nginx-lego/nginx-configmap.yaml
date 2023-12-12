@@ -1,0 +1,14 @@
+# Source: nginx-lego/templates/nginx-configmap.yaml
+apiVersion: v1
+data:
+  proxy-connect-timeout: "30"
+  proxy-read-timeout: "600"
+  proxy-send-imeout: "600"
+  hsts-include-subdomains: "false"
+  body-size: "64m"
+  server-name-hash-bucket-size: "256"
+  enable-vts-status: "false"
+kind: ConfigMap
+metadata:
+  name: nginx-lego-nginx-lego
+---

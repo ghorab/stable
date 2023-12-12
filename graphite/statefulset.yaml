@@ -1,0 +1,77 @@
+# Source: graphite/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: graphite
+  labels:
+    app: graphite
+    chart: graphite-0.2.2
+    release: graphite
+    heritage: Helm
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: graphite
+      release: graphite
+  serviceName: graphite
+  template:
+    metadata:
+      labels:
+        app: graphite
+        release: graphite
+    spec:
+      containers:
+      - image: graphiteapp/graphite-statsd:1.1.5-3
+        name: graphite
+        ports:
+        - name: graphite-gui
+          containerPort: 8080
+        - name: graphite-plain
+          containerPort: 2003
+        - name: graphite-pickle
+          containerPort: 2004
+        - name: aggregate-plain
+          containerPort: 2023
+        - name: aggregate-pickl
+          containerPort: 2024
+        - name: statsd
+          protocol: UDP
+          containerPort: 8125
+        - name: statsd-admin
+          containerPort: 8126
+        env:
+        - name: "STATSD_INTERFACE"
+          value: udp
+        livenessProbe:
+          httpGet:
+            path: /
+            port: graphite-gui
+        readinessProbe:
+          httpGet:
+            path: /
+            port: graphite-gui
+        resources:
+          {}
+        volumeMounts:
+          - name: graphite-configmap
+            mountPath: /opt/graphite/conf/
+          - name: graphite-statsd-configmap
+            subPath: config_tcp.js
+            mountPath: /opt/statsd/config_tcp.js
+          - name: graphite-statsd-configmap
+            subPath: config_udp.js
+            mountPath: /opt/statsd/config_udp.js
+          - name: graphite-pvc
+            mountPath: /opt/graphite/storage/
+      volumes:
+        - name: graphite-configmap
+          configMap:
+            name: graphite-configmap
+        - name: graphite-statsd-configmap
+          configMap:
+            name: graphite-statsd-configmap
+        - name: graphite-pvc
+          persistentVolumeClaim:
+            claimName: graphite-pvc

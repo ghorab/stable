@@ -1,0 +1,18 @@
+# Source: hackmd/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: hackmd
+  labels:
+    app: hackmd
+    chart: "hackmd-2.0.3"
+    release: "hackmd"
+    heritage: "Helm"
+  annotations:
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "2Gi"
+---

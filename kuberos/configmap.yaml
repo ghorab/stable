@@ -1,0 +1,17 @@
+# Source: kuberos/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kuberos-config
+data:
+  template: |-
+    apiVersion: v1
+    kind: Config
+    current-context: dev-cluster
+    clusters:
+    
+    - name: "dev-cluster"
+      cluster:
+        certificate-authority-data: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCmNlcnQgZGF0YSBoZXJlCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0="
+        server: https://api.dev-cluster.example.com
+---

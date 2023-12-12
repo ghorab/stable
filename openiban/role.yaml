@@ -1,0 +1,15 @@
+# Source: openiban/templates/role.yaml
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: openiban
+  labels:
+    app: openiban
+    chart: openiban-1.0.2
+    release: "openiban"
+    heritage: "Helm"
+rules:
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get"]
+---

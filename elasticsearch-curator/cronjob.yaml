@@ -1,0 +1,45 @@
+# Source: elasticsearch-curator/templates/cronjob.yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: elasticsearch-curator
+  labels:
+    app: elasticsearch-curator
+    chart: elasticsearch-curator-2.2.3
+    release: elasticsearch-curator
+    heritage: Helm
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    metadata:
+      labels:
+        app: elasticsearch-curator
+        release: elasticsearch-curator
+    spec:
+      template:
+        metadata:
+          labels:
+            app: elasticsearch-curator
+            release: elasticsearch-curator
+        spec:
+          volumes:
+            - name: config-volume
+              configMap:
+                name: elasticsearch-curator-config
+          restartPolicy: Never
+          containers:
+            - name: elasticsearch-curator
+              image: "untergeek/curator:5.7.6"
+              imagePullPolicy: IfNotPresent
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /etc/es-curator
+
+              command:
+                - /curator/curator
+              args: [ "--config", "/etc/es-curator/config.yml", "/etc/es-curator/action_file.yml" ]
+              env:
+              resources:
+                {}
+          securityContext:
+            runAsUser: 16

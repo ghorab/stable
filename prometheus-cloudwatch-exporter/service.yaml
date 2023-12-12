@@ -1,0 +1,23 @@
+# Source: prometheus-cloudwatch-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-cloudwatch-exporter
+  annotations:
+    {}
+  labels:
+    app: prometheus-cloudwatch-exporter
+    chart: prometheus-cloudwatch-exporter-0.8.4
+    release: prometheus-cloudwatch-exporter
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9106
+      targetPort: container-port
+      protocol: TCP
+      name: http
+  selector:
+    app: prometheus-cloudwatch-exporter
+    release: prometheus-cloudwatch-exporter
+---

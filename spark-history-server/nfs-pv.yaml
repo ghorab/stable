@@ -1,0 +1,19 @@
+# Source: spark-history-server/charts/nfs/templates/nfs-pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+  labels:
+    app.kubernetes.io/name: nfs
+    helm.sh/chart: nfs-0.1.0
+    app.kubernetes.io/instance: spark-history-server
+    app.kubernetes.io/managed-by: Helm
+spec:
+  capacity:
+    storage: 1Mi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: spark-history-server-nfs.default.svc.cluster.local
+    path: "/"
+---

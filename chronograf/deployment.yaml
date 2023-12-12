@@ -1,0 +1,46 @@
+# Source: chronograf/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: chronograf-chronograf
+  labels:
+    app: chronograf-chronograf
+    chart: "chronograf-1.1.1"
+    release: "chronograf"
+    heritage: "Helm"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: chronograf-chronograf
+    spec:
+      containers:
+      - name: chronograf
+        image: "quay.io/influxdb/chronograf:1.7.12"
+        imagePullPolicy: IfNotPresent
+        env:
+        ports:
+        - containerPort: 8888
+          name: api
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: api
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: api
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/chronograf
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 0.1
+            memory: 256Mi
+      volumes:
+        - name: data
+          emptyDir: {}

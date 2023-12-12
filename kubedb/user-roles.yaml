@@ -1,0 +1,24 @@
+# Source: kubedb/templates/user-roles.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kubedb:core:view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+- apiGroups:
+  - kubedb.com
+  resources:
+  - dormantdatabases
+  - elasticsearches
+  - memcacheds
+  - mongodbs
+  - mysqls
+  - postgreses
+  - redises
+  - snapshots
+  verbs:
+  - get
+  - list
+  - watch
+---

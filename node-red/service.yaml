@@ -1,0 +1,22 @@
+# Source: node-red/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-red
+  labels:
+    app.kubernetes.io/name: node-red
+    helm.sh/chart: node-red-1.4.3
+    app.kubernetes.io/instance: node-red
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 1880
+      targetPort: http
+      protocol: TCP
+      name: http
+
+  selector:
+    app.kubernetes.io/name: node-red
+    app.kubernetes.io/instance: node-red
+---

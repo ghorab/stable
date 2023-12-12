@@ -1,0 +1,20 @@
+# Source: sematext-agent/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sematext-agent
+  labels:
+    app: sematext-agent
+    chart: sematext-agent-1.0.31
+    release: sematext-agent
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: sematext-agent
+    release: sematext-agent

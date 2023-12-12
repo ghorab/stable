@@ -1,0 +1,11 @@
+# Source: elastalert/templates/rules.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elastalert-rules
+  labels:
+    app: elastalert
+    chart: elastalert-1.5.1
+    release: elastalert
+    heritage: Helm
+data:

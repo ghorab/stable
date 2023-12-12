@@ -1,0 +1,87 @@
+# Source: testlink/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testlink
+  labels:
+    app: "testlink"
+    chart: "testlink-7.1.7"
+    release: "testlink"
+    heritage: "testlink"
+spec:
+  selector:
+    matchLabels:
+      app: "testlink"
+      release: "testlink"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "testlink"
+        chart: "testlink-7.1.7"
+        release: "testlink"
+    spec:      
+      hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+        - "status.localhost"
+      containers:
+      - name: testlink
+        image: docker.io/bitnami/testlink:1.9.20-debian-10-r19
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        - name: MARIADB_HOST
+          value: testlink-mariadb
+        - name: MARIADB_PORT_NUMBER
+          value: "3306"
+        - name: TESTLINK_DATABASE_NAME
+          value: "bitnami_testlink"
+        - name: TESTLINK_DATABASE_USER
+          value: "bn_testlink"
+        - name: TESTLINK_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: testlink-mariadb
+              key: mariadb-password
+        - name: TESTLINK_USERNAME
+          value: "user"
+        - name: TESTLINK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: testlink
+              key: testlink-password
+        - name: TESTLINK_EMAIL
+          value: "user@example.com"
+        - name: TESTLINK_LANGUAGE
+          value: "en_US"
+        - name: SMTP_ENABLE
+          value: "false"
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        livenessProbe:
+          httpGet:
+            path: /login.php
+            port: http
+          initialDelaySeconds: 120
+        readinessProbe:
+          httpGet:
+            path: /login.php
+            port: http
+          initialDelaySeconds: 30
+        resources:
+          requests:
+            cpu: 300m
+            memory: 512Mi
+        volumeMounts:
+        - name: testlink-data
+          mountPath: /bitnami/testlink
+      volumes:
+      - name: testlink-data
+        persistentVolumeClaim:
+          claimName: testlink-testlink
+---

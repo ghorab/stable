@@ -1,0 +1,21 @@
+# Source: prometheus-couchdb-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-couchdb-exporter
+  labels:
+    app: prometheus-couchdb-exporter
+    chart: prometheus-couchdb-exporter-0.1.2
+    release: prometheus-couchdb-exporter
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9984
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: prometheus-couchdb-exporter
+    release: prometheus-couchdb-exporter
+---

@@ -1,0 +1,28 @@
+# Source: nginx-lego/templates/default-deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-lego-nginx-lego-default-backend
+  labels:
+    chart: "nginx-lego-0.3.1"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-lego-nginx-lego-default-backend
+    spec:
+      containers:
+      - name: nginx-lego-nginx-lego-default-backend
+        image: "k8s.gcr.io/defaultbackend:1.0"
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 128Mi
+---

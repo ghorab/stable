@@ -1,0 +1,67 @@
+# Source: luigi/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: luigi
+  labels:
+    app: luigi
+    chart: luigi-2.7.8
+    release: luigi
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: luigi
+      release: luigi
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: luigi
+        release: luigi
+    spec:
+      containers:
+        - name: luigi
+          image: "axiom/docker-luigi:2.7.2-alpine"
+          command: ["/bin/sh", "-c", "luigid"]
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          livenessProbe:
+            httpGet:
+              path: /static/visualiser/index.html
+              port: 8082
+          readinessProbe:
+            httpGet:
+              path: /static/visualiser/index.html
+              port: 8082
+          resources:
+            {}
+          volumeMounts:
+          - name: luigi-luigi-conf
+            mountPath: /etc/luigi/client.cfg
+            subPath: client.cfg
+          - name: luigi-logging-conf
+            mountPath: /etc/luigi/logging.cfg
+            subPath: logging.cfg
+          - name: luigi-state
+            mountPath: /luigi/state/
+
+      volumes:
+      - name: luigi-luigi-conf
+        configMap:
+          name: luigi
+          items:
+          - key: client.cfg
+            path: client.cfg
+
+      - name: luigi-logging-conf
+        configMap:
+          name: luigi
+          items:
+          - key: logging.cfg
+            path: logging.cfg
+
+      - name: luigi-state
+        emptyDir: {}
+---

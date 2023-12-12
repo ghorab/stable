@@ -1,0 +1,21 @@
+# Source: filebeat/templates/service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: filebeat-metrics
+  namespace: default
+  labels:
+    app.kubernetes.io/name: filebeat
+    helm.sh/chart: filebeat-4.0.2
+    app.kubernetes.io/instance: filebeat
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    app.kubernetes.io/name: filebeat
+    app.kubernetes.io/instance: filebeat
+  ports:
+    - name: metrics
+      port: 9479
+      targetPort: 9479
+      protocol: TCP
+---

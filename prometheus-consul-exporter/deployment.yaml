@@ -1,0 +1,49 @@
+# Source: prometheus-consul-exporter/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-consul-exporter
+  labels:
+    app: prometheus-consul-exporter
+    chart: prometheus-consul-exporter-0.1.6
+    release: prometheus-consul-exporter
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-consul-exporter
+      release: prometheus-consul-exporter
+  template:
+    metadata:
+      labels:
+        app: prometheus-consul-exporter
+        release: prometheus-consul-exporter
+    spec:
+      serviceAccountName: prometheus-consul-exporter
+      containers:
+        - name: prometheus-consul-exporter
+          image: "prom/consul-exporter:v0.4.0"
+          imagePullPolicy: IfNotPresent
+          command: ["consul_exporter"]
+          args: [
+            "--consul.server=host:port",
+          ]
+          ports:
+            - name: http
+              containerPort: 9107
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          resources:
+            {}

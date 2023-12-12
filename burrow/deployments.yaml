@@ -1,0 +1,122 @@
+# Source: burrow/templates/deployments.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: burrow
+    chart: burrow-1.5.4
+    heritage: Helm
+    release: burrow
+    nodeNumber: "000"
+  name: burrow-000
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: burrow
+      release: burrow
+      nodeNumber: "000"
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9102"
+        prometheus.io/path: /metrics
+      labels:
+        app: burrow
+        release: burrow
+        nodeNumber: "000"
+    spec:
+      initContainers:
+        - name: init-keys
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          workingDir: /keys
+          volumeMounts:
+            - name: keys-dir
+              mountPath: /keys
+            - name: work-dir
+              mountPath: /work
+          command:
+            - 'sh'
+            - '-xc'
+            - |-
+              mkdir -p /work/.burrow/config && \
+              cp node_key.json /work/.burrow/config/node_key.json && \
+              chmod 600 /work/.burrow/config/node_key.json
+      containers:
+        - name: node
+          image: "hyperledger/burrow:0.29.0"
+          imagePullPolicy: IfNotPresent
+          workingDir: /work
+          command:
+          - burrow
+          args:
+          - start
+          - --config
+          - "/ref/burrow.json"
+          - --genesis
+          - "/ref/genesis.json"
+          - --address
+          - "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+          - --moniker
+          - "user-validator-000"
+          env:          
+          volumeMounts:
+            - name: ref-dir
+              mountPath: /ref
+            - name: work-dir
+              mountPath: /work
+            - name: keys-dir
+              mountPath: /keys/data
+            - name: keys-dir-names
+              mountPath: /keys/names
+          ports:
+            - name: peer
+              protocol: TCP
+              containerPort: 26656
+            - name: grpc
+              protocol: TCP
+              containerPort: 10997
+            - name: info
+              protocol: TCP
+              containerPort: 26658
+            - name: metrics
+              protocol: TCP
+              containerPort: 9102
+          livenessProbe:
+            httpGet:
+              path: /status?block_seen_time_within=10m
+              port: info
+              scheme: HTTP
+            initialDelaySeconds: 240
+            timeoutSeconds: 1
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: info
+              scheme: HTTP
+            initialDelaySeconds: 5
+      restartPolicy: Always
+      volumes:
+        - name: ref-dir
+          projected:
+            sources:
+              - configMap:
+                  name: burrow-config
+              - configMap:
+                  name: burrow-genesis
+        - name: keys-dir
+          projected:
+            sources:
+              - secret:
+                  name: burrow-keys-000
+        - name: keys-dir-names
+          emptyDir: {}
+        - name: work-dir
+          persistentVolumeClaim:
+            claimName: burrow-000
+      securityContext:
+        fsGroup: 101
+        runAsUser: 1000

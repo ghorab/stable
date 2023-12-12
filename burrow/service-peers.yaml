@@ -1,0 +1,23 @@
+# Source: burrow/templates/service-peers.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: burrow
+    chart: burrow-1.5.4
+    release: burrow
+    heritage: Helm
+    nodeNumber: "000"
+  name: burrow-peer-000
+spec:
+  type: ClusterIP
+  ports:
+    - name: peer
+      port: 26656
+      targetPort: peer
+      protocol: TCP
+  selector:
+    app: burrow
+    release: burrow
+    nodeNumber: "000"
+---

@@ -1,0 +1,58 @@
+# Source: uchiwa/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: uchiwa
+  labels:
+    heritage: "Helm"
+    release: "uchiwa"
+    chart: "uchiwa-1.0.2"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uchiwa
+        release: "uchiwa"
+    spec:
+      containers:
+      - name: uchiwa
+        image: "sstarcher/uchiwa:0.22"
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: 50Mi
+          requests:
+            cpu: 10m
+            memory: 50Mi
+        env:
+          - name: UCHIWA_BIND
+            value: "0.0.0.0"
+          - name: UCHIWA_SERVICE_PORT
+            value: "3000"
+          - name: UCHIWA_REFRESH
+            value: "10"
+          - name: UCHIWA_LOG_LEVEL
+            value: "info"
+          - name: SENSU_DC_NAME
+            value: "Sensu"
+          - name: SENSU_HOSTNAME
+            value: uchiwa-sensu
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+          - mountPath: /etc/sensu/
+            name: uchiwa-config
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: uchiwa
+          name: uchiwa-config

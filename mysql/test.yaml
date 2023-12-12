@@ -1,0 +1,28 @@
+# Source: mysql/templates/tests/test.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-test
+  namespace: default
+  labels:
+    app: mysql
+    chart: "mysql-1.6.9"
+    heritage: "Helm"
+    release: "mysql"
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: mysql-test
+      image: "bats/bats:1.2.1"
+      imagePullPolicy: "IfNotPresent"
+      command: ["/opt/bats/bin/bats", "-t", "/tests/run.sh"]
+      volumeMounts:
+      - mountPath: /tests
+        name: tests
+        readOnly: true
+  volumes:
+  - name: tests
+    configMap:
+      name: mysql-test
+  restartPolicy: Never

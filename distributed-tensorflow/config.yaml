@@ -1,0 +1,14 @@
+# Source: distributed-tensorflow/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: distributed-tensorflow
+  labels:
+    heritage: "Helm"
+    release: "distributed-tensorflow"
+    chart: distributed-tensorflow-1.2.2
+    app: distributed-tensorflow
+data:
+  ps.hostList: "distributed-tensorflow-ps-0.distributed-tensorflow-ps:8000,distributed-tensorflow-ps-1.distributed-tensorflow-ps:8000"
+  worker.hostList: "distributed-tensorflow-worker-0.distributed-tensorflow-worker:9000,distributed-tensorflow-worker-1.distributed-tensorflow-worker:9000"
+---

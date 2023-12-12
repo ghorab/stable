@@ -1,0 +1,21 @@
+# Source: hubot/charts/redis/templates/redis-master-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hubot-redis-master
+  labels:
+    app: redis
+    chart: redis-9.4.3
+    release: hubot
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: redis
+  selector:
+    app: redis
+    release: hubot
+    role: master
+---

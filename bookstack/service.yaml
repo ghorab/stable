@@ -1,0 +1,21 @@
+# Source: bookstack/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstack
+  labels:
+    app: bookstack
+    chart: bookstack-1.2.4
+    release: bookstack
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: bookstack
+    release: bookstack
+---

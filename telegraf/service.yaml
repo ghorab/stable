@@ -1,0 +1,24 @@
+# Source: telegraf/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: telegraf
+  labels:
+    app.kubernetes.io/name: telegraf
+    helm.sh/chart: telegraf-1.6.1
+    app.kubernetes.io/instance: telegraf
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8888
+    targetPort: 8888
+    name: "health"
+  - port: 8125
+    targetPort: 8125
+    protocol: "UDP"
+    name: "statsd"
+  selector:
+    app.kubernetes.io/name: telegraf
+    app.kubernetes.io/instance: telegraf
+---

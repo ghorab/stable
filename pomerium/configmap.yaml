@@ -1,0 +1,13 @@
+# Source: pomerium/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pomerium
+  labels:
+    app.kubernetes.io/name: pomerium
+    helm.sh/chart: pomerium-4.2.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: pomerium
+data:
+  config.yaml: |
+---

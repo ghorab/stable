@@ -1,0 +1,23 @@
+# Source: xray/templates/xray-indexer-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: xray-xray-indexer
+  labels:
+    app: xray
+    chart: xray-0.4.3
+    component: xray-indexer
+    heritage: Helm
+    release: xray
+spec:
+  type: ClusterIP
+  ports:
+  - port: 7002
+    protocol: TCP
+    name: http
+    targetPort: 7002
+  selector:
+    app: xray
+    component: xray-indexer
+    release: xray
+---

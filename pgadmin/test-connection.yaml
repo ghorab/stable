@@ -1,0 +1,20 @@
+# Source: pgadmin/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "pgadmin-test-connection"
+  labels:
+    app.kubernetes.io/name: pgadmin
+    helm.sh/chart: pgadmin-1.2.3
+    app.kubernetes.io/instance: pgadmin
+    app.kubernetes.io/version: "4.18.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['pgadmin:80']
+  restartPolicy: Never

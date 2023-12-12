@@ -1,0 +1,72 @@
+# Source: ethereum/templates/bootnode.deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ethereum-bootnode
+  labels:
+    app: ethereum
+    chart: ethereum-1.0.2
+    release: ethereum
+    heritage: Helm
+    component: bootnode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ethereum
+      release: ethereum
+      component: bootnode
+  template:
+    metadata:
+      labels:
+        app: ethereum
+        release: ethereum
+        component: bootnode
+    spec:
+      containers:
+      - name: bootnode
+        image: ethereum/client-go:alltools-v1.7.3
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args:
+        - "-c"
+        - "bootnode --nodekey=/etc/bootnode/node.key --verbosity=4"
+        volumeMounts:
+        - name: data
+          mountPath: /etc/bootnode
+        ports:
+        - name: discovery
+          containerPort: 30301
+          protocol: UDP
+      - name: bootnode-server
+        image: ethereum/client-go:alltools-v1.7.3
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args:
+        - "-c"
+        - "while [ 1 ]; do echo -e \"HTTP/1.1 200 OK\n\nenode://$(bootnode -writeaddress --nodekey=/etc/bootnode/node.key)@$(POD_IP):30301\" | nc -l -v -p 80 || break; done;"
+        volumeMounts:
+        - name: data
+          mountPath: /etc/bootnode
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - containerPort: 80
+      initContainers:
+      - name: genkey
+        image: ethereum/client-go:alltools-v1.7.3
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args:
+        - "-c"
+        - "bootnode --genkey=/etc/bootnode/node.key"
+        volumeMounts:
+        - name: data
+          mountPath: /etc/bootnode
+      volumes:
+      - name: data
+        emptyDir: {}
+---

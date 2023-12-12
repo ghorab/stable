@@ -1,0 +1,12 @@
+# Source: gcp-night-king/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gcp-night-king-gcp-night-king-config
+  labels:
+    app: gcp-night-king
+    chart: gcp-night-king-1.0.4
+    heritage: Helm
+    release: gcp-night-king
+data:
+  project.id: "MUST PROVIDE PROJECT ID"

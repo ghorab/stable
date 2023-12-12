@@ -1,0 +1,15 @@
+# Source: spark/templates/spark-sql-test.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "spark-sql-test-gjwjl"
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: spark-sql-test
+      image: k8s.gcr.io/spark:1.5.1_v3
+      command: ["/opt/spark/bin/spark-sql", "--master",
+                "spark://spark-master:7077", "-e",
+                "show databases;"]
+  restartPolicy: Never

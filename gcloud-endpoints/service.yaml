@@ -1,0 +1,15 @@
+# Source: gcloud-endpoints/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: gcloud-endpoints-gcloud-
+spec:
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: gcloud-endpoints-gcloud-
+  type: ClusterIP
+---

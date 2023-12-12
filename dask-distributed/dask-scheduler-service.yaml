@@ -1,0 +1,25 @@
+# Source: dask-distributed/templates/dask-scheduler-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dask-distributed-schedul
+  labels:
+    app: dask-distributed
+    heritage: "Helm"
+    release: "dask-distributed"
+    chart: "dask-distributed-2.0.2"
+    component: "dask-distributed-dask-scheduler"
+spec:
+  ports:
+    - name: dask-distributed-schedul
+      port: 8786
+      targetPort: 8786
+    - name: dask-distributed-webui
+      port: 80
+      targetPort: 8787
+  selector:
+    app: dask-distributed
+    release: "dask-distributed"
+    component: "dask-distributed-dask-scheduler"
+  type: LoadBalancer
+---

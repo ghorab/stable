@@ -1,0 +1,25 @@
+# Source: hlf-peer/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hlf-peer
+  labels:
+    app: hlf-peer
+    heritage: "Helm"
+    release: "hlf-peer"
+    chart: hlf-peer-1.6.3
+spec:
+  type: ClusterIP
+  ports:
+    - port: 7051
+      targetPort: 7051
+      protocol: TCP
+      name: request
+    - port: 7053
+      targetPort: 7053
+      protocol: TCP
+      name: event
+  selector:
+    app: hlf-peer
+    release: hlf-peer
+---

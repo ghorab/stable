@@ -1,0 +1,94 @@
+# Source: airflow/templates/webserver/webserver-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-web
+  labels:
+    app: airflow
+    component: web
+    chart: airflow-7.13.3
+    release: airflow
+    heritage: Helm
+spec:
+  replicas: 1
+  minReadySeconds: 5
+  strategy:
+    # this is safe - multiple web pods can run concurrently
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: airflow
+      component: web
+      release: airflow
+  template:
+    metadata:
+      annotations:
+        checksum/config-env: 7ef725357dcc3250bde412d19d3afe6466d279da663c28aa5c414d5c7f91909c
+        checksum/config-git-clone: 8d91f664c6efe85acde0ff82ffa86fb277dec3b0b52fd6ca36cc13aea855400a
+        checksum/config-scripts: 05cf92e4968d8817e918334edf85fdbc3e91838c0ab2f14bb54f384ef120f97a
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: airflow
+        component: web
+        release: airflow
+    spec:
+      restartPolicy: Always
+      serviceAccountName: airflow
+      containers:
+        - name: airflow-web
+          image: apache/airflow:1.10.12-python3.6
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: web
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: "airflow-env"
+          env:            
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-postgresql
+                  key: postgresql-password
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-redis
+                  key: redis-password
+          resources:
+            {}
+          volumeMounts:
+            - name: scripts
+              mountPath: /home/airflow/scripts
+          command:
+            - "/usr/bin/dumb-init"
+            - "--"
+          args:
+            - "bash"
+            - "-c"
+            - >
+              true \
+               && mkdir -p /home/airflow/.local/bin \
+               && export PATH="/home/airflow/.local/bin:$PATH" \
+               && echo "*** running webserver..." \
+               && exec airflow webserver
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: "/health"
+              port: web
+            initialDelaySeconds: 300
+            periodSeconds: 30
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 2
+      volumes:
+        - name: scripts
+          configMap:
+            name: airflow-scripts
+            defaultMode: 0755
+---

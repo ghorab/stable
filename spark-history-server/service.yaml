@@ -1,0 +1,21 @@
+# Source: spark-history-server/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-history-server
+  labels:
+    app.kubernetes.io/name: spark-history-server
+    helm.sh/chart: spark-history-server-1.4.3
+    app.kubernetes.io/instance: spark-history-server
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 18080
+    targetPort: historyport
+    protocol: TCP
+    name: http-historyport
+  selector:
+    app.kubernetes.io/name: spark-history-server
+    app.kubernetes.io/instance: spark-history-server
+---

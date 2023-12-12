@@ -1,0 +1,14 @@
+# Source: opa/templates/mgmt-clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: opa
+    chart: opa-1.14.6
+    heritage: Helm
+    release: opa
+    component: mgmt
+  name: opa-mgmt
+rules:
+  []
+---

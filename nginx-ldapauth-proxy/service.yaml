@@ -1,0 +1,21 @@
+# Source: nginx-ldapauth-proxy/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ldapauth-proxy
+  labels:
+    app: nginx-ldapauth-proxy
+    chart: nginx-ldapauth-proxy-0.1.6
+    release: nginx-ldapauth-proxy
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 443
+      targetPort: 80
+      protocol: TCP
+      name: nginx-ldapauth
+  selector:
+    app: nginx-ldapauth-proxy
+    release: nginx-ldapauth-proxy
+---

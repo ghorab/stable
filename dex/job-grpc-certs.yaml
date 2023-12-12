@@ -1,0 +1,90 @@
+# Source: dex/templates/job-grpc-certs.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "2"
+    "helm.sh/hook-delete-policy": hook-succeeded
+  name: dex-grpc-certs
+  labels:
+    app.kubernetes.io/name: dex
+    helm.sh/chart: dex-2.15.2
+    app.kubernetes.io/instance: dex
+    app.kubernetes.io/version: "2.24.0"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: "job-grpc-certs"
+spec:
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dex
+        app.kubernetes.io/instance: dex
+        app.kubernetes.io/component: "job-grpc-certs"
+    spec:
+      securityContext:
+        runAsUser: 65534
+        fsGroup: 65534
+      serviceAccountName: dex
+      nodeSelector:
+        {}
+      restartPolicy: OnFailure
+      containers:
+      - name: main
+        image: "gcr.io/google_containers/kubernetes-dashboard-init-amd64:v1.0.0"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: HOME
+          value: /tmp
+        workingDir: /tmp
+        command:
+        - /bin/bash
+        - -exc
+        - |
+          export CONFIG=/etc/dex/tls/grpc/openssl.conf;
+          cat << EOF > san.cnf
+          DNS.1:dex.example.com
+          EOF
+          export SAN=$(cat san.cnf |  paste -sd "," -)
+
+          # Creating basic files/directories
+          mkdir -p {certs,crl,newcerts}
+          touch index.txt
+          touch index.txt.attr
+          echo 1000 > serial
+          # CA private key (unencrypted)
+          openssl genrsa -out ca.key 4096;
+          # Certificate Authority (self-signed certificate)
+          openssl req -config $CONFIG -new -x509 -days 3650 -sha256 -key ca.key -extensions v3_ca -out ca.crt -subj "/CN=grpc-ca";
+          # Server private key (unencrypted)
+          openssl genrsa -out server.key 2048;
+          # Server certificate signing request (CSR)
+          openssl req -config $CONFIG -new -sha256 -key server.key -out server.csr -subj "/CN=grpc-server";
+          # Certificate Authority signs CSR to grant a certificate
+          openssl ca -batch -config $CONFIG  -extensions server_cert -days 365 -notext -md sha256 -in server.csr -out server.crt -cert ca.crt -keyfile ca.key;
+          # Client private key (unencrypted)
+          openssl genrsa -out client.key 2048;
+          # Signed client certificate signing request (CSR)
+          openssl req -config $CONFIG -new -sha256 -key client.key -out client.csr -subj "/CN=grpc-client";
+          # Certificate Authority signs CSR to grant a certificate
+          openssl ca -batch -config $CONFIG -extensions usr_cert -days 365 -notext -md sha256 -in client.csr -out client.crt -cert ca.crt -keyfile ca.key;
+          # Remove CSR's
+          rm *.csr;
+
+          # Cleanup the existing configmap and secrets
+          kubectl delete configmap dex-grpc-ca --namespace default || true
+          kubectl delete secret dex-grpc-ca dex-grpc-server-tls dex-grpc-client-tls --namespace default || true
+          kubectl create configmap dex-grpc-ca --namespace default --from-file=ca.crt;
+          # Store all certficates in secrets
+          kubectl create secret tls dex-grpc-ca --namespace default --cert=ca.crt --key=ca.key;
+          kubectl create secret tls dex-grpc-server-tls --namespace default --cert=server.crt --key=server.key;
+          kubectl create secret tls dex-grpc-client-tls --namespace default --cert=client.crt --key=client.key;
+        volumeMounts:
+        - name: openssl-config
+          mountPath: /etc/dex/tls/grpc
+      volumes:
+      - name: openssl-config
+        configMap:
+          name: dex-openssl-config
+---

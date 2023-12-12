@@ -1,0 +1,40 @@
+# Source: opa/templates/webhookconfiguration.yaml
+kind: ValidatingWebhookConfiguration
+apiVersion: admissionregistration.k8s.io/v1beta1
+metadata:
+  name: opa
+  annotations:
+  labels:
+    app: opa
+    chart: "opa-1.14.6"
+    release: "opa"
+    heritage: "Helm"
+webhooks:
+  - name: webhook.openpolicyagent.org
+    namespaceSelector:
+      matchExpressions:
+      - key: openpolicyagent.org/webhook
+        operator: NotIn
+        values:
+        - ignore
+
+    failurePolicy: Ignore
+    rules:
+      - apiGroups:
+        - '*'
+        apiVersions:
+        - '*'
+        operations:
+        - '*'
+        resources:
+        - '*'
+    clientConfig:
+
+
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJVENDQWdtZ0F3SUJBZ0lRYUhObXZtMkxDN0JqTzIvaWV1Z3NiREFOQmdrcWhraUc5dzBCQVFzRkFEQWIKTVJrd0Z3WURWUVFERXhCdmNHRXRZV1J0YVhOemFXOXVMV05oTUI0WERUSXpNVEV3TXpFeE1qVXpObG9YRFRNegpNVEF6TVRFeE1qVXpObG93R3pFWk1CY0dBMVVFQXhNUWIzQmhMV0ZrYldsemMybHZiaTFqWVRDQ0FTSXdEUVlKCktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQVBncXlRSWxHVWxkV25YYlllUHh0dk5XUlNKYVVnR0EKZ1JxSkI1dWg1TmxzWTRGcGc0akM2NTlBdEtVbHN0Z2xVZGRkRFkyZDhESVpFdVhzbXduZWx1V2ZTandxaFFEMApGN3NlZFczajI5K08vZ0NFSHNjeFRRM0JFNFZ4K3pRTkNLeXRZYnYxZDJqc3lRL3NkK3dBVDhWMVhWMS8zME1qCkNIM1hiL3ljWnZxU3BOajVlaE8vakdob1MrcmppL1U4YXlJK2RCS3JzbW94Rk9rRkMvKzBkdEp3RlVwTmVwb1QKeVNhODlnQzMxeWlKaGxKd1N3SDYza0ZaeEZGSE9xRDUrcy9qMGdJK1k5YS9yY3NBQ1MvYWlnYlduMXhNUHJIMQpzQVVMcHJLbWFYQVdCendDMTE1ZFRSWTY4T3lqTjMwc0RiM3Jua0owTzl6TzFQUW8vdFJST1FVQ0F3RUFBYU5oCk1GOHdEZ1lEVlIwUEFRSC9CQVFEQWdLa01CMEdBMVVkSlFRV01CUUdDQ3NHQVFVRkJ3TUJCZ2dyQmdFRkJRY0QKQWpBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUeDF6WmxJZWYxdVNsSlY1am5RTDRpNEF2Vwo5akFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBOXo0RzVTdjk0V3RoUFV6NkYwSjg0QTRwV1ZLbmNMZ0hpNmRMCjFUN1AwTTlNN1l2RjJlaW9WVkRZQ2QyZVBINTl3ZTJrNDM5UmlIWkNVYVpUeXNpSlhwMFE0STVxaW1QNVJEdTIKenFYb1U4T0lhZEJtcmw1anIzNW04S1BHeEcrRGVnTC9zY0NZTkJGbGRKZm90T1F3U1hVeUxzZlZxdXM3Y3hndQorQjZwTlFVTGVyN1ZNWjVTQmpFVjhsdGNZWkJxUjRCNW9LcGhvM2hBSkF2c045bC9kZGo4UWJyckxJRHlvWEYwClVGdFhtRGJOSU5rVnY0RzhiNjk3a2Z6VUFnRE1IKzdocUlZbHlqUVgrbkNTK05yeHA3WTlaTzFTVVprQmdidG0KQnRtY2dxeUdqVXkvSXlWZnMxbWJSd3NUV2ZkVWpzNWlSTFZ1dVdGQzFLQUYrRlNTRkE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+
+
+      service:
+        name: opa
+        namespace: default
+    sideEffects: Unknown

@@ -1,0 +1,16 @@
+# Source: mattermost-team-edition/templates/tests/mattermost-config-test.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mattermost-team-edition-tests
+  labels:
+    app.kubernetes.io/name: mattermost-team-edition
+    app.kubernetes.io/instance: mattermost-team-edition
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: mattermost-team-edition-3.1.2
+data:
+  run.sh: |-
+    @test "Testing Mattermost is accessible" {
+      curl --retry 48 --retry-delay 10 mattermost-team-edition.default.svc.cluster.local:8065
+    }
+---

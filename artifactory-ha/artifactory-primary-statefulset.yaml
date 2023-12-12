@@ -1,0 +1,143 @@
+# Source: artifactory-ha/templates/artifactory-primary-statefulset.yaml
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: artifactory-ha-artifactory-ha-primary
+  labels:
+    app: artifactory-ha
+    chart: artifactory-ha-0.4.2
+    component: artifactory-ha
+    heritage: Helm
+    release: artifactory-ha
+spec:
+  serviceName: artifactory-ha-artifactory-ha-primary
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: artifactory-ha
+      role: artifactory-ha-artifactory-ha-primary
+      release: artifactory-ha
+  template:
+    metadata:
+      labels:
+        app: artifactory-ha
+        role: artifactory-ha-artifactory-ha-primary
+        component: artifactory-ha
+        release: artifactory-ha
+    spec:
+      serviceAccountName: artifactory-ha
+      securityContext:
+        runAsUser: 1030
+        fsGroup: 1030
+      initContainers:
+      - name: "remove-lost-found"
+        image: "alpine:3.6"
+        imagePullPolicy: IfNotPresent
+        command:
+        - 'sh'
+        - '-c'
+        - 'rm -rfv /var/opt/jfrog/artifactory/lost+found'
+        volumeMounts:
+        - mountPath: "/var/opt/jfrog/artifactory"
+          name: volume
+      - name: "wait-for-db"
+        image: "alpine:3.6"
+        command:
+        - 'sh'
+        - '-c'
+        - >
+          until nc -z -w 2 artifactory-ha-postgresql 5432 && echo database ok; do
+            sleep 2;
+          done;
+      containers:
+      - name: artifactory-ha
+        image: 'docker.bintray.io/jfrog/artifactory-pro:6.2.0'
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - '/bin/sh'
+              - '-c'
+              - >
+        env:
+        - name: DB_TYPE
+          value: 'postgresql'
+        - name: DB_HOST
+          value: 'artifactory-ha-postgresql'
+        - name: DB_PORT
+          value: '5432'
+        - name: DB_USER
+          value: 'artifactory'
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: artifactory-ha-postgresql
+              key: postgres-password
+        - name: EXTRA_JAVA_OPTIONS
+          value: "
+          -Dartifactory.locking.provider.type=db
+            "
+        - name: ARTIFACTORY_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: artifactory-ha
+              key: master-key
+        - name: HA_IS_PRIMARY
+          value: "true"
+        - name: HA_MEMBERSHIP_PORT
+          value: "10017"
+        - name: HA_NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+        - name: volume
+          mountPath: "/var/opt/jfrog/artifactory"
+        - name: artifactory-inactiveservercleaner
+          mountPath: "/tmp/plugins/inactiveServerCleaner.groovy"
+          subPath: inactiveServerCleaner.groovy
+        - name: binarystore-xml
+          mountPath: "/artifactory_extra_conf/binarystore.xml"
+          subPath: binarystore.xml
+        resources:
+          {}
+        readinessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 8081
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 10
+          successThreshold: 1
+        livenessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 8081
+          initialDelaySeconds: 180
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 10
+          successThreshold: 1
+      volumes:
+      - name: binarystore-xml
+        configMap:
+          name: artifactory-ha-bs
+      - name: artifactory-inactiveservercleaner
+        configMap:
+          name: artifactory-ha-isc
+  volumeClaimTemplates:
+  - metadata:
+      name: volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 200Gi

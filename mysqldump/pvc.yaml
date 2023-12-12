@@ -1,0 +1,17 @@
+# Source: mysqldump/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysqldump
+  labels:
+    app.kubernetes.io/name: mysqldump
+    helm.sh/chart: mysqldump-2.6.2
+    app.kubernetes.io/instance: mysqldump
+    app.kubernetes.io/version: "2.4.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 8Gi
+---

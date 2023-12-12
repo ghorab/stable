@@ -1,0 +1,74 @@
+# Source: hlf-peer/templates/configmap--peer.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hlf-peer--peer
+  labels:
+    app: hlf-peer
+    heritage: "Helm"
+    release: "hlf-peer"
+    chart: hlf-peer-1.6.3
+data:
+  CORE_PEER_ADDRESSAUTODETECT: "true"
+  CORE_PEER_ID: hlf-peer
+  CORE_PEER_NETWORKID: nid1
+  # If we have an ingress, we set hostname to it
+  # Otherwise we use CORE_PEER_ADDRESSAUTODETECT to auto-detect its address
+  CORE_PEER_LISTENADDRESS: 0.0.0.0:7051
+  CORE_PEER_EVENTS_ADDRESS: 0.0.0.0:7053
+  CORE_PEER_COMMITTER_ENABLED: "true"
+  CORE_PEER_PROFILE_ENABLED: "true"
+  CORE_PEER_DISCOVERY_PERIOD: 60s
+  CORE_PEER_DISCOVERY_TOUCHPERIOD: 60s
+  CORE_PEER_LOCALMSPID: "Org1MSP"
+  CORE_PEER_MSPCONFIGPATH: /var/hyperledger/msp
+  ###########
+  # Logging #
+  ###########
+  CORE_LOGGING_LEVEL: "info"
+  CORE_LOGGING_PEER: "info"
+  CORE_LOGGING_CAUTHDSL: "warning"
+  CORE_LOGGING_GOSSIP: "info"
+  CORE_LOGGING_LEDGER: "info"
+  CORE_LOGGING_MSP: "warning"
+  CORE_LOGGING_POLICIES: "warning"
+  CORE_LOGGING_GRPC: "error"
+  ##########
+  # Gossip #
+  ##########
+  CORE_PEER_GOSSIP_BOOTSTRAP: ""
+  CORE_PEER_GOSSIP_ENDPOINT: ""
+  CORE_PEER_GOSSIP_EXTERNALENDPOINT: ""
+  CORE_PEER_GOSSIP_ORGLEADER: "false"
+  CORE_PEER_GOSSIP_USELEADERELECTION: "true"
+  #############
+  # CHAINCODE #
+  #############
+  ##########
+  # TLS    #
+  ##########
+  CORE_PEER_TLS_ENABLED: "false"
+  CORE_PEER_TLS_CERT_FILE: "/var/hyperledger/tls/server/pair/tls.crt"
+  CORE_PEER_TLS_KEY_FILE: "/var/hyperledger/tls/server/pair/tls.key"
+  CORE_PEER_TLS_ROOTCERT_FILE: "/var/hyperledger/tls/server/cert/cacert.pem"
+  CORE_PEER_TLS_CLIENTAUTHREQUIRED: "false"
+  # This is fixed prior to starting the peer
+  CORE_PEER_TLS_CLIENTROOTCAS_FILES: "/var/hyperledger/tls/client/cert/*"
+  CORE_PEER_TLS_CLIENTCERT_FILE: "/var/hyperledger/tls/client/pair/tls.crt"
+  CORE_PEER_TLS_CLIENTKEY_FILE: "/var/hyperledger/tls/client/pair/tls.key"
+  CORE_VM_ENDPOINT: unix:///host/var/run/docker.sock
+  CORE_LEDGER_STATE_STATEDATABASE: "goleveldb"
+  # Containers in the same pod share the host
+  PEER_CFG_PATH: /var/hyperledger/config
+  FABRIC_CFG_PATH: /var/hyperledger/fabric_cfg
+  GODEBUG: "netdns=go"
+  ADMIN_MSP_PATH: /var/hyperledger/admin_msp
+  ORD_TLS_PATH: /var/hyperledger/tls/ord/cert
+##############
+# Operations #
+##############
+###########
+# Metrics #
+###########
+  CORE_METRICS_PROVIDER: "disabled"
+---

@@ -1,0 +1,98 @@
+# Source: sonatype-nexus/templates/deployment-statefulset.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonatype-nexus
+  labels:
+    app: sonatype-nexus
+    fullname: sonatype-nexus
+    chart: sonatype-nexus-1.23.1
+    release: sonatype-nexus
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonatype-nexus
+      release: sonatype-nexus
+  template:
+    metadata:
+      labels:
+        app: sonatype-nexus
+        release: sonatype-nexus
+    spec:
+      serviceAccountName: sonatype-nexus
+      containers:
+        - name: nexus
+          image: sonatype/nexus3:3.20.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: install4jAddVmParams
+              value: -Xms1200M -Xmx1200M -XX:MaxDirectMemorySize=2G -XX:+UnlockExperimentalVMOptions
+                -XX:+UseCGroupMemoryLimitForHeap
+            - name: NEXUS_SECURITY_RANDOMPASSWORD
+              value: "false"
+          resources:
+            {}
+          ports:
+            - containerPort: 5003
+              name: nexus-docker-g
+            - containerPort: 8081
+              name: nexus-http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 6
+          volumeMounts:
+            - mountPath: /nexus-data
+              name: sonatype-nexus-data
+            - mountPath: /nexus-data/backup
+              name: sonatype-nexus-backup
+        - name: nexus-proxy
+          image: quay.io/travelaudience/docker-nexus-proxy:2.5.0
+          resources:
+            {}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ALLOWED_USER_AGENTS_ON_ROOT_REGEX
+              value: "GoogleHC"
+            - name: CLOUD_IAM_AUTH_ENABLED
+              value: "false"
+            - name: BIND_PORT
+              value: "8080"
+            - name: ENFORCE_HTTPS
+              value: "false"
+            - name: NEXUS_DOCKER_HOST
+              value: 
+            - name: NEXUS_HTTP_HOST
+              value: 
+            - name: UPSTREAM_DOCKER_PORT
+              value: "5003"
+            - name: UPSTREAM_HTTP_PORT
+              value: "8081"
+            - name: UPSTREAM_HOST
+              value: "localhost"
+          ports:
+            - containerPort: 8080
+              name: nexus-proxy
+      securityContext:
+        fsGroup: 2000
+      volumes:
+        - name: sonatype-nexus-data
+          persistentVolumeClaim:
+            claimName: sonatype-nexus-data
+        - name: sonatype-nexus-backup
+          emptyDir: {}
+
+
+## create pvc in case of statefulsets

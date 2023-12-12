@@ -1,0 +1,123 @@
+# Source: orangehrm/charts/mariadb/templates/master-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: orangehrm-mariadb
+  labels:
+    app: mariadb
+    chart: mariadb-7.3.11
+    release: orangehrm
+    heritage: Helm
+    component: master
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+      release: orangehrm
+      component: master
+  serviceName: orangehrm-mariadb
+  replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: mariadb
+        chart: mariadb-7.3.11
+        release: orangehrm
+        component: master
+    spec:
+      serviceAccountName: default
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: mariadb
+                    release: orangehrm      
+      initContainers:
+      containers:
+        - name: "mariadb"
+          image: docker.io/bitnami/mariadb:10.3.22-debian-10-r27
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: orangehrm-mariadb
+                  key: mariadb-root-password
+            - name: MARIADB_USER
+              value: "bn_orangehrm"
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: orangehrm-mariadb
+                  key: mariadb-password
+            - name: MARIADB_DATABASE
+              value: "bitnami_orangehrm"
+          ports:
+            - name: mysql
+              containerPort: 3306
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - |
+                  password_aux="${MARIADB_ROOT_PASSWORD:-}"
+                  if [ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]; then
+                      password_aux=$(cat $MARIADB_ROOT_PASSWORD_FILE)
+                  fi
+                  mysqladmin status -uroot -p$password_aux
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - |
+                  password_aux="${MARIADB_ROOT_PASSWORD:-}"
+                  if [ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]; then
+                      password_aux=$(cat $MARIADB_ROOT_PASSWORD_FILE)
+                  fi
+                  mysqladmin status -uroot -p$password_aux
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/mariadb
+            - name: config
+              mountPath: /opt/bitnami/mariadb/conf/my.cnf
+              subPath: my.cnf
+      volumes:
+        - name: config
+          configMap:
+            name: orangehrm-mariadb
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app: "mariadb"
+          component: "master"
+          release: "orangehrm"
+          heritage: "Helm"
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---

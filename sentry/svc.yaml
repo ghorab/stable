@@ -1,0 +1,21 @@
+# Source: sentry/charts/postgresql/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentry-sentry-postgresql
+  labels:
+    app: sentry-postgresql
+    chart: postgresql-6.5.0
+    release: "sentry"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: postgresql
+    port: 5432
+    targetPort: postgresql
+  selector:
+    app: sentry-postgresql
+    release: "sentry"
+    role: master
+---

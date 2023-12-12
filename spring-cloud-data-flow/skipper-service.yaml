@@ -1,0 +1,22 @@
+# Source: spring-cloud-data-flow/templates/skipper-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-cloud-data-flow-data-flow-skipper
+  labels:
+    app: spring-cloud-data-flow
+    component: skipper
+    chart: "spring-cloud-data-flow-2.8.1"
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      name: http
+  selector:
+    app: spring-cloud-data-flow
+    component: skipper
+    release: spring-cloud-data-flow
+---

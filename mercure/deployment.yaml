@@ -1,0 +1,166 @@
+# Source: mercure/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mercure
+  labels:
+    app.kubernetes.io/name: mercure
+    helm.sh/chart: mercure-4.0.3
+    app.kubernetes.io/instance: mercure
+    app.kubernetes.io/version: "0.10.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mercure
+      app.kubernetes.io/instance: mercure
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mercure
+        app.kubernetes.io/instance: mercure
+      annotations:
+        checksum/config: 593974e4f2f39da2fa6780b64ec5ec97888608f0771c974a5b0cb6130f509fd8
+        checksum/secret: a35f825af65895efdb459f16ccc4eb526ead43979a8beba31aa34c26cb14e17d
+    spec:
+      serviceAccountName: mercure
+      securityContext:
+        {}
+      containers:
+        - name: mercure
+          securityContext:
+            {}
+          image: "dunglas/mercure:v0.10"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            {}
+          env:
+            - name: TRANSPORT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mercure
+                  key: transportUrl
+            - name: ALLOW_ANONYMOUS
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: allowAnonymous
+            - name: SUBSCRIPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: subscriptions
+            - name: METRICS
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: metrics
+            - name: METRICS_LOGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: metricsLogin
+            - name: METRICS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mercure
+                  key: metricsPassword
+            - name: CORS_ALLOWED_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: corsAllowedOrigins
+            - name: DEBUG
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: debug
+            - name: DEMO
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: demo
+            - name: JWT_ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: jwtAlgorithm
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mercure
+                  key: jwtKey
+            - name: LOG_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: logFormat
+            - name: PUBLISH_ALLOWED_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: publishAllowedOrigins
+            - name: PUBLISHER_JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mercure
+                  key: publisherJwtKey
+            - name: SUBSCRIBER_JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mercure
+                  key: subscriberJwtKey
+            - name: HEARTBEAT_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: heartbeatInterval
+            - name: READ_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: readTimeout
+            - name: WRITE_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: writeTimeout
+            - name: DISPATCH_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: dispatchTimeout
+            - name: COMPRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: compress
+            - name: USE_FORWARDED_HEADERS
+              valueFrom:
+                configMapKeyRef:
+                  name: mercure
+                  key: useForwardedHeaders
+            - name: SUBSCRIBER_JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mercure
+                  key: subscriberJwtKey
+            - name: LICENSE
+              valueFrom:
+                secretKeyRef:
+                  name: mercure
+                  key: license
+---

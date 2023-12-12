@@ -1,0 +1,20 @@
+# Source: stellar-core/charts/postgresql/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: stellar-core-postgresql
+  labels:
+    app: postgresql
+    chart: postgresql-0.19.0
+    release: stellar-core
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+  - name: postgresql
+    port: 5432
+    targetPort: postgresql
+  selector:
+    app: postgresql
+    release: stellar-core
+---

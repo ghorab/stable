@@ -1,0 +1,35 @@
+# Source: spring-cloud-data-flow/templates/skipper-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-cloud-data-flow-data-flow-skipper
+  labels:
+    app: spring-cloud-data-flow
+    component: skipper
+    chart: "spring-cloud-data-flow-2.8.1"
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+data:
+  application.yaml: |-
+    spring:
+      cloud:
+        skipper:
+          server:
+            platform:
+              kubernetes:
+                accounts:
+                  default:
+                    environmentVariables: 'SPRING_RABBITMQ_HOST=${SPRING_CLOUD_DATA_FLOW_RABBITMQ_SERVICE_HOST},SPRING_RABBITMQ_PORT=${SPRING_CLOUD_DATA_FLOW_RABBITMQ_SERVICE_PORT_AMQP},SPRING_RABBITMQ_USERNAME=user,SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}'
+                    limits:
+                      memory: 1024Mi
+                      cpu: 500m
+                    readinessProbeDelay: 120
+                    livenessProbeDelay: 90
+      datasource:
+        url: 'jdbc:mysql://${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_HOST}:${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_PORT}/skipper'
+        driverClassName: org.mariadb.jdbc.Driver
+        username: root
+        password: ${mysql-root-password}
+        testOnBorrow: true
+        validationQuery: "SELECT 1"
+---

@@ -1,0 +1,98 @@
+# Source: spring-cloud-data-flow/templates/skipper-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-cloud-data-flow-data-flow-skipper
+  labels:
+    app: spring-cloud-data-flow
+    component: skipper
+    chart: "spring-cloud-data-flow-2.8.1"
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: spring-cloud-data-flow
+      component: skipper
+      release: "spring-cloud-data-flow"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: spring-cloud-data-flow
+        component: skipper
+        release: "spring-cloud-data-flow"
+    spec:
+      containers:
+      - name: spring-cloud-data-flow-data-flow-skipper
+        image: springcloud/spring-cloud-skipper-server:2.5.0
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: rabbitmq
+            mountPath: /etc/secrets/rabbitmq
+            readOnly: true
+          - name: database
+            mountPath: /etc/secrets/database
+            readOnly: true
+        ports:
+        - containerPort: 7577
+          name: http
+        resources:
+          {}
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: http
+          initialDelaySeconds: 45
+        readinessProbe:
+          httpGet:
+            path: /actuator/info
+            port: http
+          initialDelaySeconds: 45
+        env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: SERVER_PORT
+          value: '7577'
+        - name: SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API
+          value: 'true'
+        - name: SPRING_CLOUD_KUBERNETES_SECRETS_PATHS
+          value: /etc/secrets
+        - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
+          value: spring-cloud-data-flow-data-flow-skipper
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: spring-cloud-data-flow-rabbitmq
+              key: rabbitmq-password
+        - name: KUBERNETES_TRUST_CERTIFICATES
+          value: "false"
+      volumes:
+        - name: rabbitmq
+          secret:
+            secretName: spring-cloud-data-flow-rabbitmq
+        - name: database
+          secret:
+            secretName: spring-cloud-data-flow-mysql
+      initContainers:
+      - name: init-db-wait
+        image: busybox:1.30.1
+        imagePullPolicy: IfNotPresent
+        command: ['sh', '-c', 'until nc -w3 -z ${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_HOST} ${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_PORT}; do echo waiting for database; sleep 3; done;']
+      - name: init-mysql-database
+        image: "mysql:5.7.28"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_PWD
+          valueFrom:
+            secretKeyRef:
+              name: spring-cloud-data-flow-mysql
+              key: mysql-root-password
+        command:
+        - 'sh'
+        - '-c'
+        - 'mysql -h ${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_HOST} -P ${SPRING_CLOUD_DATA_FLOW_MYSQL_SERVICE_PORT} -u root -e "CREATE DATABASE IF NOT EXISTS skipper;"'
+      serviceAccountName: spring-cloud-data-flow-data-flow
+---

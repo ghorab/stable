@@ -1,0 +1,24 @@
+# Source: kube-slack/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-slack
+  labels:
+    app: kube-slack
+    chart: kube-slack-1.3.4
+    release: kube-slack
+    heritage: Helm
+data:
+  FLOOD_EXPIRE: "60000"
+  METRICS_CPU: "true"
+  METRICS_MEMORY: "true"
+  METRICS_PERCENT: "80"
+  METRICS_REQUESTS: "false"
+  NOT_READY_MIN_TIME: "60000"
+  RECOVERY_ALERT: "true"
+  SLACK_CHANNEL: ""
+  SLACK_PROXY: ""
+  SLACK_URL: ""
+  SLACK_USERNAME: ""
+  TICK_RATE: "15000"
+---

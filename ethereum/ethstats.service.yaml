@@ -1,0 +1,21 @@
+# Source: ethereum/templates/ethstats.service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: ethereum-ethstats
+  labels:
+    app: ethereum
+    chart: ethereum-1.0.2
+    release: ethereum
+    heritage: Helm
+    component: ethstats
+spec:
+  selector:
+    app: ethereum
+    release: ethereum
+    component: ethstats
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: http
+---

@@ -1,0 +1,17 @@
+# Source: mssql-linux/templates/pvc-backup.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mssql-linux-backup
+  labels:
+    app: mssql-linux
+    chart: "mssql-linux-0.11.4"
+    release: "mssql-linux"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

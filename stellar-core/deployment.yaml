@@ -1,0 +1,85 @@
+# Source: stellar-core/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stellar-core
+  labels:
+    app: stellar-core
+    chart: stellar-core-1.0.2
+    release: stellar-core
+    heritage: Helm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: stellar-core
+      release: stellar-core
+  template:
+    metadata:
+      labels:
+        app: stellar-core
+        release: stellar-core
+    spec:
+      serviceAccountName: "stellar-core"
+      containers:
+        - name: stellar-core
+          image: "satoshipay/stellar-core:10.0.0-2"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: peer
+              containerPort: 11625
+              protocol: TCP
+            - name: http
+              containerPort: 11626
+              protocol: TCP
+          env:
+            - name: NODE_SEED
+              valueFrom:
+                secretKeyRef:
+                  name: stellar-core
+                  key: nodeSeed
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: stellar-core-postgresql
+                  key: postgres-password
+            - name: DATABASE
+              value: postgresql://dbname=stellar-core user=postgres password=$(DATABASE_PASSWORD) host=stellar-core-postgresql connect_timeout=5
+            - name: KNOWN_PEERS
+              value: "stellar1.tempo.eu.com,au.stellar.ibm.com,br.stellar.ibm.com,ca.stellar.ibm.com,no.stellar.ibm.com,it.stellar.ibm.com,hk.stellar.ibm.com,in.stellar.ibm.com,uk.stellar.ibm.com,us.stellar.ibm.com,stellar0.keybase.io,stellar1.satoshipay.io,stellar2.satoshipay.io,stellar3.satoshipay.io,core-live-a.stellar.org,core-live-b.stellar.org,core-live-c.stellar.org,ohio-1.stellar.stellarport.io,ohio-2.stellar.stellarport.io,validator1.stellar.stronghold.co,validator2.stellar.stronghold.co,validator3.stellar.stronghold.co,validator4.stellar.stronghold.co,validator5.stellar.stronghold.co"
+            - name: PREFERRED_PEERS
+              value: "stellar1.tempo.eu.com,au.stellar.ibm.com,br.stellar.ibm.com,ca.stellar.ibm.com,no.stellar.ibm.com,it.stellar.ibm.com,hk.stellar.ibm.com,in.stellar.ibm.com,uk.stellar.ibm.com,us.stellar.ibm.com,stellar0.keybase.io,stellar1.satoshipay.io,stellar2.satoshipay.io,stellar3.satoshipay.io,core-live-a.stellar.org,core-live-b.stellar.org,core-live-c.stellar.org,validator1.stellar.stronghold.co,validator2.stellar.stronghold.co,validator3.stellar.stronghold.co,validator4.stellar.stronghold.co,validator5.stellar.stronghold.co"
+            - name: NODE_NAMES
+              value: "GAOO3LWBC4XF6VWRP5ESJ6IBHAISVJMSBTALHOQM2EZG7Q477UWA6L7U eno,GCKWUQGSVO45ZV3QK7POYL7HMFWDKWJVMFVEGUJKCAEVUITUCTQWFSM6 ibm_au,GBUJA3Z5TLAKLI5MEH4TETLXJBQVSVW74MNEKP5UUHTP3IMLNSUPOTVA ibm_br,GB2HF2NHRKKFZYFDGD7MUENOYROOEK7SWYV2APYOODP6P7BUJTLILKIL ibm_ca,GDRA72H7JWXAXWJKOONQOPH3JKNSH5MQ6BO5K74C3X6FO2G3OG464BPU ibm_no,GAEEH4TBR7YQQWKJ2FIT57HXZZTMK2BX5LY4POJUYFSEZ7Y2ONHPPTES ibm_it,GBJ7T3BTLX2BP3T5Q4256PUF7JMDAB35LLO32QRDYE67TDDMN7H33GGE ibm_hk,GCH3O5PTCZVR4G65W3B4XDKWI5V677HQB3QO7CW4YPVYDDFBE2GE7G6V ibm_in,GAENPO2XRTTMAJXDWM3E3GAALNLG4HVMKJ4QF525TR25RI42YPEDULOW ibm_uk,GARBCBH4YSHUJLYEPKEPMVYZIJ3ZSQR3QCJ245CWGY64X72JLN4A6RSG ibm_us,GCWJKM4EGTGJUVSWUJDPCQEOEP5LHSOFKSA4HALBTOO4T4H3HCHOM6UX keybase0,GC5SXLNAM3C4NMGK2PXK4R34B5GNZ47FYQ24ZIBFDFOCU6D4KBN4POAE satoshipay1,GBJQUIXUO4XSNPAUT6ODLZUJRV2NPXYASKUBY4G5MYP3M47PCVI55MNT satoshipay2,GAK6Z5UVGUVSEK6PEOCAYJISTT5EJBB34PN3NOLEQG2SUKXRVV2F6HZY satoshipay3,GCGB2S2KGYARPVIA37HYZXVRM2YZUEXA6S33ZU5BUDC6THSB62LZSTYH sdf_watcher1,GCM6QMP3DLRPTAZW2UZPCPX2LF3SXWXKPMP3GKFZBDSF3QZGV2G5QSTK sdf_watcher2,GABMKJM6I25XI4K7U6XWMULOUQIQ27BCTMLS6BYYSOWKTBUXVRJSXHYQ sdf_watcher3,GBB32UXWEXGZUE7H7LUVNNZRT3ZMZ3YH7SP3V5EFBILUVL3NCTSSK3IZ stellarport1,GC5A5WKAPZU5ASNMLNCAMLW7CVHMLJJAKHSZZHE2KWGAJHZ4EW6TQ7PB stellarport2,GDIQKLQVOCD5UD6MUI5D5PTPVX7WTP5TAPP5OBMOLENBBD5KG434KYQ2 stronghold1,GA7MREQ7673YDVANF4WBPN7LBQM4BSH4BQUFUTC4YLSSQCQUQTXRVBZN stronghold2,GDHV7FL7JP6LUEWWYUOA4C3QAFQ4LZ6OHFBWFIL6IFIS3AOBI2DHV62F stronghold3,GBGDBLFKR3LORWOI65LVC7ES5OGZ4GHILEHCBVKPW2PMP2OL43F6B2JJ stronghold4,GCBXBCIKCCVUIHAZ5QFWK6CKSX4AESOJ33IQNUE42BP7J66X23TM6WPF stronghold5,GCJCSMSPIWKKPR7WEPIQG63PDF7JGGEENRC33OKVBSPUDIRL6ZZ5M7OO tempo,GD7FVHL2KUTUYNOJFRUUDJPDRO2MAZJ5KP6EBCU6LKXHYGZDUFBNHXQI umbrel"
+            - name: QUORUM_SET
+              value: "[{\"threshold_percent\":66,\"validators\":[\"$$eno\",\"$$keybase0\",\"$$tempo\",\"$$umbrel\"]},{\"path\":\"ibm\",\"threshold_percent\":51,\"validators\":[\"$$ibm_au\",\"$$ibm_br\",\"$$ibm_ca\",\"$$ibm_no\",\"$$ibm_it\",\"$$ibm_hk\",\"$$ibm_in\",\"$$ibm_uk\",\"$$ibm_us\"]},{\"path\":\"satoshipay\",\"threshold_percent\":51,\"validators\":[\"$$satoshipay1\",\"$$satoshipay2\",\"$$satoshipay3\"]},{\"path\":\"sdf\",\"threshold_percent\":51,\"validators\":[\"$$sdf_watcher1\",\"$$sdf_watcher2\",\"$$sdf_watcher3\"]},{\"path\":\"stronghold\",\"threshold_percent\":51,\"validators\":[\"$$stronghold1\",\"$$stronghold2\",\"$$stronghold3\",\"$$stronghold4\",\"$$stronghold5\"]}]"
+            - name: HISTORY
+              value: "{\"sdf1\":{\"get\":\"curl -sf http://history.stellar.org/prd/core-live/core_live_001/{0} -o {1}\"},\"sdf2\":{\"get\":\"curl -sf http://history.stellar.org/prd/core-live/core_live_002/{0} -o {1}\"},\"sdf3\":{\"get\":\"curl -sf http://history.stellar.org/prd/core-live/core_live_003/{0} -o {1}\"}}"
+            - name: NODE_IS_VALIDATOR
+              value: "true"
+            - name: NETWORK_PASSPHRASE
+              value: "Public Global Stellar Network ; September 2015"
+            - name: MAX_PEER_CONNECTIONS
+              value: "50"
+          livenessProbe:
+            httpGet:
+              path: /info
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /info
+              port: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              subPath: stellar-core
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: stellar-core

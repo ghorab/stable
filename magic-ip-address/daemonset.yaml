@@ -1,0 +1,54 @@
+# Source: magic-ip-address/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: magic-ip-address
+  labels:
+    app: magic-ip-address
+    chart: magic-ip-address-0.1.2
+    release: magic-ip-address
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: magic-ip-address
+      release: magic-ip-address
+  minReadySeconds: 10
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: magic-ip-address
+        release: magic-ip-address
+      annotations:
+        checksum/secret: 55038c23be097ed86e0a6b22345bf33c3e87cfa86f566ad968ff27336352a86a
+    spec:
+      containers:
+      - name: magic-ip-address
+        image: "mumoshu/kube-magic-ip-assigner:0.9.0-1.9.8"
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: magic-ip-address
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        securityContext:
+          runAsUser: 0
+        resources:
+          {}
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: magic-ip-address
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule

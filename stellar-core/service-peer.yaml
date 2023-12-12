@@ -1,0 +1,21 @@
+# Source: stellar-core/templates/service-peer.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: stellar-core-peer
+  labels:
+    app: stellar-core
+    chart: stellar-core-1.0.2
+    release: stellar-core
+    heritage: Helm
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 11625
+      targetPort: peer
+      protocol: TCP
+      name: peer
+  selector:
+    app: stellar-core
+    release: stellar-core
+---

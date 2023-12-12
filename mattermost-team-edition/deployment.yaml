@@ -1,0 +1,76 @@
+# Source: mattermost-team-edition/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mattermost-team-edition
+  labels:
+    app.kubernetes.io/name: mattermost-team-edition
+    app.kubernetes.io/instance: mattermost-team-edition
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: mattermost-team-edition-3.1.2
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mattermost-team-edition
+      app.kubernetes.io/instance: mattermost-team-edition
+      app.kubernetes.io/managed-by: Helm
+  template:
+    metadata:
+      annotations:
+        checksum/config: a78f4c7739e32012a7c569ce05a195aedac895f79d07cca674a4a10d66149ca2
+      labels:
+        app.kubernetes.io/name: mattermost-team-edition
+        app.kubernetes.io/instance: mattermost-team-edition
+        app.kubernetes.io/managed-by: Helm
+        helm.sh/chart: mattermost-team-edition-3.1.2
+    spec:
+      initContainers:
+      - name: "init-mysql"
+        image: "appropriate/curl:latest"
+        imagePullPolicy: IfNotPresent
+        command: ["sh", "-c", "until curl --max-time 5 http://mattermost-team-edition-mysql:3306; do echo waiting for mattermost-team-edition-mysql; sleep 5; done;"]
+      containers:
+      - name: mattermost-team-edition
+        image: "mattermost/mattermost-team-edition:5.9.0"
+        imagePullPolicy: IfNotPresent
+        env:
+        ports:
+        - name: http
+          containerPort: 8065
+          protocol: TCP
+        livenessProbe:
+          initialDelaySeconds: 90
+          timeoutSeconds: 5
+          periodSeconds: 15
+          httpGet:
+            path: /api/v4/system/ping
+            port: http
+        readinessProbe:
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+          periodSeconds: 15
+          httpGet:
+            path: /api/v4/system/ping
+            port: http
+        volumeMounts:
+        - mountPath: /mattermost/config/config.json
+          name: config-json
+          subPath: config.json
+        - mountPath: /mattermost/data
+          name: mattermost-data
+        resources:
+            null
+      volumes:
+      - name: config-json
+        secret:
+          secretName: mattermost-team-edition-config-json
+      - name: mattermost-data
+      
+        persistentVolumeClaim:
+          claimName: mattermost-team-edition
+---

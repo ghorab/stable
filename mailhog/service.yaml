@@ -1,0 +1,26 @@
+# Source: mailhog/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mailhog
+    chart: mailhog-2.3.1
+    heritage: Helm
+    release: mailhog
+  name: mailhog
+spec:
+  type: "ClusterIP"
+  clusterIP: ""
+  ports:
+    - name: http
+      port: 8025
+      protocol: TCP
+      targetPort: http
+    - name: smtp
+      port: 1025
+      protocol: TCP
+      targetPort: smtp
+  selector:
+    app: mailhog
+    release: mailhog
+---

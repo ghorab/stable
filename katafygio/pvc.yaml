@@ -1,0 +1,17 @@
+# Source: katafygio/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: katafygio
+  labels:
+    app: katafygio
+    heritage: "Helm"
+    release: "katafygio"
+    chart: katafygio-1.0.3
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

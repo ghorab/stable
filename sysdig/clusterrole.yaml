@@ -1,0 +1,69 @@
+# Source: sysdig/templates/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: sysdig
+  labels:
+    app.kubernetes.io/name: sysdig
+    helm.sh/chart: sysdig-1.7.16
+    app.kubernetes.io/instance: sysdig
+    app.kubernetes.io/version: "10.0.0"
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - replicationcontrollers
+      - services
+      - events
+      - limitranges
+      - namespaces
+      - nodes
+      - resourcequotas
+      - persistentvolumes
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+      - deployments
+      - replicasets
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - autoscaling
+    resources:
+      - horizontalpodautoscalers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - cronjobs
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - daemonsets
+      - deployments
+      - ingresses
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+---

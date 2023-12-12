@@ -1,0 +1,21 @@
+# Source: socat-tunneller/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: socat-tunneller
+  labels:
+    app.kubernetes.io/name: socat-tunneller
+    app.kubernetes.io/instance: socat-tunneller
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: socat-tunneller-0.1.2
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9999
+      targetPort: tunnel-port
+      protocol: TCP
+      name: tunnel-port
+  selector:
+    app.kubernetes.io/name: socat-tunneller
+    app.kubernetes.io/instance: socat-tunneller
+---

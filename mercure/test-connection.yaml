@@ -1,0 +1,20 @@
+# Source: mercure/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "mercure-test-connection"
+  labels:
+    app.kubernetes.io/name: mercure
+    helm.sh/chart: mercure-4.0.3
+    app.kubernetes.io/instance: mercure
+    app.kubernetes.io/version: "0.10.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['mercure:80']
+  restartPolicy: Never

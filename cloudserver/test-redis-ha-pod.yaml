@@ -1,0 +1,22 @@
+# Source: cloudserver/charts/redis-ha/templates/tests/test-redis-ha-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cloudserver-redis-ha-service-test
+  labels:
+    app: redis-ha
+    heritage: "Helm"
+    release: "cloudserver"
+    chart: redis-ha-4.4.4
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+  - name: "cloudserver-service-test"
+    image: redis:5.0.6-alpine
+    command:
+      - sh
+      - -c
+      - redis-cli -h cloudserver-redis-ha -p 6379 info server
+  restartPolicy: Never
+---

@@ -1,0 +1,21 @@
+# Source: quassel/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: quassel
+  labels:
+    app: quassel
+    chart: quassel-0.2.13
+    heritage: Helm
+    release: quassel
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4242
+      targetPort: quassel
+      protocol: TCP
+      name: quassel
+  selector:
+    app: quassel
+    release: quassel
+---

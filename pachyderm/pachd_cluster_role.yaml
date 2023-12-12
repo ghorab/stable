@@ -1,0 +1,47 @@
+# Source: pachyderm/templates/pachd_cluster_role.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: pachyderm-pachyderm
+  creationTimestamp:
+  labels:
+    app: ''
+    suite: pachyderm-pachyderm
+rules:
+- verbs:
+  - get
+  - list
+  - watch
+  apiGroups:
+  - ''
+  resources:
+  - nodes
+  - pods
+  - pods/log
+  - endpoints
+- verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+  apiGroups:
+  - ''
+  resources:
+  - replicationcontrollers
+  - services
+- verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
+  apiGroups:
+  - ''
+  resources:
+  - secrets
+  resourceNames:
+  - pachyderm-storage-secret
+---

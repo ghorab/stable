@@ -1,0 +1,106 @@
+# Source: pomerium/templates/authenticate-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: pomerium-authenticate
+    helm.sh/chart: pomerium-4.2.6
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: pomerium
+    app.kubernetes.io/component: authenticate
+  name: pomerium-authenticate
+  annotations:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pomerium-authenticate
+      app.kubernetes.io/instance: pomerium
+  template:
+    metadata:
+      annotations:
+        checksum/config: 52133ddfcd583280388a8bbfb67a417b6b660f75bc63ec1b01beec811d4498ef
+        checksum/secret: 37feccef9de44864701c04bc2c2eec1911a5e1e15bfa390ac824557d41efe770
+      labels:
+        app.kubernetes.io/name: pomerium-authenticate
+        helm.sh/chart: pomerium-4.2.6
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: pomerium
+    spec:
+      containers:
+      - name: pomerium
+        image: pomerium/pomerium:v0.5.2
+        imagePullPolicy: IfNotPresent
+        args:
+        env:
+        - name: SERVICES
+          value: authenticate
+        - name: AUTHENTICATE_SERVICE_URL
+          value: https://authenticate.corp.beyondperimeter.com
+        - name: COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: pomerium
+              key: cookie-secret
+        - name: SHARED_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: pomerium
+              key: shared-secret
+        - name: IDP_PROVIDER
+          value: google
+        - name: IDP_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name:  pomerium
+              key: idp-client-id
+        - name: IDP_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name:  pomerium
+              key: idp-client-secret
+        - name: IDP_PROVIDER_URL
+          value: 
+        - name: CERTIFICATE_FILE
+          value: "/pomerium/cert.pem"
+        - name: CERTIFICATE_KEY_FILE
+          value: "/pomerium/privkey.pem"
+        - name: CERTIFICATE_AUTHORITY_FILE
+          value: "/pomerium/ca.pem"
+        ports:
+          - containerPort: 443
+            name: https
+            protocol: TCP
+          - containerPort: 9090
+            name: metrics
+            protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: https
+            scheme: HTTPS
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: https
+            scheme: HTTPS
+        resources:
+          {}
+        volumeMounts:
+        - mountPath: /pomerium/cert.pem
+          name: service-tls
+          subPath: tls.crt
+        - mountPath: /pomerium/privkey.pem
+          name: service-tls
+          subPath: tls.key
+        - mountPath: /pomerium/ca.pem
+          name: ca-tls
+          subPath: ca.crt
+      volumes:
+      - name: service-tls
+        secret:
+          secretName: pomerium-authenticate-tls
+      - name: ca-tls
+        secret:
+          secretName: pomerium-ca-tls
+---

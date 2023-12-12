@@ -1,0 +1,40 @@
+# Source: clamav/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clamav
+  labels:
+    app.kubernetes.io/name: clamav
+    helm.sh/chart: clamav-1.0.7
+    app.kubernetes.io/instance: clamav
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: clamav
+      app.kubernetes.io/instance: clamav
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: clamav
+        app.kubernetes.io/instance: clamav
+    spec:
+      containers:
+        - name: clamav
+          image: "mailu/clamav:1.6"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: clamavport
+              containerPort: 3310
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: clamavport
+            initialDelaySeconds: 300
+          readinessProbe:
+            tcpSocket:
+              port: clamavport
+            initialDelaySeconds: 300
+          resources:
+            {}

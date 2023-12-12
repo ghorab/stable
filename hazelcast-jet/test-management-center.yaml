@@ -1,0 +1,45 @@
+# Source: hazelcast-jet/templates/tests/test-management-center.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "hazelcast-jet-management-center-test-tyoiu"
+  annotations:
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": hook-succeeded, hook-failed
+  labels:
+    app.kubernetes.io/name: hazelcast-jet
+    helm.sh/chart: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/component: "test"
+    role: test
+spec:
+  hostNetwork: false
+  hostPID: false
+  hostIPC: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+  containers:
+  - name: "hazelcast-jet-management-center-test"
+    image: "hazelcast/hazelcast-jet:4.1"
+    command:
+    - "bash"
+    - "-c"
+    - |
+      set -ex
+      # Get the HTTP Response Code of the Deployment
+      HEALTH_CHECK_HTTP_RESPONSE_CODE=$(curl --write-out %{http_code} --silent --output /dev/null hazelcast-jet-management-center:8081/login)
+      test ${HEALTH_CHECK_HTTP_RESPONSE_CODE} -eq 200
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
+      runAsGroup: 1001
+      privileged: false
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+  restartPolicy: Never

@@ -1,0 +1,17 @@
+# Source: filebeat/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: filebeat
+  labels:
+    app.kubernetes.io/name: filebeat
+    helm.sh/chart: filebeat-4.0.2
+    app.kubernetes.io/instance: filebeat
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups: [""]
+  resources:
+  - namespaces
+  - pods
+  verbs: ["get", "list", "watch"]
+---

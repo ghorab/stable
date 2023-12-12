@@ -1,0 +1,71 @@
+# Source: fluent-bit/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  labels:
+    app: fluent-bit
+    chart: fluent-bit-2.10.3
+    heritage: Helm
+    release: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+      release: fluent-bit
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+        release: fluent-bit
+      annotations:
+        checksum/config: 30c17b10205fb1071b5245d258762891a9199714584afa9321c136517d8128b4
+    spec:
+      hostNetwork: false
+      dnsPolicy: ClusterFirst
+      serviceAccountName: fluent-bit
+      containers:
+      - name: fluent-bit
+        image: "fluent/fluent-bit:1.3.7"
+        imagePullPolicy: "Always"
+        env:
+          []
+        resources:
+          {}
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+        - name: varlibdockercontainers
+          mountPath: /var/lib/docker/containers
+          readOnly: true
+        - name: config
+          mountPath: /fluent-bit/etc/fluent-bit.conf
+          subPath: fluent-bit.conf
+        - name: config
+          mountPath: /fluent-bit/etc/fluent-bit-service.conf
+          subPath: fluent-bit-service.conf
+        - name: config
+          mountPath: /fluent-bit/etc/fluent-bit-input.conf
+          subPath: fluent-bit-input.conf
+        - name: config
+          mountPath: /fluent-bit/etc/fluent-bit-filter.conf
+          subPath: fluent-bit-filter.conf
+        - name: config
+          mountPath: /fluent-bit/etc/fluent-bit-output.conf
+          subPath: fluent-bit-output.conf
+
+      terminationGracePeriodSeconds: 10
+      
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: config
+        configMap:
+          name: fluent-bit-config
+---

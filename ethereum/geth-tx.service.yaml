@@ -1,0 +1,24 @@
+# Source: ethereum/templates/geth-tx.service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: ethereum-geth-tx
+  labels:
+    app: ethereum
+    chart: ethereum-1.0.2
+    release: ethereum
+    heritage: Helm
+    component: geth-tx
+spec:
+  selector:
+    app: ethereum
+    release: ethereum
+    component: geth-tx
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  ports:
+  - name: rpc
+    port: 8545
+  - name: ws
+    port: 8546
+---

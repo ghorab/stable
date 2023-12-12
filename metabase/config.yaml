@@ -1,0 +1,13 @@
+# Source: metabase/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metabase-config
+  namespace: default
+  labels:
+    app: metabase
+    chart: metabase-0.13.2
+    release: metabase
+    heritage: Helm
+data:
+---

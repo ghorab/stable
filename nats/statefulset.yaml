@@ -1,0 +1,87 @@
+# Source: nats/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nats
+  labels:
+    app: "nats"
+    chart: "nats-4.3.7"
+    release: "nats"
+    heritage: "Helm"
+spec:
+  serviceName: nats-headless
+  replicas: 1
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      app: "nats"
+      release: "nats"
+  template:
+    metadata:
+      labels:
+        app: "nats"
+        chart: "nats-4.3.7"
+        release: "nats"
+    spec:      
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: "nats"
+                  release: "nats"
+      containers:
+      - name: nats
+        image: docker.io/bitnami/nats:2.1.4-debian-10-r24
+        imagePullPolicy: IfNotPresent
+        command:
+        - nats-server
+        args:
+        - -c
+        - /opt/bitnami/nats/nats-server.conf
+        # to ensure nats could run with non-root user, we put the configuration
+        # file under `/opt/bitnami/nats/nats-server.conf`, please check the link below
+        # for the implementation inside Dockerfile:
+        # - https://github.com/bitnami/bitnami-docker-nats#configuration
+        ports:
+        - name: client
+          containerPort: 4222
+        - name: cluster
+          containerPort: 6222
+        - name: monitoring
+          containerPort: 8222
+        livenessProbe:
+          httpGet:
+            path: /
+            port: monitoring
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        readinessProbe:
+          httpGet:
+            path: /
+            port: monitoring
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 6
+        resources:
+          {}
+        volumeMounts:
+          - name: config
+            mountPath: /opt/bitnami/nats/nats-server.conf
+            subPath: nats-server.conf
+      volumes:
+      - name: config
+        configMap:
+          name: nats

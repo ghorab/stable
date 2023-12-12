@@ -1,0 +1,27 @@
+# Source: anchore-engine/templates/analyzer_configmap.yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: anchore-engine-anchore-engine-analyzer
+  labels:
+    app: anchore-engine-anchore-engine
+    chart: anchore-engine-1.7.0
+    release: anchore-engine
+    heritage: Helm
+    component: analyzer
+data:
+  analyzer_config.yaml: |
+    retrieve_files:
+      file_list:
+      - /etc/passwd
+    secret_search:
+      match_params:
+      - MAXFILESIZE=10000
+      - STOREONMATCH=n
+      regexp_match:
+      - AWS_ACCESS_KEY=(?i).*aws_access_key_id( *=+ *).*(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9]).*
+      - AWS_SECRET_KEY=(?i).*aws_secret_access_key( *=+ *).*(?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=]).*
+      - PRIV_KEY=(?i)-+BEGIN(.*)PRIVATE KEY-+
+      - 'DOCKER_AUTH=(?i).*"auth": *".+"'
+      - API_KEY=(?i).*api(-|_)key( *=+ *).*(?<![A-Z0-9])[A-Z0-9]{20,60}(?![A-Z0-9]).*
+---

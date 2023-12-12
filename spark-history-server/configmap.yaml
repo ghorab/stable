@@ -1,0 +1,18 @@
+# Source: spark-history-server/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-history-server
+  labels:
+    app.kubernetes.io/name: spark-history-server
+    helm.sh/chart: spark-history-server-1.4.3
+    app.kubernetes.io/instance: spark-history-server
+    app.kubernetes.io/managed-by: Helm
+data:
+  enablePVC: "true"
+  enableGCS: "false"
+  enableS3: "false"
+  enableWASBS: "false"
+  eventsDir: "/"
+  existingClaimName: "nfs-pvc"
+---

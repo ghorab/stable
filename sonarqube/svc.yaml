@@ -1,0 +1,21 @@
+# Source: sonarqube/charts/postgresql/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarqube-postgresql
+  labels:
+    app: postgresql
+    chart: postgresql-8.2.0
+    release: "sonarqube"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+  selector:
+    app: postgresql
+    release: "sonarqube"
+    role: master
+---

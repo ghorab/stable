@@ -1,0 +1,19 @@
+# Source: kubedb/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubedb
+  labels:
+    app: "kubedb"
+    chart: "kubedb-0.1.3"
+    release: "kubedb"
+    heritage: "Helm"
+spec:
+  ports:
+  - name: api
+    port: 443
+    targetPort: 8443
+  selector:
+    app: "kubedb"
+    release: "kubedb"
+---

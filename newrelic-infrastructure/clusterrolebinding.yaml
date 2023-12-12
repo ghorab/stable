@@ -1,0 +1,19 @@
+# Source: newrelic-infrastructure/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:     
+    app: newrelic-infrastructure
+    chart: newrelic-infrastructure-0.13.36
+    heritage: Helm
+    release: newrelic-infrastructure
+    mode: privileged
+  name: newrelic-infrastructure
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: newrelic-infrastructure
+subjects:
+- kind: ServiceAccount
+  name: newrelic-infrastructure
+  namespace: default

@@ -1,0 +1,81 @@
+# Source: anchore-engine/templates/policy_engine_deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: anchore-engine-anchore-engine-policy
+  labels:
+    app: anchore-engine-anchore-engine
+    chart: anchore-engine-1.7.0
+    release: anchore-engine
+    heritage: Helm
+    component: policy
+spec:
+  selector:
+    matchLabels:
+      app: anchore-engine-anchore-engine
+      component: policy
+  replicas: 1
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  template:
+    metadata:
+      labels:
+        app: anchore-engine-anchore-engine
+        component: policy
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+      - name: anchore-engine-policy
+        image: docker.io/anchore/anchore-engine:v0.7.3
+        imagePullPolicy: IfNotPresent
+        args: ["anchore-manager", "service", "start", "--no-auto-upgrade", "policy_engine"]
+        envFrom:
+        - secretRef:
+            name: anchore-engine-anchore-engine
+        - configMapRef:
+            name: anchore-engine-anchore-engine-env
+        env:
+        - name: ANCHORE_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        ports:
+        - name: policy
+          containerPort: 8087
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config/config.yaml
+          subPath: config.yaml
+        - name: policy-scratch
+          mountPath: /analysis_scratch
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: policy
+          initialDelaySeconds: 120
+          timeoutSeconds: 10
+          periodSeconds: 10
+          failureThreshold: 6
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: policy
+          timeoutSeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        resources:
+          
+          null
+      volumes:
+        - name: config-volume
+          configMap:
+            name: anchore-engine-anchore-engine
+        - name: policy-scratch
+          
+          emptyDir: {}
+---

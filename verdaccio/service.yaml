@@ -1,0 +1,21 @@
+# Source: verdaccio/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: verdaccio-verdaccio
+  labels:
+    app: verdaccio
+    chart: verdaccio-0.7.8
+    release: verdaccio
+    heritage: Helm
+spec:
+  ports:
+    - port: 4873
+      targetPort: http
+      protocol: TCP
+      name: 
+  selector:
+    app: verdaccio
+    release: verdaccio
+  type: ClusterIP
+---

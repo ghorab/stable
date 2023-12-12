@@ -1,0 +1,17 @@
+# Source: drupal/templates/drupal-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: drupal-drupal
+  labels:
+    app: drupal
+    chart: drupal-6.2.12
+    release: "drupal"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

@@ -1,0 +1,15 @@
+# Source: kong/templates/migrations-pre-upgrade.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kong-kong
+  namespace: 
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-0.36.7
+    app.kubernetes.io/instance: "kong"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "1.4"

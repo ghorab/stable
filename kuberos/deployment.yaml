@@ -1,0 +1,59 @@
+# Source: kuberos/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuberos
+  labels:
+    app: kuberos
+    chart: kuberos-0.2.3
+    release: kuberos
+    heritage: Helm
+    checksum/config: f68b308538337dc344a3a795d3b053f2514f9e477e50e5c614515d2d238e21e
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kuberos
+      release: kuberos
+  template:
+    metadata:
+      labels:
+        app: kuberos
+        release: kuberos
+        checksum/config: f68b308538337dc344a3a795d3b053f2514f9e477e50e5c614515d2d238e21e
+      annotations:
+        checksum/config: f68b308538337dc344a3a795d3b053f2514f9e477e50e5c614515d2d238e21e
+    spec:
+      containers:
+        - name: kuberos
+          image: "negz/kuberos:ede4085"
+          imagePullPolicy: IfNotPresent
+          command: ["/kuberos", "https://accounts.google.com", "REDACTED.apps.googleusercontent.com", "/cfg/secret", "/cfg/template"]
+          ports:
+            - name: kuberos-port
+              containerPort: 10003
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: kuberos-port
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: kuberos-port
+          resources:
+            {}
+          volumeMounts:
+          - mountPath: /cfg/template
+            name: template
+            subPath: template
+          - mountPath: /cfg/secret
+            name: secret
+            subPath: oidcSecret
+      volumes:
+      - name: template
+        configMap:
+          name: kuberos-config
+      - name: secret
+        secret:
+          secretName: kuberos-secret

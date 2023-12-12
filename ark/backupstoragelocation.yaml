@@ -1,0 +1,14 @@
+# Source: ark/templates/backupstoragelocation.yaml
+apiVersion: ark.heptio.com/v1
+kind: BackupStorageLocation
+metadata:
+  name: default
+  labels:
+    chart: ark-4.2.2
+    heritage: Helm
+    release: ark
+    app: ark
+spec:
+  provider: 
+  objectStorage:
+    bucket:

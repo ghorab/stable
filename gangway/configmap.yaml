@@ -1,0 +1,29 @@
+# Source: gangway/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gangway
+  labels:
+    app.kubernetes.io/name: gangway
+    helm.sh/chart: gangway-0.4.5
+    app.kubernetes.io/instance: gangway
+    app.kubernetes.io/managed-by: Helm
+data:
+  gangway.yaml: |
+    apiServerURL: https://${GANGWAY_APISERVER_URL}
+    audience: https://${DNS_NAME}/userinfo
+    authorizeURL: https://${DNS_NAME}/authorize
+    clientID: ${GANGWAY_CLIENT_ID}
+    clientSecret: ${GANGWAY_CLIENT_SECRET}
+    clusterName: ${GANGWAY_CLUSTER_NAME}
+    port: 8080
+    redirectURL: https://${GANGWAY_REDIRECT_URL}/callback
+    scopes:
+    - openid
+    - profile
+    - email
+    - offline_access
+    serviceAccountName: ""
+    tokenURL: https://${DNS_NAME}/oauth/token
+    usernameClaim: sub
+---

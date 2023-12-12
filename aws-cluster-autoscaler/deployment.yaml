@@ -1,0 +1,44 @@
+# Source: aws-cluster-autoscaler/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: aws-cluster-autoscaler
+    chart: aws-cluster-autoscaler-0.3.4
+    heritage: Helm
+    release: aws-cluster-autoscaler
+  name: aws-cluster-autoscaler-aws-cluster-autoscaler
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: aws-cluster-autoscaler
+        release: aws-cluster-autoscaler
+    spec:
+      containers:
+        - name: aws-cluster-autoscaler
+          image: "k8s.gcr.io/cluster-autoscaler:v0.6.1"
+          imagePullPolicy: "IfNotPresent"
+          command:
+            - ./cluster-autoscaler
+            - --cloud-provider=aws
+            - --scale-down-delay=10m
+            - --skip-nodes-with-local-storage=false
+            - --skip-nodes-with-system-pods=true
+            - --v=4
+          env:
+            - name: AWS_REGION
+              value: "us-east-1"
+          ports:
+            - containerPort: 8085
+          resources:
+            {}
+          volumeMounts:
+            - name: ssl-certs
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              readOnly: true
+      volumes:
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs/ca-certificates.crt

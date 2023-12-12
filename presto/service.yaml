@@ -1,0 +1,22 @@
+# Source: presto/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: presto
+  labels:
+    app: presto
+    chart: presto-0.2.3
+    release: presto
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http-coord
+      protocol: TCP
+      name: http-coord
+  selector:
+    app: presto
+    release: presto
+    component: coordinator
+---

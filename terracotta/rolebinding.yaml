@@ -1,0 +1,19 @@
+# Source: terracotta/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: terracotta
+  labels:
+    app: terracotta
+    chart: terracotta-1.1.2
+    release: "terracotta"
+    heritage: "Helm"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: terracotta
+subjects:
+- kind: ServiceAccount
+  name: terracotta
+  namespace: default
+---

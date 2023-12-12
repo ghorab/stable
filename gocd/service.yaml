@@ -1,0 +1,25 @@
+# Source: gocd/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: gocd-server
+  annotations:
+  labels:
+    app: gocd
+    chart: "gocd-1.32.0"
+    release: "gocd"
+    heritage: "Helm"
+    component: server
+spec:
+  type: NodePort
+  
+  ports:
+    - port: 8153
+      targetPort: 8153
+      protocol: TCP
+      name: http
+  selector:
+    app: gocd
+    release: "gocd"
+    component: server
+---

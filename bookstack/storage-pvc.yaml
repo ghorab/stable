@@ -1,0 +1,17 @@
+# Source: bookstack/templates/storage-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: bookstack-storage
+  labels:
+    app: bookstack
+    chart: "bookstack-1.2.4"
+    release: "bookstack"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

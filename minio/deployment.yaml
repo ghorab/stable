@@ -1,0 +1,90 @@
+# Source: minio/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  labels:
+    app: minio
+    chart: minio-5.0.33
+    release: minio
+    heritage: Helm
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: minio
+      release: minio
+  template:
+    metadata:
+      name: minio
+      labels:
+        app: minio
+        release: minio
+      annotations:
+        checksum/secrets: cde2ca3848e2b34d5fc706d55358eba861d05abc73a5c2678143bbd9d0ed366d
+        checksum/config: 1c83f9490b4e2cb1ba4ecc4663292d0ee6d4533db38d0ca5a2d3d689f7651af2
+    spec:
+      serviceAccountName: "minio"
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: minio
+          image: "minio/minio:RELEASE.2020-06-14T18-32-17Z"
+          imagePullPolicy: IfNotPresent
+          command: [ "/bin/sh",
+          "-ce",
+          "/usr/bin/docker-entrypoint.sh minio -S /etc/minio/certs/ server /export" ]
+          volumeMounts:
+            - name: export
+              mountPath: /export
+          ports:
+            - name: http
+              containerPort: 9000
+          env:
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: accesskey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: secretkey
+            - name: MINIO_API_READY_DEADLINE
+              value: "5s"
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: 4Gi      
+      volumes:
+        - name: export
+          persistentVolumeClaim:
+            claimName: minio
+        - name: minio-user
+          secret:
+            secretName: minio

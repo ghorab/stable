@@ -1,0 +1,17 @@
+# Source: testlink/templates/testlink-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: testlink-testlink
+  labels:
+    app: "testlink"
+    chart: "testlink-7.1.7"
+    release: "testlink"
+    heritage: "testlink"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

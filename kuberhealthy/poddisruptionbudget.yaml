@@ -1,0 +1,14 @@
+# Source: kuberhealthy/templates/poddisruptionbudget.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name:  kuberhealthy-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: kuberhealthy
+      chart: kuberhealthy
+      release: kuberhealthy
+      heritage: Helm
+---

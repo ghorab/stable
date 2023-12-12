@@ -1,0 +1,35 @@
+# Source: linkerd/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: linkerd-linkerd
+    chart: "linkerd-0.4.3"
+    heritage: "Helm"
+    release: "linkerd"
+  name: linkerd-linkerd-config
+data:
+
+  config.yaml: |-
+    admin:
+      port: 9990
+
+    namers:
+    - kind: io.l5d.k8s
+      # kubectl proxy forwards localhost:8001 to the Kubernetes master API
+      host: localhost
+      port: 8001
+    routers:
+    - protocol: http
+      # Incoming requests to linkerd with a Host header of "hello" get assigned
+      # a name like /http/1.1/GET/hello.  This dtab transforms that into
+      # /#/io.l5d.k8s/default/http/hello which indicates that the kubernetes
+      # namer should query the API for ports named "http" on pods in the
+      # "default" namespace named "hello".  linkerd will then load balance over
+      # those pods.
+      dtab: |
+        /http/1.1/* => /#/io.l5d.k8s/default/http
+      servers:
+      - ip: 0.0.0.0
+        port: 4140
+---

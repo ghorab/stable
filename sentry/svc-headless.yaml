@@ -1,0 +1,21 @@
+# Source: sentry/charts/postgresql/templates/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentry-sentry-postgresql-headless
+  labels:
+    app: sentry-postgresql
+    chart: postgresql-6.5.0
+    release: "sentry"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: postgresql
+    port: 5432
+    targetPort: postgresql
+  selector:
+    app: sentry-postgresql
+    release: "sentry"
+---

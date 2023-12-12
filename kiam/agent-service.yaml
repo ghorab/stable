@@ -1,0 +1,26 @@
+# Source: kiam/templates/agent-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kiam-agent
+  labels:
+    app: kiam
+    chart: kiam-2.5.3
+    component: "agent"
+    heritage: Helm
+    release: kiam
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9620"
+spec:
+  clusterIP: None
+  selector:
+    app: kiam
+    component: "agent"
+    release: kiam
+  ports:
+    - name: metrics
+      port: 9620
+      targetPort: 9620
+      protocol: TCP
+---

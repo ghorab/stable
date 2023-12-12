@@ -1,0 +1,22 @@
+# Source: redmine/charts/mariadb/templates/master-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: redmine-mariadb
+  labels:
+    app: "mariadb"
+    component: "master"
+    chart: "mariadb-7.3.10"
+    release: "redmine"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: "mariadb"
+    component: "master"
+    release: "redmine"
+---

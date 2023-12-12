@@ -1,0 +1,24 @@
+# Source: ethereum/templates/bootnode.service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ethereum-bootnode
+  labels:
+    app: ethereum
+    chart: ethereum-1.0.2
+    release: ethereum
+    heritage: Helm
+    component: bootnode
+spec:
+  selector:
+    app: ethereum
+    release: ethereum
+    component: bootnode
+  clusterIP: None
+  ports:
+  - name: discovery
+    port: 30301
+    protocol: UDP
+  - name: http
+    port: 80
+---

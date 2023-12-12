@@ -1,0 +1,53 @@
+# Source: presto/templates/deployment-coordinator.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: presto-coordinator
+  labels:
+    app: presto
+    chart: presto-0.2.3
+    release: presto
+    heritage: Helm
+    component: coordinator
+spec:
+  selector:
+    matchLabels:
+      app: presto
+      release: presto
+      component: coordinator
+  template:
+    metadata:
+      labels:
+        app: presto
+        release: presto
+        component: coordinator
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      volumes:
+        - name: config-volume
+          configMap:
+            name: presto-coordinator
+      containers:
+        - name: presto-coordinator
+          image: "prestosql/presto:329"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /usr/lib/presto/etc
+              name: config-volume
+          ports:
+            - name: http-coord
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /v1/cluster
+              port: http-coord
+          readinessProbe:
+            httpGet:
+              path: /v1/cluster
+              port: http-coord
+          resources:
+            {}
+---

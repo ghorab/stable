@@ -1,0 +1,17 @@
+# Source: joomla/templates/joomla-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: joomla-joomla
+  labels:
+    app: joomla
+    chart: joomla-7.1.11
+    release: "joomla"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

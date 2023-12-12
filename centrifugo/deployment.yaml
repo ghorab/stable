@@ -1,0 +1,94 @@
+# Source: centrifugo/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: centrifugo
+  namespace: default
+  labels:
+    helm.sh/chart: centrifugo-3.2.2
+    app.kubernetes.io/name: centrifugo
+    app.kubernetes.io/instance: centrifugo
+    app.kubernetes.io/version: "2.4.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: centrifugo
+      app.kubernetes.io/instance: centrifugo
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      annotations:
+        checksum/config: 247569e189451e47c74a8174337d00dd806cf1f5ef5200528a96630707dc03cc
+        checksum/secret: d0ce2119ea0b5a0c1b3dacc89e4c18f439b2ebcc129f1837defee165371baea7
+      labels:
+        app.kubernetes.io/name: centrifugo
+        app.kubernetes.io/instance: centrifugo
+    spec:
+      containers:
+      - name: centrifugo
+        image: "centrifugo/centrifugo:v2.4.0"
+        imagePullPolicy: IfNotPresent
+        command:
+        - centrifugo
+        args:
+        - --port=8000
+        - --config=/centrifugo/config.json
+        - --admin
+        - --health
+        env:
+        - name: CENTRIFUGO_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: centrifugo
+              key: admin-password
+        - name: CENTRIFUGO_ADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: centrifugo
+              key: admin-secret
+        - name: CENTRIFUGO_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: centrifugo
+              key: secret
+        - name: CENTRIFUGO_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: centrifugo
+              key: api_key
+        - name: CENTRIFUGO_TOKEN_HMAC_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: centrifugo
+              key: token_hmac_secret_key
+        volumeMounts:
+        - name: "centrifugo-config"
+          mountPath: "/centrifugo"
+          readOnly: true
+        ports:
+        - name: http
+          containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          {}
+      volumes:
+      - name: centrifugo-config
+        configMap:
+          name: centrifugo-config
+---

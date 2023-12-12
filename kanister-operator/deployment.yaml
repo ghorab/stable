@@ -1,0 +1,29 @@
+# Source: kanister-operator/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanister-operator
+  labels:
+    heritage: Helm
+    release: kanister-operator
+    chart: kanister-operator-0.3.2
+    app: kanister-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      release: kanister-operator
+      app: kanister-operator
+  template:
+    metadata:
+      labels:
+        heritage: Helm
+        release: kanister-operator
+        chart: kanister-operator-0.3.2
+        app: kanister-operator
+    spec:
+      serviceAccountName: kanister-operator
+      containers:
+      - name: kanister-operator
+        image: kanisterio/controller:0.10.0
+        imagePullPolicy: IfNotPresent

@@ -1,0 +1,17 @@
+# Source: sugarcrm/templates/apache-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sugarcrm-sugarcrm-apache
+  labels:
+    app: sugarcrm
+    chart: "sugarcrm-1.0.7"
+    release: "sugarcrm"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

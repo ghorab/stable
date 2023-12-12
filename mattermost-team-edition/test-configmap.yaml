@@ -1,0 +1,13 @@
+# Source: mattermost-team-edition/charts/mysql/templates/tests/test-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mattermost-team-edition-mysql-test
+  labels:
+    app: mattermost-team-edition-mysql
+    chart: "mysql-0.10.1"
+    heritage: "Helm"
+    release: "mattermost-team-edition"
+data:
+  run.sh: |-
+---

@@ -1,0 +1,19 @@
+# Source: minecraft/templates/minecraft-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-minecraft
+  labels:
+    app: minecraft-minecraft
+    chart: "minecraft-1.2.5"
+    release: "minecraft"
+    heritage: "Helm"
+spec:
+  type: LoadBalancer
+  ports:
+  - name: minecraft
+    port: 25565
+    targetPort: minecraft
+    protocol: TCP
+  selector:
+    app: minecraft-minecraft

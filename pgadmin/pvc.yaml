@@ -1,0 +1,18 @@
+# Source: pgadmin/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pgadmin
+  labels:
+    app.kubernetes.io/name: pgadmin
+    helm.sh/chart: pgadmin-1.2.3
+    app.kubernetes.io/instance: pgadmin
+    app.kubernetes.io/version: "4.18.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---

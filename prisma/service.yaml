@@ -1,0 +1,21 @@
+# Source: prisma/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prisma
+  labels:
+    app: prisma
+    chart: prisma-1.2.4
+    release: prisma
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - name: service
+      port: 4466
+      protocol: TCP
+      targetPort: prisma
+  selector:
+    app: prisma
+    release: prisma
+---

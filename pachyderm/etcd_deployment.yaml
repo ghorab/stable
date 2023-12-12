@@ -1,0 +1,52 @@
+# Source: pachyderm/templates/etcd_deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etcd
+  labels:
+    app: pachyderm-etcd
+    chart: "pachyderm-0.2.3"
+    release: "pachyderm"
+    heritage: "Helm"
+    suite: pachyderm-pachyderm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pachyderm-etcd
+      suite: pachyderm-pachyderm
+  template:
+    metadata:
+      name: etcd
+      labels:
+        app: pachyderm-etcd
+        suite: pachyderm-pachyderm
+    spec:
+      volumes:
+        - name: etcdvol
+          hostPath:
+           path: "/var/pachyderm/etcd"
+      containers:
+        - name: etcd
+          image: 'quay.io/coreos/etcd:v3.3.5'
+          command:
+          - "/usr/local/bin/etcd"
+          - "--listen-client-urls=http://0.0.0.0:2379"
+          - "--advertise-client-urls=http://0.0.0.0:2379"
+          - "--data-dir=/var/data/etcd"
+          - "--auto-compaction-retention=1"
+          - "--max-txn-ops=5000"
+          ports:
+            - name: client-port
+              containerPort: 2379
+            - name: peer-port
+              containerPort: 2380
+          resources:
+           requests:
+            cpu: '250m'
+            memory: 256M
+          volumeMounts:
+            - name: etcdvol
+              mountPath: "/var/data/etcd"
+          imagePullPolicy: IfNotPresent
+---

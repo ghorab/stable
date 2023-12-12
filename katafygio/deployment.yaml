@@ -1,0 +1,57 @@
+# Source: katafygio/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: katafygio
+  labels:
+    app: katafygio
+    heritage: "Helm"
+    release: "katafygio"
+    chart: katafygio-1.0.3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: katafygio
+      release: katafygio
+  template:
+    metadata:
+      labels:
+        app: katafygio
+        heritage: "Helm"
+        release: "katafygio"
+        chart: katafygio-1.0.3
+    spec:
+      serviceAccountName: katafygio
+      containers:
+        - name: katafygio
+          image: "bpineau/katafygio:v0.8.1"
+          imagePullPolicy: IfNotPresent
+          command:
+            - /usr/bin/katafygio
+            - --local-dir=/var/lib/katafygio/data
+            - --healthcheck-port=8080
+            - --log-level=warning
+            - --log-output=stdout
+            - --resync-interval=300
+            - --exclude-kind=replicaset
+            - --exclude-kind=endpoints
+            - --exclude-kind=event
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+            {}
+      volumes:
+        - name: katafygio-data
+          persistentVolumeClaim:
+            claimName: katafygio

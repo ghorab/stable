@@ -1,0 +1,42 @@
+# Source: socat-tunneller/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socat-tunneller
+  labels:
+    app.kubernetes.io/name: socat-tunneller
+    app.kubernetes.io/instance: socat-tunneller
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: socat-tunneller-0.1.2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: socat-tunneller
+      app.kubernetes.io/instance: socat-tunneller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: socat-tunneller
+        app.kubernetes.io/instance: socat-tunneller
+    spec:
+      containers:
+        - name: socat-tunneller
+          image: "alpine/socat:1.0.3"
+          imagePullPolicy: IfNotPresent
+          command:
+            - socat
+          args:
+            - "TCP-LISTEN:$(TUNNEL_PORT),fork"
+            - "TCP:$(TUNNEL_HOST):$(TUNNEL_PORT)"
+          env:
+            - name: TUNNEL_HOST
+              value: "myhost"
+            - name: TUNNEL_PORT
+              value: "9999"
+          ports:
+            - name: tunnel-port
+              containerPort: 9999
+              protocol: TCP
+          resources:
+            {}

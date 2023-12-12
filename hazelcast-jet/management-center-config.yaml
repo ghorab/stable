@@ -1,0 +1,21 @@
+# Source: hazelcast-jet/templates/management-center-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hazelcast-jet-management-center-configuration
+  labels:
+    app.kubernetes.io/name: hazelcast-jet
+    helm.sh/chart: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+    app.kubernetes.io/managed-by: "Helm"
+data:
+  hazelcast-client.yaml: |-
+    hazelcast-client:
+      cluster-name: jet
+      network:
+        kubernetes:
+          enabled: true
+          namespace: ${namespace}
+          resolve-not-ready-addresses: true
+          service-name: ${serviceName}
+---

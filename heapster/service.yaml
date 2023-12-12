@@ -1,0 +1,19 @@
+# Source: heapster/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: heapster
+  labels:
+    chart: "heapster-1.0.4"
+    app: heapster
+    heritage: "Helm"
+    release: "heapster"
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8082
+    targetPort: 8082
+    protocol: TCP
+  selector:
+    app: heapster
+---

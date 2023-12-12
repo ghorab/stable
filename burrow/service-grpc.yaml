@@ -1,0 +1,25 @@
+# Source: burrow/templates/service-grpc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: burrow
+    chart: burrow-1.5.4
+    release: burrow
+    heritage: Helm
+  name:  burrow-grpc
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 600
+  ports:
+    - name: grpc
+      port: 10997
+      targetPort: grpc
+      protocol: TCP
+  selector:
+    app: burrow
+    release: burrow
+---

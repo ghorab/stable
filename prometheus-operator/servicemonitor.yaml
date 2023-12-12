@@ -1,0 +1,25 @@
+# Source: prometheus-operator/templates/prometheus/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: prometheus-operator-prometheus
+  namespace: default
+  labels:
+    app: prometheus-operator-prometheus
+    
+    chart: prometheus-operator-9.3.2
+    release: "prometheus-operator"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: prometheus-operator-prometheus
+      release: "prometheus-operator"
+      self-monitor: "true"
+  namespaceSelector:
+    matchNames:
+      - "default"
+  endpoints:
+  - port: web
+    path: "/metrics"
+---

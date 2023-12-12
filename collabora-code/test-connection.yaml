@@ -1,0 +1,19 @@
+# Source: collabora-code/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "collabora-code-test-connection"
+  labels:
+    app.kubernetes.io/name: collabora-code
+    helm.sh/chart: collabora-code-1.0.8
+    app.kubernetes.io/instance: collabora-code
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args:  ['collabora-code:9980']
+  restartPolicy: Never

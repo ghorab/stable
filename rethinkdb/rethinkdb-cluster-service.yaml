@@ -1,0 +1,21 @@
+# Source: rethinkdb/templates/rethinkdb-cluster-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: "rethinkdb-rethinkdb-cluster"
+  labels:
+    app: "rethinkdb-cluster"
+    chart: rethinkdb-1.1.4
+    heritage: "Helm"
+    release: "rethinkdb"
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  clusterIP: None
+  ports:
+    - port: 29015
+      targetPort: cluster
+  selector:
+    app: "rethinkdb-cluster"
+    release: "rethinkdb"
+---

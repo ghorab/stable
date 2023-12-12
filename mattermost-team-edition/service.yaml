@@ -1,0 +1,22 @@
+# Source: mattermost-team-edition/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mattermost-team-edition
+  labels:
+    app.kubernetes.io/name: mattermost-team-edition
+    app.kubernetes.io/instance: mattermost-team-edition
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: mattermost-team-edition-3.1.2
+spec:
+  selector:
+    app.kubernetes.io/name: mattermost-team-edition
+    app.kubernetes.io/instance: mattermost-team-edition
+    app.kubernetes.io/managed-by: Helm
+  type: ClusterIP
+  ports:
+  - port: 8065
+    targetPort: http
+    protocol: TCP
+    name: mattermost-team-edition
+---

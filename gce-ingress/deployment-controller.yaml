@@ -1,0 +1,55 @@
+# Source: gce-ingress/templates/deployment-controller.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gce-ingress
+  labels:
+    app: gce-ingress
+    chart: gce-ingress-1.2.2
+    release: gce-ingress
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gce-ingress
+      release: gce-ingress
+  template:
+    metadata:
+      labels:
+        app: gce-ingress
+        release: gce-ingress
+    spec:
+      terminationGracePeriodSeconds: 600
+      hostNetwork: true
+      containers:
+        - name: gce-ingress
+          image: "k8s.gcr.io/ingress-gce-glbc-amd64:v1.4.0"
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8086
+              scheme: HTTP
+            initialDelaySeconds: 30
+            # healthz reaches out to GCE
+            periodSeconds: 30
+            timeoutSeconds: 15
+            successThreshold: 1
+            failureThreshold: 5
+          volumeMounts:
+            - name: gce-config-volume
+              mountPath: /etc/gce/
+          command:
+            - sh
+            - -c
+            - 'exec /glbc --gce-ratelimit=ga.Operations.Get,qps,10,100 --gce-ratelimit=alpha.Operations.Get,qps,10,100 --gce-ratelimit=ga.BackendServices.Get,qps,1.8,1 --gce-ratelimit=ga.HealthChecks.Get,qps,1.8,1 --gce-ratelimit=alpha.HealthChecks.Get,qps,1.8,1 --verbose --default-backend-service=default/gce-ingress --sync-period=600s --running-in-cluster=true --use-real-cloud=true --config-file-path=/etc/gce/gce.conf --healthz-port=8086 2>&1'
+          resources:
+            {}
+      volumes:
+        - name: gce-config-volume
+          configMap:
+            name: gce-ingress
+            items:
+            - key: gce.conf
+              path: gce.conf

@@ -1,0 +1,64 @@
+# Source: prometheus-blackbox-exporter/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-blackbox-exporter
+  labels:
+    app.kubernetes.io/name: prometheus-blackbox-exporter
+    app.kubernetes.io/instance: prometheus-blackbox-exporter
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: prometheus-blackbox-exporter-4.3.1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-blackbox-exporter
+      app.kubernetes.io/instance: prometheus-blackbox-exporter
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prometheus-blackbox-exporter
+        app.kubernetes.io/instance: prometheus-blackbox-exporter
+        app.kubernetes.io/managed-by: Helm
+        helm.sh/chart: prometheus-blackbox-exporter-4.3.1
+      annotations:
+        checksum/config: 9ac26ba01f72d687a4cf9b06a714f2b7309b5a1aa114a4f2285022885d6c09b0
+    spec:
+      serviceAccountName: prometheus-blackbox-exporter
+
+      restartPolicy: Always
+      containers:
+        - name: blackbox-exporter
+          image: "prom/blackbox-exporter:v0.16.0"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          args:
+            - "--config.file=/config/blackbox.yaml"
+          resources:
+            {}
+          ports:
+            - containerPort: 9115
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          volumeMounts:
+            - mountPath: /config
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-blackbox-exporter

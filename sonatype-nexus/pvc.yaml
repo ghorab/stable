@@ -1,0 +1,18 @@
+# Source: sonatype-nexus/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sonatype-nexus-data
+  labels:
+    app: sonatype-nexus
+    fullname: sonatype-nexus
+    chart: sonatype-nexus-1.23.1
+    release: sonatype-nexus
+    heritage: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

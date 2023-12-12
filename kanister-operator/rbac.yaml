@@ -1,0 +1,19 @@
+# Source: kanister-operator/templates/rbac.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  labels:
+    heritage: Helm
+    release: kanister-operator
+    chart: kanister-operator-0.3.2
+    app: kanister-operator
+  name: kanister-operator-cr-role
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kanister-operator-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: kanister-operator
+  namespace: default
+---

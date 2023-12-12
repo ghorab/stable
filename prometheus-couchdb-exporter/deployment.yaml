@@ -1,0 +1,48 @@
+# Source: prometheus-couchdb-exporter/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-couchdb-exporter
+  labels:
+    app: prometheus-couchdb-exporter
+    chart: prometheus-couchdb-exporter-0.1.2
+    release: prometheus-couchdb-exporter
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-couchdb-exporter
+      release: prometheus-couchdb-exporter
+  template:
+    metadata:
+      labels:
+        app: prometheus-couchdb-exporter
+        release: prometheus-couchdb-exporter
+    spec:
+      serviceAccountName: prometheus-couchdb-exporter
+      containers:
+        - name: prometheus-couchdb-exporter
+          image: "gesellix/couchdb-prometheus-exporter:16"
+          imagePullPolicy: IfNotPresent
+          command:
+            - "/couchdb-prometheus-exporter"
+            - "-telemetry.address=0.0.0.0:9984"
+            - "-logtostderr"
+            - "-couchdb.uri=http://couchdb.default.svc:5984"
+            - "-databases=_all_dbs"
+          ports:
+            - name: http
+              containerPort: 9984
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              initialDelaySeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              initialDelaySeconds: 60
+          resources:
+            {}

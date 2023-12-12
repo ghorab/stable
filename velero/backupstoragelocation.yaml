@@ -1,0 +1,15 @@
+# Source: velero/templates/backupstoragelocation.yaml
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: default
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: velero-2.7.4
+spec:
+  provider: 
+  objectStorage:
+    bucket:
+---

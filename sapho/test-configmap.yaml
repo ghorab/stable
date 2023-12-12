@@ -1,0 +1,14 @@
+# Source: sapho/charts/mysql/templates/tests/test-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sapho-mysql-test
+  namespace: default
+  labels:
+    app: sapho-mysql
+    chart: "mysql-1.6.7"
+    heritage: "Helm"
+    release: "sapho"
+data:
+  run.sh: |-
+---

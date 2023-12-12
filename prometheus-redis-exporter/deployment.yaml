@@ -1,0 +1,46 @@
+# Source: prometheus-redis-exporter/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-redis-exporter
+  labels:
+    app: prometheus-redis-exporter
+    chart: prometheus-redis-exporter-3.5.1
+    release: prometheus-redis-exporter
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-redis-exporter
+      release: prometheus-redis-exporter
+  template:
+    metadata:
+      annotations:
+        {}
+      labels:
+        app: prometheus-redis-exporter
+        release: prometheus-redis-exporter
+    spec:
+      serviceAccountName: prometheus-redis-exporter
+      containers:
+        - name: prometheus-redis-exporter
+          image: "oliver006/redis_exporter:v1.3.4"
+          imagePullPolicy: IfNotPresent
+          args:
+          ports:
+            - name: exporter-port
+              containerPort: 9121
+          env:
+            - name: REDIS_ADDR
+              value: redis://myredis:6379
+          livenessProbe:
+            httpGet:
+              path: /
+              port: exporter-port
+          readinessProbe:
+            httpGet:
+              path: /
+              port: exporter-port
+          resources:
+            {}

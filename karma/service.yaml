@@ -1,0 +1,23 @@
+# Source: karma/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: karma
+  labels:
+    app.kubernetes.io/name: karma
+    helm.sh/chart: karma-1.7.2
+    app.kubernetes.io/instance: karma
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: karma
+    app.kubernetes.io/instance: karma
+---

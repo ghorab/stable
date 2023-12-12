@@ -1,0 +1,22 @@
+# Source: dask/templates/dask-jupyter-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dask-jupyter
+  labels:
+    app: dask
+    heritage: "Helm"
+    release: "dask"
+    chart: dask-3.1.1
+    component: jupyter
+spec:
+  ports:
+    - name: dask-jupyter
+      port: 80
+      targetPort: 8888
+  selector:
+    app: dask
+    release: "dask"
+    component: jupyter
+  type: LoadBalancer
+---

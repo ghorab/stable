@@ -1,0 +1,21 @@
+# Source: prometheus-postgres-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-postgres-exporter
+  labels:
+    app: prometheus-postgres-exporter
+    chart: prometheus-postgres-exporter-1.3.1
+    release: prometheus-postgres-exporter
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 9187
+      protocol: TCP
+      name: http
+  selector:
+    app: prometheus-postgres-exporter
+    release: prometheus-postgres-exporter
+---

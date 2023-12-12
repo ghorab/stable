@@ -1,0 +1,23 @@
+# Source: prometheus-consul-exporter/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-consul-exporter
+  labels:
+    app: prometheus-consul-exporter
+    chart: prometheus-consul-exporter-0.1.6
+    release: prometheus-consul-exporter
+    heritage: Helm
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9107
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: prometheus-consul-exporter
+    release: prometheus-consul-exporter
+---

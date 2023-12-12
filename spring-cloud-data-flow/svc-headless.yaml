@@ -1,0 +1,29 @@
+# Source: spring-cloud-data-flow/charts/rabbitmq/templates/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-cloud-data-flow-rabbitmq-headless
+  labels:
+    app: rabbitmq
+    chart: rabbitmq-6.16.6
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+spec:
+  clusterIP: None
+  ports:
+  - name: epmd
+    port: 4369
+    targetPort: epmd
+  - name: amqp
+    port: 5672
+    targetPort: amqp
+  - name: dist
+    port: 25672
+    targetPort: dist
+  - name: stats
+    port: 15672
+    targetPort: stats
+  selector:
+    app: rabbitmq
+    release: "spring-cloud-data-flow"
+---

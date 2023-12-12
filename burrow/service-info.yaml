@@ -1,0 +1,22 @@
+# Source: burrow/templates/service-info.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: burrow
+    chart: burrow-1.5.4
+    release: burrow
+    heritage: Helm
+  name:  burrow-info
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  ports:
+    - name: info
+      port: 26658
+      targetPort: info
+      protocol: TCP
+  selector:
+    app: burrow
+    release: burrow
+---

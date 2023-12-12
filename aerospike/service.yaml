@@ -1,0 +1,30 @@
+# Source: aerospike/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: aerospike
+  labels:
+    app: aerospike
+    chart: aerospike-0.3.5
+    release: aerospike
+    heritage: Helm
+  annotations:
+spec:
+  # so the mesh peer-finder works
+  publishNotReadyAddresses: true
+  
+  clusterIP: "None"
+  
+  type: ClusterIP
+  ports:
+    - port: 3000
+      protocol: TCP
+      name: client
+    - port: 3002
+      protocol: TCP
+      name: mesh
+    
+  selector:
+    app: aerospike
+    release: aerospike
+---

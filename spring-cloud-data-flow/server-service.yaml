@@ -1,0 +1,23 @@
+# Source: spring-cloud-data-flow/templates/server-service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: spring-cloud-data-flow-data-flow-server
+  labels:
+    app: spring-cloud-data-flow
+    component: server
+    chart: "spring-cloud-data-flow-2.8.1"
+    release: "spring-cloud-data-flow"
+    heritage: "Helm"
+spec:
+  # If you are running k8s on a local dev box, you can use type NodePort instead
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: http
+      name: http
+  selector:
+    app: spring-cloud-data-flow
+    component: server
+    release: spring-cloud-data-flow
+---

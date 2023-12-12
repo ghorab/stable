@@ -1,0 +1,178 @@
+# Source: kong/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong-kong
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-0.36.7
+    app.kubernetes.io/instance: "kong"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "1.4"
+    app.kubernetes.io/component: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kong
+      app.kubernetes.io/component: app
+      app.kubernetes.io/instance: "kong"
+
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/name: kong
+        helm.sh/chart: kong-0.36.7
+        app.kubernetes.io/instance: "kong"
+        app.kubernetes.io/managed-by: "Helm"
+        app.kubernetes.io/version: "1.4"
+        app.kubernetes.io/component: app
+    spec:
+      serviceAccountName: kong-kong
+      
+      containers:
+      - name: ingress-controller
+        args:
+        - /kong-ingress-controller
+        # Service from were we extract the IP address/es to use in Ingress status
+        - --publish-service=default/kong-kong-proxy
+        # Set the ingress class
+        - --ingress-class=kong
+        - --election-id=kong-ingress-controller-leader-kong
+        # the kong URL points to the kong admin api server
+        - --kong-url=https://localhost:8444
+        - --admin-tls-skip-verify # TODO make this configurable
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace  
+        image: "kong-docker-kubernetes-ingress-controller.bintray.io/kong-ingress-controller:0.7.0"
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          {}
+      
+      - name: "proxy"
+        image: "kong:1.4"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: KONG_LUA_PACKAGE_PATH
+          value: "/opt/?.lua;;"
+        - name: KONG_ADMIN_LISTEN
+          value: "0.0.0.0:8444 ssl"
+        - name: KONG_PROXY_LISTEN
+          value: 0.0.0.0:8000,0.0.0.0:8443 ssl
+        - name: KONG_NGINX_DAEMON
+          value: "off"
+        - name: KONG_NGINX_HTTP_INCLUDE
+          value: /kong/servers.conf
+        - name: KONG_PLUGINS
+          value: bundled
+        - name: KONG_ADMIN_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_ADMIN_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_ADMIN_GUI_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_ADMIN_GUI_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_DATABASE
+          value: "off"
+        - name: KONG_NGINX_WORKER_PROCESSES
+          value: "1"
+        - name: KONG_PORTAL_API_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_PORTAL_API_ERROR_LOG
+          value: "/dev/stderr"
+        - name: KONG_PREFIX
+          value: "/kong_prefix/"
+        - name: KONG_PROXY_ACCESS_LOG
+          value: "/dev/stdout"
+        - name: KONG_PROXY_ERROR_LOG
+          value: "/dev/stderr"
+        lifecycle:
+          preStop:
+            exec:
+              command: [ "/bin/sh", "-c", "kong quit" ]
+        ports:
+        - name: admin
+          containerPort: 8444
+          protocol: TCP
+        - name: proxy
+          containerPort: 8000
+          protocol: TCP
+        - name: proxy-tls
+          containerPort: 8443
+          protocol: TCP
+        - name: metrics
+          containerPort: 9542
+          protocol: TCP
+        volumeMounts:
+          - name: kong-kong-prefix-dir
+            mountPath: /kong_prefix/
+          - name: kong-kong-tmp
+            mountPath: /tmp
+          - name: custom-nginx-template-volume
+            mountPath: /kong
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /status
+            port: metrics
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /status
+            port: metrics
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          {}
+      securityContext:
+        runAsUser: 1000
+      tolerations:
+        []
+      volumes:
+        - name: kong-kong-prefix-dir
+          emptyDir: {}
+        - name: kong-kong-tmp
+          emptyDir: {}
+        - name: custom-nginx-template-volume
+          configMap:
+            name: kong-kong-default-custom-server-blocks
+---

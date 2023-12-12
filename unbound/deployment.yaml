@@ -1,0 +1,71 @@
+# Source: unbound/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unbound
+  labels:
+    app: unbound
+    chart: unbound-1.1.4
+    release: unbound
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: unbound
+      release: unbound
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        chart: unbound-1.1.4
+        app: unbound
+        heritage: Helm
+        release: unbound
+      annotations:
+        checksum/config: f52f6b3f3ad43cc4b149319a1efa348408b5f399a06f8f0cd8184372507c38cc
+    spec:
+      containers:
+      - name: "unbound"
+        image: markbnj/unbound-docker:0.1.0
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - name: "dns-udp"
+          containerPort: 53
+          protocol: "UDP"
+        - name: "dns-tcp"
+          containerPort: 53
+          protocol: "TCP"
+        volumeMounts:
+        - name: "unbound-conf"
+          mountPath: "/etc/unbound/"
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            path: "/healthz"
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+        readinessProbe:
+          httpGet:
+            path: "/healthz"
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+      - name: "healthz"
+        image: gcr.io/google-containers/exechealthz:1.2
+        imagePullPolicy: "IfNotPresent"
+        args:
+          - "-cmd=nslookup health.check.unbound 127.0.0.1:53 > /dev/null"
+        ports:
+        - name: healthz
+          containerPort: 8080
+          protocol: TCP
+      volumes:
+      - name: "unbound-conf"
+        configMap:
+          name: unbound

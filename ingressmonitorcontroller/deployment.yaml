@@ -1,0 +1,41 @@
+# Source: ingressmonitorcontroller/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app: ingressmonitorcontroller
+    chart: "ingressmonitorcontroller-1.0.50"
+    release: "ingressmonitorcontroller"
+    heritage: "Helm"
+  name: ingressmonitorcontroller
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: ingressmonitorcontroller
+      release: "ingressmonitorcontroller"
+  template:
+    metadata:
+      labels:
+        app: ingressmonitorcontroller
+        chart: "ingressmonitorcontroller-1.0.50"
+        release: "ingressmonitorcontroller"
+        heritage: "Helm"
+    spec:
+      containers:
+      - env:
+        - name: CONFIG_FILE_PATH
+          value: /etc/IngressMonitorController/config.yaml
+        image: "stakater/ingressmonitorcontroller:1.0.47"
+        imagePullPolicy: IfNotPresent
+        name: ingressmonitorcontroller
+        volumeMounts:
+        - mountPath: /etc/IngressMonitorController
+          name: config-volume
+      serviceAccountName: ingressmonitorcontroller
+      volumes:
+      - configMap:
+          name: ingressmonitorcontroller
+        name: config-volume

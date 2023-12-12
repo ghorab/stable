@@ -1,0 +1,12 @@
+# Source: collabora-code/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collabora-code
+data:
+  DONT_GEN_SSL_CERT: "true"
+  dictionaries: de_DE en_GB en_US es_ES fr_FR it nl pt_BR pt_PT ru
+  domain: nextcloud\\.domain
+  extra_params: --o:ssl.termination=true --o:ssl.enable=false
+  server_name: collabora\.domain
+---

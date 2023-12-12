@@ -1,0 +1,54 @@
+# Source: cloudserver/charts/mongodb-replicaset/templates/tests/mongodb-up-test-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: mongodb-replicaset
+    chart: mongodb-replicaset-3.17.2
+    heritage: Helm
+    release: cloudserver
+  name: cloudserver-mongodb-replicaset-test
+  namespace: default
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  initContainers:
+    - name: test-framework
+      image: dduportal/bats:0.4.0
+      command:
+        - bash
+        - -c
+        - |
+          set -ex
+          # copy bats to tools dir
+          cp -R /usr/local/libexec/ /tools/bats/
+      volumeMounts:
+        - name: tools
+          mountPath: /tools
+  containers:
+    - name: mongo
+      image: "mongo:3.6"
+      command:
+        - /tools/bats/bats
+        - -t
+        - /tests/mongodb-up-test.sh
+      env:
+        - name: FULL_NAME
+          value: cloudserver-mongodb-replicaset
+        - name: NAMESPACE
+          value: default
+        - name: REPLICAS
+          value: "1"
+      volumeMounts:
+        - name: tools
+          mountPath: /tools
+        - name: tests
+          mountPath: /tests
+  volumes:
+    - name: tools
+      emptyDir: {}
+    - name: tests
+      configMap:
+        name: cloudserver-mongodb-replicaset-tests
+  restartPolicy: Never
+---

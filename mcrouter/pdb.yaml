@@ -1,0 +1,21 @@
+# Source: mcrouter/charts/memcached/templates/pdb.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: mcrouter-memcached
+  annotations:
+    helm.sh/hook: "post-upgrade, post-install"
+    helm.sh/hook-delete-policy: "before-hook-creation"
+  labels:
+    app: mcrouter-memcached
+    chart: "memcached-3.1.0"
+    release: "mcrouter"
+    heritage: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app: mcrouter-memcached
+      chart: "memcached-3.1.0"
+      release: "mcrouter"
+      heritage: "Helm"
+  minAvailable: 2

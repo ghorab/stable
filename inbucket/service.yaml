@@ -1,0 +1,30 @@
+# Source: inbucket/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: inbucket
+    app.kubernetes.io/instance: inbucket
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: inbucket-3.1.2
+  name: inbucket
+spec:
+  type: "ClusterIP"
+  clusterIP: ""
+  ports:
+    - name: http
+      port: 9000
+      protocol: TCP
+      targetPort: http
+    - name: smtp
+      port: 2500
+      protocol: TCP
+      targetPort: smtp
+    - name: pop3
+      port: 1100
+      protocol: TCP
+      targetPort: pop3
+  selector:
+    app.kubernetes.io/name: inbucket
+    app.kubernetes.io/instance: inbucket
+---

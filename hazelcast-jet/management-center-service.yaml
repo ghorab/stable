@@ -1,0 +1,26 @@
+# Source: hazelcast-jet/templates/management-center-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hazelcast-jet-management-center
+  labels:
+    app.kubernetes.io/name: hazelcast-jet
+    helm.sh/chart: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+    app.kubernetes.io/managed-by: "Helm"
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: hazelcast-jet
+    app.kubernetes.io/instance: "hazelcast-jet"
+    role: hazelcast-jet-management-center
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: mc-port
+    name: mc-port
+  - protocol: TCP
+    port: 443
+    targetPort: mc-port
+    name: mc-https-port
+---

@@ -1,0 +1,104 @@
+# Source: hlf-peer/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hlf-peer
+  labels:
+    app: hlf-peer
+    heritage: "Helm"
+    release: "hlf-peer"
+    chart: hlf-peer-1.6.3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hlf-peer
+      release: hlf-peer
+  # Ensure we allow our pod to be unavailable, so we can upgrade
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: hlf-peer
+        heritage: "Helm"
+        release: "hlf-peer"
+        chart: hlf-peer-1.6.3
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hlf-peer
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock
+      containers:
+        - name: peer
+          image: "hyperledger/fabric-peer:1.4.3"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: request
+              containerPort: 7051
+              protocol: TCP
+            - name: event
+              containerPort: 7053
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+              - ls
+              - /var/hyperledger
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          # TODO: Improve readiness probe (ideally `ps aux | awk '$11=="orderer"'`)
+          readinessProbe:
+            exec:
+              command:
+              - ls
+              - /var/hyperledger
+            initialDelaySeconds: 15
+          command:
+            - bash
+            - -c
+            - |
+              # To avoid having separate secrets for CouchDB and HLF
+              export CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=$COUCHDB_USER
+              export CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=$COUCHDB_PASSWORD
+
+              while [ ! -d /var/hyperledger/admin_msp/admincerts ] || [ -z "$(ls -A /var/hyperledger/admin_msp/admincerts)" ];
+              do
+                echo "\033[0;31m /var/hyperledger/admin_msp/admincerts must contain Peer admin certificates files \033[0m"
+                sleep 60
+              done
+
+              while [ ! -d ${CORE_PEER_MSPCONFIGPATH}/signcerts ];
+              do
+                echo "\033[0;31m ${CORE_PEER_MSPCONFIGPATH}/signcerts directory must exist \033[0m"
+                sleep 60
+              done
+
+              if [ ! -d ${FABRIC_CFG_PATH} ]
+              then
+                mkdir -p ${FABRIC_CFG_PATH}
+                cp -r /etc/hyperledger/fabric/core.yaml ${FABRIC_CFG_PATH}
+                ls ${FABRIC_CFG_PATH}
+              fi
+
+              if [ $CORE_PEER_TLS_CLIENTAUTHREQUIRED ]
+              then
+                export CORE_PEER_TLS_CLIENTROOTCAS_FILES=$(ls -d $CORE_PEER_TLS_CLIENTROOTCAS_FILES)
+              fi
+
+              echo ">\033[0;35m peer node start \033[0m"
+              peer node start
+          envFrom:
+            - configMapRef:
+                name: hlf-peer--peer
+          volumeMounts:
+            - mountPath: /var/hyperledger
+              name: data
+            - mountPath: /host/var/run/docker.sock
+              name: dockersocket
+          resources:
+            {}

@@ -1,0 +1,40 @@
+# Source: presto/templates/configmap-coordinator.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: presto-coordinator
+  labels:
+    app: presto
+    chart: presto-0.2.3
+    release: presto
+    heritage: Helm
+    component: coordinator
+data:
+  node.properties: |
+    node.environment=production
+    node.data-dir=/data/presto
+    plugin.dir=/usr/lib/presto/plugin
+
+  jvm.config: |
+    -server
+    -Xmx8G
+    -XX:+UseG1GC
+    -XX:G1HeapRegionSize=32M
+    -XX:+UseGCOverheadLimit
+    -XX:+ExplicitGCInvokesConcurrent
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:+ExitOnOutOfMemoryError
+    -Djdk.attach.allowAttachSelf=true
+
+  config.properties: |
+    coordinator=true
+    node-scheduler.include-coordinator=false
+    http-server.http.port=8080
+    query.max-memory=4GB
+    query.max-memory-per-node=1GB
+    discovery-server.enabled=true
+    discovery.uri=http://localhost:8080
+
+  log.properties: |
+    io.prestosql=INFO
+---

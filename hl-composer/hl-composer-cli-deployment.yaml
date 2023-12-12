@@ -1,0 +1,47 @@
+# Source: hl-composer/templates/hl-composer-cli-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hl-composer-cli
+  labels:
+    name: hl-composer-cli
+    app: hl-composer
+    heritage: "Helm"
+    release: "hl-composer"
+    chart: hl-composer-1.0.14
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hl-composer
+      release: hl-composer
+  template:
+    metadata:
+      name: hl-composer-cli
+      labels:
+        name: hl-composer-cli
+        app: hl-composer
+        heritage: "Helm"
+        release: "hl-composer"
+        chart: hl-composer-1.0.14
+    spec:
+      volumes:
+        - name: persistent-volume
+          emptyDir: {}
+      containers:
+        - name: cli
+          image: "hyperledger/composer-cli:0.20.0"
+          imagePullPolicy: IfNotPresent
+        # TODO: Add liveness and readiness probes
+        # Run infinitely
+          command:
+            - sh
+            - -c
+            - |
+              tail -f /dev/null
+          volumeMounts:
+            - mountPath: /home/composer/.composer
+              name: persistent-volume
+          resources:
+            {}
+---

@@ -1,0 +1,43 @@
+# Source: kubewatch/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kubewatch
+    chart: kubewatch-1.0.9
+    heritage: "Helm"
+    release: "kubewatch"
+  name: kubewatch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubewatch
+      release: kubewatch
+  template:
+    metadata:
+      annotations:
+        checksum/config-map: a67ac32eab92191134f7d2f1e4f23d29bd027d08895a39769e44ca6405509676
+      labels:
+        app: kubewatch
+        release: "kubewatch"
+        chart: kubewatch-1.0.9
+    spec:      
+      containers:
+      - name: kubewatch
+        image: docker.io/bitnami/kubewatch:0.0.4-debian-10-r29
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: kubewatch-config-map
+          mountPath: /opt/bitnami/kubewatch/.kubewatch.yaml
+          subPath: .kubewatch.yaml
+        resources:
+          {}
+      serviceAccountName: kubewatch
+      tolerations:
+        []
+      restartPolicy: Always
+      volumes:
+      - name: kubewatch-config-map
+        configMap:
+          name: kubewatch-config

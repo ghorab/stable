@@ -1,0 +1,21 @@
+# Source: hlf-ca/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hlf-ca
+  labels:
+    app: hlf-ca
+    heritage: "Helm"
+    release: "hlf-ca"
+    chart: hlf-ca-1.2.3
+spec:
+  type: "ClusterIP"
+  ports:
+    - port: 7054
+      targetPort: 7054
+      protocol: TCP
+      name: http
+  selector:
+    app: hlf-ca
+    release: hlf-ca
+---

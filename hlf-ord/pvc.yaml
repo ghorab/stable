@@ -1,0 +1,17 @@
+# Source: hlf-ord/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: hlf-ord
+  labels:
+    app: hlf-ord
+    heritage: "Helm"
+    release: "hlf-ord"
+    chart: hlf-ord-1.4.3
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

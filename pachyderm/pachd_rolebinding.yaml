@@ -1,0 +1,14 @@
+# Source: pachyderm/templates/pachd_rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: pachyderm-pachyderm
+roleRef:
+  apiGroup: ''
+  kind: ClusterRole
+  name: pachyderm-pachyderm
+subjects:
+  - kind: ServiceAccount
+    name: pachyderm-pachyderm
+    namespace: default
+---

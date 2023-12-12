@@ -1,0 +1,57 @@
+# Source: phpmyadmin/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+  labels:
+    app: phpmyadmin
+    chart: phpmyadmin-4.3.5
+    release: phpmyadmin
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+      release: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+        chart: phpmyadmin-4.3.5
+        release: phpmyadmin
+    spec:      
+      hostAliases:
+        - ip: "127.0.0.1"
+          hostnames:
+            - "status.localhost"
+      containers:
+        - name: phpmyadmin
+          image: docker.io/bitnami/phpmyadmin:5.0.1-debian-10-r30
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_PORT_NUMBER
+              value: "3306"
+            - name: DATABASE_HOST
+              value: 
+            - name: PHPMYADMIN_ALLOW_NO_PASSWORD
+              value: "true"
+            - name: PHPMYADMIN_ALLOW_ARBITRARY_SERVER
+              value: "true"
+            - name: DATABASE_ENABLE_SSL
+              value: "no"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http

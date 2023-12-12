@@ -1,0 +1,19 @@
+# Source: rethinkdb/templates/auth/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: rethinkdb-rethinkdb
+  labels:
+    app: rethinkdb
+    chart: rethinkdb-1.1.4
+    release: rethinkdb
+    heritage: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rethinkdb-rethinkdb
+subjects:
+  - kind: ServiceAccount
+    name: rethinkdb-rethinkdb
+    namespace: default
+---

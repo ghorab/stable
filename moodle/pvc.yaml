@@ -1,0 +1,17 @@
+# Source: moodle/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: moodle
+  labels:
+    app: moodle
+    chart: moodle-7.2.8
+    release: "moodle"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

@@ -1,0 +1,89 @@
+# Source: cloudserver/templates/api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudserver
+  labels:
+    app: cloudserver
+    chart: cloudserver-1.0.7
+    component: api
+    release: cloudserver
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudserver
+      component: api
+      release: cloudserver
+  template:
+    metadata:
+      annotations:
+        checksum/config: d6aad1d4600b18d470cbb727a065f530edafad73d647ab6bd0e91111536c5144
+      labels:
+        app: cloudserver
+        component: api
+        release: cloudserver
+    spec:
+      serviceAccountName: cloudserver
+      containers:
+        - name: cloudserver
+          image: "zenko/cloudserver:8.1.5"
+          imagePullPolicy: IfNotPresent
+          terminationMessagePolicy: FallbackToLogsOnError
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: REMOTE_MANAGEMENT_DISABLE
+              value: "1"
+            - name: S3METADATA
+              value: "mongodb"
+            - name: MONGODB_HOSTS
+              value: "cloudserver-mongodb-replicaset-0.cloudserver-mongodb-replicaset:27017"
+            - name: MONGODB_RS
+              value: "rs0"
+            - name: S3_LOCATION_FILE
+              value: "/etc/config/locationConfig.json"
+            - name: DATA_HOST
+              value: cloudserver-localdata
+            - name: REDIS_HOST
+              value: "cloudserver-redis-ha"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_SENTINELS
+              value: "cloudserver-redis-ha-server-0.cloudserver-redis-ha:26379"
+            - name: REDIS_HA_NAME
+              value: "cloudserver"
+            - name: LOG_LEVEL
+              value: info
+            - name: ENDPOINT
+              value: "cloudserver,cloudserver.local"
+            - name: HEALTHCHECKS_ALLOWFROM
+              value: "0.0.0.0/0"
+            - name: SCALITY_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cloudserver
+                  key: accessKey
+            - name: SCALITY_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cloudserver
+                  key: secretKey
+          args: ['npm', 'run', 'start_s3server']
+          livenessProbe:
+            httpGet:
+              path: /_/healthcheck
+              port: http
+            initialDelaySeconds: 60
+          volumeMounts:
+            - name: location-config
+              mountPath: /etc/config
+          resources:
+            {}
+      volumes:
+        - name: location-config
+          configMap:
+            name: cloudserver
+---

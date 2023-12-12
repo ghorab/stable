@@ -1,0 +1,108 @@
+# Source: lamp/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lamp-lamp
+  labels:
+    app: lamp
+    chart: lamp-1.1.6
+    heritage: Helm
+    release: lamp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lamp
+  template:
+    metadata:
+      labels:
+        app: lamp
+        release: lamp
+    spec:
+      initContainers:
+      - name: "init-chown-mysql"
+        image: "busybox"
+        command: ["chown", "-R", "999:999", "/tmp/mysqld"]
+        volumeMounts:
+        - name: sockets
+          mountPath: /tmp/mysqld
+          subPath: mysqld
+        resources:
+            requests:
+              cpu: 1m
+              memory: 1Mi
+      - name: "init-chown-php"
+        image: "busybox"
+        command: ["chown", "-R", "33:33", "/tmp/php"]
+        volumeMounts:
+        - name: sockets
+          mountPath: /tmp/php
+          subPath: php
+        resources:
+            requests:
+              cpu: 1m
+              memory: 1Mi
+      containers:
+      - name: "httpd"
+        image: "httpd:2.4-alpine"
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: httpd-data
+          mountPath: /var/www/html
+          subPath: web
+        - mountPath: /var/run/php
+          name: sockets
+          subPath: php
+        - mountPath: /usr/local/apache2/conf/extra/httpd-vhosts.conf
+          name: httpd-config
+          subPath: httpd-vhosts-socket.conf
+        - mountPath: /usr/local/apache2/conf/httpd.conf
+          name: httpd-config
+          subPath: httpd.conf
+        resources:
+            requests:
+              cpu: 1m
+              memory: 1Mi
+      - name: "php"
+        image: "php:7-fpm-alpine"
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: httpd-data
+          mountPath: /var/www/html
+          subPath: web
+        - name: httpd-data
+          mountPath: /var/www/mysql
+          subPath: mysql
+        - mountPath: /var/run/php
+          name: sockets
+          subPath: php
+        - mountPath: /usr/local/etc/php-fpm.d/zz-docker.conf
+          name: configmap-php
+          subPath: zz-docker.conf
+        - mountPath: /var/run/mysqld
+          name: sockets
+          subPath: mysqld
+        - name: configmap-php
+          mountPath: /usr/local/etc/php/conf.d/additional.ini
+          subPath: additional.ini
+        resources:
+            requests:
+              cpu: 1m
+              memory: 1Mi
+      
+      
+      
+      
+      
+      volumes:
+      - name: httpd-data
+        persistentVolumeClaim:
+          claimName: lamp-lamp
+      - name: sockets
+        emptyDir: {}
+      - configMap: {name: lamp-lamp-php }
+        name: configmap-php
+      - configMap: {name: lamp-lamp-httpd }
+        name: httpd-config

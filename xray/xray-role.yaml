@@ -1,0 +1,22 @@
+# Source: xray/templates/xray-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app: xray
+    chart: xray-0.4.3
+    release: "xray"
+    heritage: "Helm"
+  name: xray
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - endpoints
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---

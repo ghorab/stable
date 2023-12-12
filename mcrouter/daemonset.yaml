@@ -1,0 +1,59 @@
+# Source: mcrouter/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: mcrouter-mcrouter
+  labels:
+    app: mcrouter-mcrouter
+    chart: "mcrouter-1.0.6"
+    release: "mcrouter"
+  annotations:
+    checksum/config: de04feed35420587476d31b2aafb505604fa3d790bc781e13f519bdde064f4c5
+spec:
+  selector:
+    matchLabels:
+      app: mcrouter-mcrouter
+  template:
+    metadata:
+      labels:
+        app: mcrouter-mcrouter
+        chart: "mcrouter-1.0.6"
+        release: "mcrouter"
+    spec:
+      containers:
+      - name: mcrouter-mcrouter
+        image: jphalip/mcrouter:0.36.0
+        imagePullPolicy: ""
+        command: ["mcrouter"]
+        args:
+        - -p 5000
+        - --config-file=/etc/mcrouter/config.json
+        volumeMounts:
+        - name: config
+          mountPath: /etc/mcrouter
+        ports:
+        - name: mcrouter-port
+          containerPort: 5000
+          hostPort: 5000
+        livenessProbe:
+          tcpSocket:
+            port: mcrouter-port
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          tcpSocket:
+            port: mcrouter-port
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 256m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+      volumes:
+      - name: config
+        configMap:
+          name: mcrouter-mcrouter
+---

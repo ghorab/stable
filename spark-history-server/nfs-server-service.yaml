@@ -1,0 +1,22 @@
+# Source: spark-history-server/charts/nfs/templates/nfs-server-service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: spark-history-server-nfs
+  labels:
+    app.kubernetes.io/name: nfs
+    helm.sh/chart: nfs-0.1.0
+    app.kubernetes.io/instance: spark-history-server
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ports:
+    - name: nfs
+      port: 2049
+    - name: mountd
+      port: 20048
+    - name: rpcbind
+      port: 111
+  selector:
+    app.kubernetes.io/name: nfs
+    app.kubernetes.io/instance: spark-history-server
+---

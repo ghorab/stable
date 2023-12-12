@@ -1,0 +1,19 @@
+# Source: etcd-operator/templates/restore-operator-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-restore-operator
+  labels:
+    chart: "etcd-operator-0.11.2"
+    app: etcd-restore-operator
+    heritage: Helm
+    release: etcd-operator
+spec:
+  ports:
+  - protocol: TCP
+    name: http-etcd-restore-port
+    port: 19999
+  selector:
+    app: etcd-restore-operator
+    release: etcd-operator
+---

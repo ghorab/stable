@@ -1,0 +1,21 @@
+# Source: fluentd/templates/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: fluentd
+  labels:
+    app: fluentd
+    chart: fluentd-2.5.3
+    release: fluentd
+    heritage: Helm
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "namespaces"
+  - "pods"
+  verbs:
+  - "get"
+  - "watch"
+  - "list"
+---

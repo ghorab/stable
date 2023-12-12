@@ -1,0 +1,66 @@
+# Source: bookstack/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstack
+  labels:
+    app: bookstack
+    chart: bookstack-1.2.4
+    release: bookstack
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstack
+      release: bookstack
+  template:
+    metadata:
+      labels:
+        app: bookstack
+        release: bookstack
+    spec:
+      serviceAccountName: bookstack
+      containers:
+        - name: bookstack
+          image: "solidnerd/bookstack:0.27.5"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          env:
+            - name: DB_HOST
+              value: bookstack-mariadb
+            - name: DB_DATABASE
+              value: "bookstack"
+            - name: DB_USERNAME
+              value: "bookstack"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bookstack-mariadb
+                  key: mariadb-password
+          volumeMounts:
+          - name: uploads
+            mountPath: /var/www/bookstack/public/uploads
+          - name: storage
+            mountPath: /var/www/bookstack/storage/uploads
+          resources:
+            {}
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: bookstack-uploads
+        - name: storage
+          persistentVolumeClaim:
+            claimName: bookstack-storage
+---

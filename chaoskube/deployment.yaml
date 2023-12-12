@@ -1,0 +1,48 @@
+# Source: chaoskube/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaoskube
+  labels:
+    app.kubernetes.io/name: chaoskube
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/instance: "chaoskube"
+    helm.sh/chart: chaoskube-3.3.2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chaoskube
+      app.kubernetes.io/instance: chaoskube
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: chaoskube
+        app.kubernetes.io/managed-by: "Helm"
+        app.kubernetes.io/instance: "chaoskube"
+        helm.sh/chart: chaoskube-3.3.2
+    spec:
+      containers:
+        - name: chaoskube
+          image: quay.io/linki/chaoskube:v0.21.0
+          args:
+            - --interval=10m
+            - --labels=
+            - --annotations=
+            - --namespaces=
+            - --excluded-weekdays=
+            - --excluded-times-of-day=
+            - --excluded-days-of-year=
+            - --timezone=UTC
+            - --minimum-age=0s
+            - --grace-period=-1s
+            - --metrics-address=
+          resources:
+            {}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      serviceAccountName: "default"

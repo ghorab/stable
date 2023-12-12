@@ -1,0 +1,88 @@
+# Source: sugarcrm/charts/mariadb/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sugarcrm-mariadb
+  labels:
+    app: sugarcrm-mariadb
+    chart: "mariadb-0.7.0"
+    release: "sugarcrm"
+    heritage: "Helm"
+spec:
+  template:
+    metadata:
+      labels:
+        app: sugarcrm-mariadb
+      annotations:
+        pod.alpha.kubernetes.io/init-containers: '
+          [
+            {
+              "name": "copy-custom-config",
+              "image": "bitnami/mariadb:10.1.23-r2",
+              "imagePullPolicy": "IfNotPresent",
+              "command": ["sh", "-c", "mkdir -p /bitnami/mariadb/conf && cp -n /bitnami/mariadb_config/my.cnf /bitnami/mariadb/conf/my_custom.cnf"],
+              "volumeMounts": [
+                {
+                  "name": "config",
+                  "mountPath": "/bitnami/mariadb_config"
+                },
+                {
+                  "name": "data",
+                  "mountPath": "/bitnami/mariadb"
+                }
+              ]
+            }
+          ]'
+    spec:
+      containers:
+      - name: sugarcrm-mariadb
+        image: "bitnami/mariadb:10.1.23-r2"
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sugarcrm-mariadb
+              key: mariadb-root-password
+        - name: MARIADB_USER
+          value: "bn_sugarcrm"
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sugarcrm-mariadb
+              key: mariadb-password
+        - name: MARIADB_DATABASE
+          value: "bitnami_sugarcrm"
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        ports:
+        - name: mysql
+          containerPort: 3306
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/mariadb
+      volumes:
+      - name: config
+        configMap:
+          name: sugarcrm-mariadb
+      - name: data
+        persistentVolumeClaim:
+          claimName: sugarcrm-mariadb

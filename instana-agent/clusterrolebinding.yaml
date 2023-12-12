@@ -1,0 +1,18 @@
+# Source: instana-agent/templates/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: instana-agent
+  labels:
+    app.kubernetes.io/name: instana-agent
+    app.kubernetes.io/instance: instana-agent
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: instana-agent-1.0.35
+subjects:
+- kind: ServiceAccount
+  name: instana-agent
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: instana-agent
+  apiGroup: rbac.authorization.k8s.io

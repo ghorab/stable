@@ -1,0 +1,20 @@
+# Source: velero/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: velero
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: velero-2.7.4
+spec:
+  type: ClusterIP
+  ports:
+    - name: monitoring
+      port: 8085
+      targetPort: monitoring
+  selector:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/instance: velero
+---

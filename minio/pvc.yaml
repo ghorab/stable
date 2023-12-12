@@ -1,0 +1,17 @@
+# Source: minio/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio
+  labels:
+    app: minio
+    chart: minio-5.0.33
+    release: minio
+    heritage: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "500Gi"
+---

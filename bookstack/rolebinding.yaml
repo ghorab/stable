@@ -1,0 +1,18 @@
+# Source: bookstack/templates/rolebinding.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: bookstack
+  labels:
+    app: bookstack
+    chart: bookstack-1.2.4
+    release: "bookstack"
+    heritage: "Helm"
+subjects:
+- kind: ServiceAccount
+  name: bookstack
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: bookstack
+---

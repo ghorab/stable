@@ -1,0 +1,47 @@
+# Source: quassel/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quassel
+  labels:
+    app: quassel
+    chart: quassel-0.2.13
+    release: quassel
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quassel
+      release: quassel
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: quassel
+        chart: quassel-0.2.13
+        heritage: Helm
+        release: quassel
+    spec:
+      containers:
+        - name: quassel
+          image: "linuxserver/quassel-core:0.13.1-ls33"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: quassel
+              containerPort: 4242
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: quassel-config

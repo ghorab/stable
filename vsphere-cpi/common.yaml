@@ -1,0 +1,16 @@
+# Source: vsphere-cpi/templates/common.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vsphere-cpi
+  labels:
+    app: vsphere-cpi
+    vsphere-cpi-infra: common-configmap
+    chart: vsphere-cpi-0.2.3
+    component: cloud-controller-manager
+    heritage: Helm
+    release: vsphere-cpi
+  namespace: default
+data:
+  api.binding: ":43001"
+---

@@ -1,0 +1,42 @@
+# Source: risk-advisor/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-advisor-risk-advisor
+  labels:
+    chart: "risk-advisor-2.0.6"
+    app: "risk-advisor"
+    release: "risk-advisor"
+    heritage: "Helm"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "risk-advisor"
+      release: "risk-advisor"
+  template:
+    metadata:
+      labels:
+        app: "risk-advisor"
+        release: "risk-advisor"
+    spec:
+      containers:
+      - name: risk-advisor
+        image: "pposkrobko/risk-advisor:v1.0.0"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9997
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 9997
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 9997
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        resources:
+            null

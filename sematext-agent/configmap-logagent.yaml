@@ -1,0 +1,15 @@
+# Source: sematext-agent/templates/configmap-logagent.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sematext-agent-logagent
+  labels:
+    app: sematext-agent-logagent
+    chart: sematext-agent-1.0.31
+    release: sematext-agent
+    heritage: Helm
+data:
+  REGION: "US"
+  LOGSENE_BULK_SIZE: "1000"
+  LOGSENE_LOG_INTERVAL: "10000"
+---

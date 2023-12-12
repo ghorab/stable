@@ -1,0 +1,21 @@
+# Source: dask-distributed/templates/dask-jupyter-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: dask-distributed-jupyter
+  labels:
+    app: dask-distributed
+    heritage: "Helm"
+    release: "dask-distributed"
+    chart: "dask-distributed-2.0.2"
+    component: "dask-distributed-jupyter-notebook"
+spec:
+  ports:
+    - port: 80
+      targetPort: 8888
+  selector:
+    app: dask-distributed
+    release: "dask-distributed"
+    component: "dask-distributed-jupyter-notebook"
+  type: LoadBalancer
+---

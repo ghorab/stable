@@ -1,0 +1,38 @@
+# Source: graphite/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: graphite
+  labels:
+    app: graphite
+    chart: graphite-0.2.2
+    release: graphite
+    heritage: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - name: graphite-pickle
+      port: 2004
+      protocol: TCP
+    - name: graphite-plain
+      port: 2003
+      protocol: TCP
+    - name: graphite-gui
+      port: 8080
+      protocol: TCP
+    - name: aggregate-plain
+      port: 2023
+      protocol: TCP
+    - name: aggregate-pickl
+      port: 2024
+      protocol: TCP
+    - name: statsd
+      port: 8125
+      protocol: UDP
+    - name: statsd-admin
+      port: 8126
+      protocol: TCP
+  selector:
+    app: graphite
+    release: graphite
+---

@@ -1,0 +1,23 @@
+# Source: cloudserver/templates/localdata-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudserver-localdata
+  labels:
+    app: cloudserver
+    chart: cloudserver-1.0.7
+    component: localdata
+    heritage: Helm
+    release: cloudserver
+spec:
+  type: ClusterIP
+  ports:
+    - name: localdata
+      port: 9991
+      protocol: TCP
+      targetPort: localdata
+  selector:
+    app: cloudserver
+    component: localdata
+    release: cloudserver
+---

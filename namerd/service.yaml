@@ -1,0 +1,19 @@
+# Source: namerd/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: namerd-namerd
+  labels:
+    chart: "namerd-0.2.2"
+spec:
+  type: ClusterIP
+  ports:
+  - name: sync
+    port: 4100
+  - name: api
+    port: 4180
+  - name: admin
+    port: 9991
+  selector:
+    app: namerd-namerd
+---

@@ -1,0 +1,14 @@
+# Source: spring-cloud-data-flow/charts/mysql/templates/tests/test-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-cloud-data-flow-mysql-test
+  namespace: default
+  labels:
+    app: spring-cloud-data-flow-mysql
+    chart: "mysql-1.6.2"
+    heritage: "Helm"
+    release: "spring-cloud-data-flow"
+data:
+  run.sh: |-
+---

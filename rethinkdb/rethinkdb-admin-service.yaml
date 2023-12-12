@@ -1,0 +1,19 @@
+# Source: rethinkdb/templates/rethinkdb-admin-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: "rethinkdb-rethinkdb-admin"
+  labels:
+    app: "rethinkdb-admin"
+    chart: rethinkdb-1.1.4
+    heritage: "Helm"
+    release: "rethinkdb"
+spec:
+  clusterIP: None
+  ports:
+    - port: 8080
+      targetPort: admin
+  selector:
+    app: "rethinkdb-proxy"
+    release: "rethinkdb"
+---

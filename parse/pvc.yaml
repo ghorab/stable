@@ -1,0 +1,17 @@
+# Source: parse/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: parse
+  labels: 
+    app.kubernetes.io/name: parse
+    helm.sh/chart: parse-10.3.10
+    app.kubernetes.io/instance: parse
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

@@ -1,0 +1,19 @@
+# Source: couchbase-operator/templates/couchbase-cluster-role-binding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: couchbase-operator-couchbase-operator
+  labels:
+    app.kubernetes.io/name: couchbase-operator
+    app.kubernetes.io/instance: couchbase-operator
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: couchbase-operator-1.0.4
+subjects:
+- kind: ServiceAccount
+  name: couchbase-operator-couchbase-operator
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: couchbase-operator-couchbase-operator
+---

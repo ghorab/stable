@@ -1,0 +1,98 @@
+# Source: collabora-code/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collabora-code
+  labels:
+    app.kubernetes.io/name: collabora-code
+    helm.sh/chart: collabora-code-1.0.8
+    app.kubernetes.io/instance: collabora-code
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: collabora-code
+      app.kubernetes.io/instance: collabora-code
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: collabora-code
+        app.kubernetes.io/instance: collabora-code
+    spec:
+      containers:
+        - name: collabora-code
+          image: "collabora/code:4.0.3.1"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DONT_GEN_SSL_CERT
+              valueFrom:
+                configMapKeyRef:
+                  name: collabora-code
+                  key: DONT_GEN_SSL_CERT
+            - name: dictionaries
+              valueFrom:
+                configMapKeyRef:
+                  name: collabora-code
+                  key: dictionaries
+            - name: domain
+              valueFrom:
+                configMapKeyRef:
+                  name: collabora-code
+                  key: domain
+            - name: extra_params
+              valueFrom:
+                configMapKeyRef:
+                  name: collabora-code
+                  key: extra_params
+            - name: server_name
+              valueFrom:
+                configMapKeyRef:
+                  name: collabora-code
+                  key: server_name
+            - name: username
+              valueFrom:
+                secretKeyRef:
+                  name: collabora-code
+                  key: username
+            - name: password
+              valueFrom:
+                secretKeyRef:
+                  name: collabora-code
+                  key: password
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          ports:
+            - name: http
+              containerPort: 9980
+              protocol: TCP
+          resources:
+            {}
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+              - MKNOD
+---

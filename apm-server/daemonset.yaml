@@ -1,0 +1,77 @@
+# Source: apm-server/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: apm-server
+  labels:
+    app.kubernetes.io/name: apm-server
+    helm.sh/chart: apm-server-2.1.7
+    app.kubernetes.io/instance: apm-server
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: apm-server
+      app.kubernetes.io/instance: apm-server
+  minReadySeconds: 10
+  updateStrategy:
+    {}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: apm-server
+        app.kubernetes.io/instance: apm-server
+      annotations:
+        checksum/secret: ec8606fe0c8fc8ef50b8293e589ced3488cc3a1f6ab8d0aa16e080731abd4b9d
+    spec:
+      initContainers:
+      - name: busybox
+        image: busybox:1.31.0
+        command: ['sh','-c']
+        args: 
+        - chown 1000:1000 -R /usr/share/apm-server
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/apm-server/data
+      containers:
+      - name: apm-server
+        image: "docker.elastic.co/apm/apm-server:7.0.0"
+        imagePullPolicy: IfNotPresent
+        args:
+        - "-e"
+        env:
+        ports:
+          - name: http
+            containerPort: 8200
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 60
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 60
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+        resources:
+          {}
+        volumeMounts:
+        - name: apm-server-config
+          mountPath: /usr/share/apm-server/apm-server.yml
+          readOnly: true
+          subPath: apm-server.yml
+        - name: data
+          mountPath: /usr/share/apm-server/data
+      volumes:
+      - name: apm-server-config
+        secret:
+          secretName: apm-server
+      - name: data
+        hostPath:
+          path: /var/lib/apm-server
+          type: DirectoryOrCreate
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: apm-server

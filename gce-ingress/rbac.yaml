@@ -1,0 +1,14 @@
+# Source: gce-ingress/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gce-ingress
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gce-ingress
+subjects:
+- kind: ServiceAccount
+  name: gce-ingress
+  namespace: default
+---

@@ -1,0 +1,17 @@
+# Source: factorio/templates/saves-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: factorio-factorio-savedgames
+  labels:
+    app: factorio-factorio
+    chart: "factorio-1.0.2"
+    release: "factorio"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "1Gi"
+---

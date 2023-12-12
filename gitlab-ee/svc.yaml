@@ -1,0 +1,25 @@
+# Source: gitlab-ee/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-ee-gitlab-ee
+  labels:
+    app: gitlab-ee-gitlab-ee
+    chart: "gitlab-ee-0.2.3"
+    release: "gitlab-ee"
+    heritage: "Helm"
+spec:
+  type: LoadBalancer
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: ssh
+  - name: http
+    port: 80
+    targetPort: http
+  - name: https
+    port: 443
+    targetPort: https
+  selector:
+    app: gitlab-ee-gitlab-ee
+---

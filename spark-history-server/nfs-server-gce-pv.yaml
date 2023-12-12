@@ -1,0 +1,16 @@
+# Source: spark-history-server/charts/nfs/templates/nfs-server-gce-pv.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spark-history-server-nfs
+  labels:
+    app.kubernetes.io/name: nfs
+    helm.sh/chart: nfs-0.1.0
+    app.kubernetes.io/instance: spark-history-server
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 5Gi
+---

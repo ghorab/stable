@@ -1,0 +1,25 @@
+# Source: fluentd/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluentd
+  labels:
+    app: fluentd
+    chart: fluentd-2.5.3
+    release: fluentd
+    heritage: Helm
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  
+  ports:
+    - name: monitor-agent
+      port: 24220
+      targetPort: 24220
+      protocol: TCP
+  
+  selector:
+    app: fluentd
+    release: fluentd
+---

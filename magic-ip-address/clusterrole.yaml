@@ -1,0 +1,17 @@
+# Source: magic-ip-address/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: magic-ip-address
+  labels:
+    app: magic-ip-address
+    chart: magic-ip-address-0.1.2
+    release: magic-ip-address
+    heritage: Helm
+rules:
+- apiGroups: [""]
+  resources:
+  - namespaces
+  - pods
+  verbs: ["get", "list"]
+---

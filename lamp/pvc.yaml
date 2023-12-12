@@ -1,0 +1,17 @@
+# Source: lamp/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: lamp-lamp
+  labels:
+    app: lamp
+    chart: lamp-1.1.6
+    heritage: Helm
+    release: lamp
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "5Gi"
+---

@@ -1,0 +1,62 @@
+# Source: metabase/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metabase
+  namespace: default
+  labels:
+    app: metabase
+    chart: metabase-0.13.2
+    release: metabase
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: metabase
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        checksum/config: 520cb96d75052135f1d75856ec48bfa6bce6f203c6f2984f48662a7eb9c49955
+      labels:
+        app: metabase
+        release: metabase
+    spec:
+      containers:
+        - name: metabase
+          image: "metabase/metabase:v0.36.3"
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: MB_JETTY_HOST
+            value: "0.0.0.0"
+          - name: MB_JETTY_PORT
+            value: "3000"
+          - name: MB_DB_TYPE
+            value: h2
+          - name: MB_PASSWORD_COMPLEXITY
+            value: normal
+          - name: MB_PASSWORD_LENGTH
+            value: "6"
+          - name: JAVA_TIMEZONE
+            value: UTC
+          - name: MB_EMOJI_IN_LOGS
+            value: "true"
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 120
+            timeoutSeconds: 30
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            timeoutSeconds: 3
+            periodSeconds: 5
+          resources:
+            {}
+      volumes:

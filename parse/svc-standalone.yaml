@@ -1,0 +1,20 @@
+# Source: parse/charts/mongodb/templates/svc-standalone.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: parse-mongodb
+  labels:
+    app: mongodb
+    chart: mongodb-7.8.5
+    release: "parse"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  ports:
+  - name: mongodb
+    port: 27017
+    targetPort: mongodb
+  selector:
+    app: mongodb
+    release: "parse"
+---

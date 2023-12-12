@@ -1,0 +1,20 @@
+# Source: selenium/templates/hub-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-selenium-hub
+  labels:
+    app: selenium-selenium-hub
+    chart: "selenium-1.2.3"
+    release: "selenium"
+    heritage: "Helm"
+spec:
+  type: "LoadBalancer"
+  sessionAffinity: "None"
+  ports:
+  - name: hub
+    port: 4444
+    targetPort: 4444
+  selector:
+    app: selenium-selenium-hub
+---

@@ -1,0 +1,32 @@
+# Source: dask-distributed/templates/dask-scheduler-deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dask-distributed-schedul
+  labels:
+    app: dask-distributed
+    heritage: "Helm"
+    release: "dask-distributed"
+    chart: "dask-distributed-2.0.2"
+    component: "dask-distributed-dask-scheduler"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: dask-distributed
+        release: "dask-distributed"
+        component: "dask-distributed-dask-scheduler"
+    spec:
+      containers:
+        - name: dask-distributed-schedul
+          image: "daskdev/dask:latest"
+          command: ["dask-scheduler", "--port", "8786", "--bokeh-port", "8787"]
+          ports:
+            - containerPort: 8786
+            - containerPort: 8787
+          resources:
+            {}
+---

@@ -1,0 +1,53 @@
+# Source: hoard/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hoard
+  labels:
+    app.kubernetes.io/name: hoard
+    app.kubernetes.io/instance: hoard
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: hoard-1.0.2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hoard
+      release: hoard
+  template:
+    metadata:
+      labels:
+        app: hoard
+        release: hoard
+    spec:
+      containers:
+      - name: hoard
+        image: "quay.io/monax/hoard:6.0.0"
+        imagePullPolicy: IfNotPresent
+        command: ["hoard", "--config", "/conf/hoard.conf"]
+        volumeMounts:
+        - name: config-file
+          mountPath: /conf
+        - mountPath: /data
+          name: data-dir
+        ports:
+          - containerPort: 53431
+            name: http
+        env:
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - '[ $(echo "marmottes" | hoarctl put | hoarctl get) = "marmottes" ]'
+          initialDelaySeconds: 5
+          periodSeconds: 45
+        resources:
+            {}
+      volumes:
+      - name: config-file
+        configMap:
+          name: hoard
+      - name: data-dir
+        persistentVolumeClaim:
+          claimName: hoard

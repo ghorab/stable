@@ -1,0 +1,19 @@
+# Source: redis-ha/templates/redis-ha-rolebinding.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: redis-ha
+  namespace: default
+  labels:
+    heritage: Helm
+    release: redis-ha
+    chart: redis-ha-4.4.6
+    app: redis-ha
+subjects:
+- kind: ServiceAccount
+  name: redis-ha
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: redis-ha
+---

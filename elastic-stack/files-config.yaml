@@ -1,0 +1,13 @@
+# Source: elastic-stack/charts/logstash/templates/files-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elastic-stack-logstash-files
+  labels:
+    app: logstash
+    chart: logstash-2.4.1
+    release: elastic-stack
+    heritage: Helm
+data:
+binaryData:
+---

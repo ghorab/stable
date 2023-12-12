@@ -1,0 +1,17 @@
+# Source: dokuwiki/templates/dokuwiki-pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: dokuwiki-dokuwiki
+  labels:
+    app: dokuwiki
+    chart: dokuwiki-6.0.11
+    release: "dokuwiki"
+    heritage: "Helm"
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

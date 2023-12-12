@@ -1,0 +1,21 @@
+# Source: mysql/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: default
+  labels:
+    app: mysql
+    chart: "mysql-1.6.9"
+    release: "mysql"
+    heritage: "Helm"
+  annotations:
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: mysql
+  selector:
+    app: mysql
+---

@@ -1,0 +1,28 @@
+# Source: cloudserver/charts/redis-ha/templates/redis-ha-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudserver-redis-ha
+  namespace: default
+  labels:
+    app: redis-ha
+    heritage: "Helm"
+    release: "cloudserver"
+    chart: redis-ha-4.4.4
+  annotations:
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: server
+    port: 6379
+    protocol: TCP
+    targetPort: redis
+  - name: sentinel
+    port: 26379
+    protocol: TCP
+    targetPort: sentinel
+  selector:
+    release: cloudserver
+    app: redis-ha
+---

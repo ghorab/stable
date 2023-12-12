@@ -1,0 +1,24 @@
+# Used by member nodes to check readiness of primary node before starting up
+apiVersion: v1
+kind: Service
+metadata:
+  name: artifactory-ha-artifactory-ha-primary
+  labels:
+    app: artifactory-ha
+    chart: artifactory-ha-0.4.2
+    component: artifactory-ha
+    heritage: Helm
+    release: artifactory-ha
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: http
+  selector:
+    role: artifactory-ha-artifactory-ha-primary
+    app: artifactory-ha
+    component: "artifactory-ha"
+    release: artifactory-ha
+---

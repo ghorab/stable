@@ -1,0 +1,50 @@
+# Source: spotify-docker-gc/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: spotify-docker-gc
+  labels:
+    app.kubernetes.io/name: spotify-docker-gc
+    helm.sh/chart: spotify-docker-gc-1.0.2
+    app.kubernetes.io/instance: spotify-docker-gc
+    app.kubernetes.io/managed-by: Helm
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: spotify-docker-gc
+      app.kubernetes.io/instance: spotify-docker-gc
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: spotify-docker-gc
+        helm.sh/chart: spotify-docker-gc-1.0.2
+        app.kubernetes.io/instance: spotify-docker-gc
+        app.kubernetes.io/managed-by: Helm
+        kubernetes.io/cluster-service: "true"
+    spec:
+      containers:
+      - name: spotify-docker-gc
+        image: "docker.io/spotify/docker-gc:latest"
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", '
+          touch /var/log/crond.log &&
+          echo "0 0 * * * /docker-gc >> /var/log/crond.log 2>&1" | crontab - &&
+          crond -L /var/log/crond.log &&
+          tail -f /var/log/crond.log' ]
+        env:
+        - name: GRACE_PERIOD_SECONDS
+          value: "0"
+        - name: DOCKER_API_VERSION
+          value: ""
+        volumeMounts:
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
+      volumes:
+      - name: docker-socket
+        hostPath:
+          path: /var/run/docker.sock

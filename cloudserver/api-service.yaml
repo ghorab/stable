@@ -1,0 +1,23 @@
+# Source: cloudserver/templates/api-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudserver
+  labels:
+    app: cloudserver
+    chart: cloudserver-1.0.7
+    component: api
+    heritage: Helm
+    release: cloudserver
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: cloudserver
+    component: api
+    release: cloudserver
+---

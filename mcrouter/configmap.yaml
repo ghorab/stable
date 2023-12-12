@@ -1,0 +1,25 @@
+# Source: mcrouter/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcrouter-mcrouter
+  labels:
+    app: mcrouter
+    chart: mcrouter-1.0.6
+    release: mcrouter
+    heritage: Helm
+data:
+  config.json: |-
+    {
+      "pools": {
+        "A": {
+          "servers": [
+            "mcrouter-memcached-0.mcrouter-memcached.default.svc.cluster.local:11211",
+            "mcrouter-memcached-1.mcrouter-memcached.default.svc.cluster.local:11211",
+            "mcrouter-memcached-2.mcrouter-memcached.default.svc.cluster.local:11211",
+          ]
+        }
+      },
+      "route": "PoolRoute|A"
+    }
+---

@@ -1,0 +1,65 @@
+# Source: tomcat/templates/appsrv.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat
+  labels:
+    app: tomcat
+    chart: tomcat-0.4.3
+    release: tomcat
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tomcat
+      release: tomcat
+  template:
+    metadata:
+      labels:
+        app: tomcat
+        release: tomcat
+    spec:
+      volumes:
+        - name: app-volume
+          emptyDir: {}
+      initContainers:
+        - name: war
+          image: ananwaresystems/webarchive:1.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - "sh"
+            - "-c"
+            - "cp /*.war /app"
+          volumeMounts:
+            - name: app-volume
+              mountPath: /app
+
+      containers:
+        - name: tomcat
+          image: tomcat:7.0
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: app-volume
+              mountPath: /usr/local/tomcat/webapps
+          ports:
+            - containerPort: 8080
+              hostPort: 8009
+          livenessProbe:
+            httpGet:
+              path: /sample
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 6
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /sample
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 6
+            timeoutSeconds: 5
+          resources:
+            {}

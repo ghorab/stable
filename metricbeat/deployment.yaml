@@ -1,0 +1,59 @@
+# Source: metricbeat/templates/deployment.yaml
+# Deploy singleton instance in the whole cluster for some unique data sources, like kube-state-metrics
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metricbeat
+  labels:
+    app: metricbeat
+    chart: metricbeat-1.7.3
+    release: metricbeat
+    heritage: Helm
+spec:
+  selector:
+    matchLabels:
+      app: metricbeat
+      release: metricbeat
+  template:
+    metadata:
+      labels:
+        app: metricbeat
+        release: metricbeat
+      annotations:
+        checksum/config: 718851dcdb3ee9b0e33d0bae11490b6f82a64433a36d147c1e212a13e079b833
+        checksum/modules: c7a896483efd3a1f798c24a66b7e48474181ca6630273021cf0a8e8080ce06f9
+    spec:
+      serviceAccountName: metricbeat
+      containers:
+      - name: metricbeat
+        image: "docker.elastic.co/beats/metricbeat:6.7.0"
+        imagePullPolicy: IfNotPresent
+        args:
+        - "-e"
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        securityContext:
+          runAsUser: 0
+        resources:
+        volumeMounts:
+        - name: metricbeat-config
+          mountPath: /usr/share/metricbeat/metricbeat.yml
+          readOnly: true
+          subPath: metricbeat.yml
+        - name: modules
+          mountPath: /usr/share/metricbeat/modules.d
+          readOnly: true
+      volumes:
+      - name: metricbeat-config
+        secret:
+          secretName: metricbeat-deployment-config
+      - name: modules
+        secret:
+          secretName: metricbeat-deployment-modules

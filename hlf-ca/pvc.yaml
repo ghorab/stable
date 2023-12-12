@@ -1,0 +1,17 @@
+# Source: hlf-ca/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: hlf-ca
+  labels:
+    app: hlf-ca
+    heritage: "Helm"
+    release: "hlf-ca"
+    chart: hlf-ca-1.2.3
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+---

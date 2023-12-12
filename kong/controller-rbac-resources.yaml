@@ -1,0 +1,21 @@
+# Source: kong/templates/controller-rbac-resources.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name:  kong-kong
+  namespace: default
+  labels:
+    app.kubernetes.io/name: kong
+    helm.sh/chart: kong-0.36.7
+    app.kubernetes.io/instance: "kong"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "1.4"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kong-kong
+subjects:
+  - kind: ServiceAccount
+    name: kong-kong
+    namespace: default
+---

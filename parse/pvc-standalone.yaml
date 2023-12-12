@@ -1,0 +1,17 @@
+# Source: parse/charts/mongodb/templates/pvc-standalone.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  labels:
+    app: mongodb
+    chart: mongodb-7.8.5
+    heritage: Helm
+    release: parse
+  name: parse-mongodb
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---

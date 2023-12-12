@@ -1,0 +1,34 @@
+# Source: weave-scope/charts/weave-scope-frontend/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:    
+    chart: weave-scope-frontend-1.1.10
+    heritage: Helm
+    release: weave-scope
+    app: weave-scope
+    component: frontend
+  name: weave-scope-weave-scope
+  annotations:    
+    cloud.weave.works/launcher-info: |-
+      {
+        "server-version": "master-4fe8efe",
+        "original-request": {
+          "url": "/k8s/v1.7/scope.yaml"
+        },
+        "email-address": "support@weave.works",
+        "source-app": "weave-scope",
+        "weave-cloud-component": "scope"
+      }
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: weave-scope
+    release: weave-scope
+    component: frontend
+  type: ClusterIP
+---
